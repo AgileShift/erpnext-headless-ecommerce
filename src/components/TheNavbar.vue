@@ -314,7 +314,7 @@ const content: Category = {
           children: [
             {
               key: 'MAXI',
-              value: { label: 'Maxi Vestidos', link: 'Maxi Vestidos' },
+              value: { label: 'Maxi Vestidos', link: '/category/Maxi Vestidos' },
               isLeaf: true,
             },
             {
@@ -324,7 +324,7 @@ const content: Category = {
             },
             {
               key: 'CORTOS',
-              value: { label: 'Vestidos Cortos', link: 'Vestidos Cortos' },
+              value: { label: 'Vestidos Cortos', link: '/category/Vestidos Cortos' },
               isLeaf: true,
             },
           ],

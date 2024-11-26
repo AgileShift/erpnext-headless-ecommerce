@@ -2,7 +2,7 @@ export interface Product {
   item_code: string
   item_name: string
   item_group: string
-  image: string | null
+  image: string
   discount_percent?: string | null
   price: {
     formatted_price: number

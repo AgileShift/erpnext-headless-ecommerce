@@ -1,6 +1,9 @@
 <template>
-  <div v-if="product" class="product-detail flex flex-wrap gap-16">
-
+  <div v-if="loading" class="text-center">
+    <h1 class="font-headings">Cargando Producto</h1>
+    <SfLoaderCircular size="4xl" />
+  </div>
+  <div v-else-if="product" class="product-detail flex flex-wrap gap-16">
     <section class="md:max-w-[640px]">
       <SfLink href="#">
         <img class="w-full h-auto border rounded-md border-neutral-200"
@@ -52,11 +55,6 @@
         <p class="text-sm">Prendas en descuento no aplican a Cambios o Devoluciones.</p>
       </div>
     </section>
-
-  </div>
-  <div v-else-if="loading" class="text-center">
-    <h1 class="font-headings">Cargando Producto</h1>
-    <SfLoaderCircular size="4xl" />
   </div>
   <div v-else class="text-center">
     <h1 class="font-headings text-red-500">Producto no encontrado</h1>
@@ -66,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useProductStore } from '@/stores/productStore'
 import {
@@ -77,14 +75,11 @@ import {
 const route = useRoute()
 const productStore = useProductStore()
 
-const product = ref(null)
-const loading = ref(true)
+const product = computed(() => productStore.currentProduct);
+const loading = computed(() => productStore.loading);
 
 onMounted(async () => {
   const itemCode = route.params.id as string
   await productStore.loadProduct(itemCode)
-
-  product.value = productStore.currentProduct
-  loading.value = false
 })
 </script>

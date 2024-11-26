@@ -7,18 +7,18 @@ const BASE_URL = 'https://erp.clothingcenterni.com';
 export const useProductStore = defineStore('product', {
   state: () => ({
     products: [] as Product[],
-    currentCategory: null as string | null,
     currentProduct: null as Product | null,
+    currentCategory: null as string | null,
+    totalProducts: 0,
     currentPage: 1,
     limit: 15,
-    totalProducts: 0,
     loading: false
   }),
   actions: {
     formatProduct(item: any): Product {
       return {
         ...item,
-        image: item.image ? item.image.startsWith('/') ? BASE_URL + item.image : item.image : null,
+        image: item.image ? item.image.startsWith('/') ? BASE_URL + item.image : item.image : 'https://dummyimage.com/300x400/000/fff&text=Clothing+Center',
         discount_percent: item.price.discount_percent ? `${Math.round(item.price.discount_percent)}%` : null
       }
     },
@@ -29,8 +29,6 @@ export const useProductStore = defineStore('product', {
 
       let url = `${BASE_URL}/api/method/gr_tools.www.products.get_products?start=${start}&limit=${this.limit}`
       url += category ? `&category=${category}` : ''
-
-      console.log(url)
 
       const response = await fetch(url)
       const data = await response.json()
@@ -53,6 +51,8 @@ export const useProductStore = defineStore('product', {
       this.loading = false
     },
     async loadProduct(itemCode: string) {
+      this.loading = true
+
       const response = await fetch(`${BASE_URL}/api/method/gr_tools.www.products.get_products?item_code=${itemCode}`)
       const data = await response.json()
 
@@ -63,6 +63,7 @@ export const useProductStore = defineStore('product', {
       }
 
       this.currentProduct = this.formatProduct(data.message[0])
+      this.loading = false
     },
   },
 })
