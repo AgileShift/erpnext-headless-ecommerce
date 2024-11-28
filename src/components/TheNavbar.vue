@@ -16,8 +16,8 @@
           </picture>
         </router-link>
 
-        <form role="search" class="hidden md:flex flex-[100%] justify-center w-7 mx-10 px-6 py-2 " @submit.prevent="search">
-          <SfInput v-model="inputValue" type="search"
+        <form role="search" class="hidden md:flex flex-[100%] justify-center w-7 mx-10 px-6 py-2 " @submit.prevent="submitSearch">
+          <SfInput v-model="searchQuery" type="search"
                    class="[&::-webkit-search-cancel-button]:appearance-none" placeholder="Buscar" wrapper-class="h-10 pr-0 xl:w-1/2 md:w-full" size="base">
             <template #suffix>
               <span class="flex items-center">
@@ -38,8 +38,8 @@
           </SfButton>
         </nav>
 
-        <form role="search" class="flex hidden md:hidden flex-[50%] my-2" @submit.prevent="search">
-          <SfInput v-model="inputValue" type="search" class="[&::-webkit-search-cancel-button]:appearance-none" placeholder="Search" wrapper-class="flex-1 h-10 pr-0" size="base">
+        <form role="search" class="flex hidden md:hidden flex-[50%] my-2" @submit.prevent="submitSearch">
+          <SfInput v-model="searchQuery" type="search" class="[&::-webkit-search-cancel-button]:appearance-none" placeholder="Search" wrapper-class="flex-1 h-10 pr-0" size="base">
             <template #suffix>
               <span class="flex items-center">
                 <SfButton variant="tertiary" square aria-label="search" type="submit" class="rounded-l-none hover:bg-transparent active:bg-transparent">
@@ -163,11 +163,11 @@ import {
   SfInput,
   SfIconSearch,
 } from '@storefront-ui/vue';
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { unrefElement } from '@vueuse/core';
 import type { Category } from '@/types/category'
-// import { useCategoryStore } from '@/stores/categoryStore'
 import LogoClothing from '@/assets/LogoClothing.svg'
+import { useRouter } from 'vue-router'
 
 const findNode = (keys: string[], node: Category): Category => {
   if (keys.length > 1) {
@@ -221,33 +221,17 @@ const focusTrigger = (index: number) => {
   unrefElement(triggerRefs.value[index]).focus();
 };
 
-const inputValue = ref('');
+const searchQuery = ref('');
+//const router = useRouter();
 
-const search = () => {
-  alert(`Successfully found 10 results for ${inputValue.value}`);
+const submitSearch = () => {
+  console.log("TODO" + searchQuery.value);
 };
 
 const actionItems = [
-  {
-    icon: SfIconShoppingCart,
-    label: '',
-    ariaLabel: 'Cart',
-    role: 'button',
-  },
-  {
-    icon: SfIconFavorite,
-    label: '',
-    ariaLabel: 'Wishlist',
-    role: 'button',
-  },
+  {icon: SfIconShoppingCart, label: '', ariaLabel: 'Cart', role: 'button'},
+  {icon: SfIconFavorite, label: '', ariaLabel: 'Wishlist', role: 'button'},
 ];
-
-
-// CUSTOM CODE
-// const categoryStore = useCategoryStore()
-onMounted(() => {
-  // categoryStore.loadCategories()
-});
 
 const content: Category = {
   key: 'root',
