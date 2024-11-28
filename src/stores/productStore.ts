@@ -56,9 +56,10 @@ export const useProductStore = defineStore('product', {
       const response = await fetch(`${BASE_URL}/api/method/gr_tools.www.products.get_products?item_code=${itemCode}`)
       const data = await response.json()
 
-      if (!data || !data.message) {
-        console.warn(`Product with item_code ${itemCode} not found!`)
+      if (!data || data.message?.length === 0) {
+        console.error(`Product with item_code ${itemCode} not found!`)
         this.currentProduct = null
+        this.loading = false
         return
       }
 

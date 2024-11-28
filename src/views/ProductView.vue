@@ -3,7 +3,7 @@
     <h1 class="font-headings">Cargando Producto</h1>
     <SfLoaderCircular size="4xl" />
   </div>
-  <div v-else-if="product" class="product-detail flex flex-wrap gap-16">
+  <div v-else-if="product" class="flex flex-wrap gap-16 place-content-center">
     <section class="md:max-w-[640px]">
       <SfLink href="#">
         <img class="w-full h-auto border rounded-md border-neutral-200"
@@ -15,7 +15,7 @@
 
       <div v-if="product.discount_percent" class="inline-flex items-center justify-center text-sm font-medium text-white bg-secondary-600 py-1.5 px-3 mb-4">
         <SfIconSell size="sm" class="mr-1.5" />
-        BLACK FRIDAY
+        SALE
       </div>
 
       <h1 class="mb-1 font-bold typography-headline-4">{{ product.item_name }}</h1>
@@ -32,11 +32,11 @@
       <div class="py-4 mb-4 border-gray-200 border-y">
 
         <div class="items-start xs:flex">
-          <SfButton size="lg" class="w-full xs:ml-4" tag="a" :href="`https://wa.me/50577020233?text=Tengo interés en el producto: ${product.item_name}`">
+          <SfButton size="lg" class="w-full" tag="a" :href="`https://wa.me/50577020233?text=Tengo interés en el producto: ${product.item_name}`">
             <template #prefix>
               <SfIconShoppingCart size="sm" />
             </template>
-            Enviar por WhatsApp
+            Enviar a WhatsApp
           </SfButton>
         </div>
         <div class="flex justify-center mt-4 gap-x-4">
@@ -60,7 +60,16 @@
     <h1 class="font-headings text-red-500">Producto no encontrado</h1>
   </div>
 
-  <router-link to="/" class="text-primary">Volver a la lista</router-link>
+  <div class="text-right">
+    <SfButton size="lg" class="text-center" tag="router-link" to="/">
+      <template #prefix>
+        <SfIconArrowBack size="sm" />
+      </template>
+      Volver a la lista
+    </SfButton>
+  </div>
+
+  <router-link to="/" class="text-primary"></router-link>
 </template>
 
 <script setup lang="ts">
@@ -69,7 +78,7 @@ import { useRoute } from 'vue-router'
 import { useProductStore } from '@/stores/productStore'
 import {
   SfButton, SfLink, SfLoaderCircular,
-  SfIconFavorite, SfIconPackage, SfIconSafetyCheck, SfIconSell, SfIconShoppingCart,
+  SfIconFavorite, SfIconPackage, SfIconSafetyCheck, SfIconSell, SfIconShoppingCart, SfIconArrowBack
 } from '@storefront-ui/vue'
 
 const route = useRoute()

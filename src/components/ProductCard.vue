@@ -1,6 +1,6 @@
 <template>
   <div class="border border-neutral-200 rounded-md hover:shadow-lg max-w-[280px]">
-    <div class="relative -z-10">
+    <div class="relative">
       <SfLink tag="router-link" :to="`/product/${product.item_code}`" class="block">
         <img :src="product.image" :alt="product.item_name" width="300" height="300" class="block object-cover h-auto rounded-md aspect-square" />
       </SfLink>
