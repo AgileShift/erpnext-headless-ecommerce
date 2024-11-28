@@ -1,23 +1,24 @@
 <template>
   <div class="w-full h-full">
     <header ref="referenceRef" class="relative">
-      <div class="flex justify-between items-center flex-wrap md:flex-nowrap px-4 md:px-10 py-2 md:py-5 w-full h-full border-0 bg-primary-700 border-neutral-200 md:h-20">
-        <div class="flex items-center">
-          <SfButton variant="tertiary" square aria-label="Close menu"
-            class="block md:hidden mr-5 bg-transparent hover:bg-primary-800 hover:text-white active:bg-primary-900 active:text-white"
-            @click="openMenu([])">
-            <SfIconMenu class="text-white" />
-          </SfButton>
-          <router-link to="/" aria-label="Home" class="flex shrink-0 w-8 h-8 lg:w-[12.5rem] lg:h-[1.75rem] items-center mr-auto text-white md:mr-10 focus-visible:outline focus-visible:outline-offset focus-visible:rounded-sm">
-            <picture>
-              <source :srcset="LogoClothing" media="(min-width: 1024px)" />
-              <img :src="LogoClothing" alt="Logo" />
-            </picture>
-          </router-link>
-        </div>
 
-        <form role="search" class="hidden md:flex flex-[100%] ml-10" @submit.prevent="search">
-          <SfInput v-model="inputValue" type="search" class="[&::-webkit-search-cancel-button]:appearance-none" placeholder="Buscar" wrapper-class="flex-1 h-10 pr-0" size="base">
+      <div class="flex justify-between items-center flex-wrap md:flex-nowrap px-4 md:px-36 py-2 md:py-5 w-full h-full border-0 bg-primary-700 border-neutral-200 md:h-20">
+        <SfButton variant="tertiary" square aria-label="Close menu"
+          class="block md:hidden mr-10 bg-transparent hover:bg-primary-800 hover:text-white active:bg-primary-900 active:text-white"
+          @click="openMenu([])">
+          <SfIconMenu class="text-white" />
+        </SfButton>
+
+        <router-link to="/" aria-label="Home" class="inline-block focus-visible:outline focus-visible:outline-offset focus-visible:rounded-sm shrink-0 mx-10">
+          <picture>
+            <source :srcset="LogoClothing" media="(min-width: 1024px)" />
+            <img :src="LogoClothing" alt="Logo" height="505px" width="70px" />
+          </picture>
+        </router-link>
+
+        <form role="search" class="hidden md:flex flex-[100%] justify-center w-7 mx-10 px-6 py-2 " @submit.prevent="search">
+          <SfInput v-model="inputValue" type="search"
+                   class="[&::-webkit-search-cancel-button]:appearance-none" placeholder="Buscar" wrapper-class="h-10 pr-0 xl:w-1/2 md:w-full" size="base">
             <template #suffix>
               <span class="flex items-center">
                 <SfButton variant="tertiary" square aria-label="search" type="submit" class="rounded-l-none hover:bg-transparent active:bg-transparent">
@@ -37,7 +38,7 @@
           </SfButton>
         </nav>
 
-        <form role="search" class="flex md:hidden flex-[100%] my-2" @submit.prevent="search">
+        <form role="search" class="flex hidden md:hidden flex-[50%] my-2" @submit.prevent="search">
           <SfInput v-model="inputValue" type="search" class="[&::-webkit-search-cancel-button]:appearance-none" placeholder="Search" wrapper-class="flex-1 h-10 pr-0" size="base">
             <template #suffix>
               <span class="flex items-center">
@@ -71,7 +72,7 @@
 
             <div v-if="isOpen && activeNode.length === 1 && activeNode[0] === menuNode.key"
               :key="activeMenu.key" ref="megaMenuRef" :style="style" tabindex="0"
-              class="hidden md:grid gap-x-6 bg-white shadow-lg p-6 left-0 right-0 outline-none  place-items-center"
+              class="hidden md:grid gap-x-6 bg-white shadow-lg p-6 left-0 right-0 outline-none place-items-center z-10"
               @mouseleave="close()"
               @keydown.esc="focusTrigger(index)">
               <template v-for="node in activeMenu.children" :key="node.key">
@@ -99,47 +100,47 @@
       </nav>
 
       <!-- Mobile drawer -->
-      <div v-if="isOpen" class="md:hidden fixed inset-0 bg-neutral-500 bg-opacity-50" />
-      <SfDrawer ref="drawerRef" v-model="isOpen" placement="left" class="md:hidden right-[50px] max-w-[376px] bg-white overflow-y-auto">
+      <div v-if="isOpen" class="md:hidden fixed inset-0 bg-neutral-500 bg-opacity-50 z-10" />
+      <SfDrawer ref="drawerRef" v-model="isOpen" placement="left" class="md:hidden right-[50px] max-w-[376px] bg-white overflow-y-auto z-10">
         <nav>
-        <div class="flex items-center justify-between p-4 border-b border-b-neutral-200 border-b-solid">
-          <p class="typography-text-base font-medium">Ver por Categorias</p>
-          <SfButton variant="tertiary" square aria-label="Close menu" class="ml-2" @click="close()">
-            <SfIconClose class="text-neutral-500" />
-          </SfButton>
-        </div>
-        <ul class="mt-2 mb-6">
-          <li v-if="activeMenu.key !== 'root'">
-            <SfListItem size="lg" tag="button" type="button"
-              class="border-b border-b-neutral-200 border-b-solid"
-              @click="goBack()">
-              <div class="flex items-center">
-                <SfIconArrowBack class="text-neutral-500" />
-                <p class="ml-5 font-medium">{{ activeMenu.value.label }}</p>
-              </div>
-            </SfListItem>
-          </li>
-          <template v-for="node in activeMenu.children" :key="node.value.label">
-            <li v-if="node.isLeaf">
-              <SfListItem size="lg" tag="a" :href="node.value.link" class="first-of-type:mt-2">
+          <div class="flex items-center justify-between p-4 border-b border-b-neutral-200 border-b-solid">
+            <p class="typography-text-base font-medium">Ver por Categorias</p>
+            <SfButton variant="tertiary" square aria-label="Close menu" class="ml-2" @click="close()">
+              <SfIconClose class="text-neutral-500" />
+            </SfButton>
+          </div>
+          <ul class="mt-2 mb-6">
+            <li v-if="activeMenu.key !== 'root'">
+              <SfListItem size="lg" tag="button" type="button"
+                class="border-b border-b-neutral-200 border-b-solid"
+                @click="goBack()">
                 <div class="flex items-center">
-                  <p class="text-left">{{ node.value.label }}</p>
+                  <SfIconArrowBack class="text-neutral-500" />
+                  <p class="ml-5 font-medium">{{ activeMenu.value.label }}</p>
                 </div>
               </SfListItem>
             </li>
-            <li v-else>
-              <SfListItem size="lg" tag="button" type="button" @click="goNext(node.key)">
-                <div class="flex justify-between items-center">
+            <template v-for="node in activeMenu.children" :key="node.value.label">
+              <li v-if="node.isLeaf">
+                <SfListItem size="lg" tag="a" :href="node.value.link" class="first-of-type:mt-2">
                   <div class="flex items-center">
                     <p class="text-left">{{ node.value.label }}</p>
                   </div>
-                  <SfIconChevronRight class="text-neutral-500" />
-                </div>
-              </SfListItem>
-            </li>
-          </template>
-        </ul>
-      </nav>
+                </SfListItem>
+              </li>
+              <li v-else>
+                <SfListItem size="lg" tag="button" type="button" @click="goNext(node.key)">
+                  <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                      <p class="text-left">{{ node.value.label }}</p>
+                    </div>
+                    <SfIconChevronRight class="text-neutral-500" />
+                  </div>
+                </SfListItem>
+              </li>
+            </template>
+          </ul>
+        </nav>
       </SfDrawer>
     </header>
   </div>
