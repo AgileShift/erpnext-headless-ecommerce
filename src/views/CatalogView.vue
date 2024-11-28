@@ -1,17 +1,15 @@
 <template>
-  <div class="gap-6">
-    <!-- <TheFilters class="hidden md:block" />-->
+  <!-- <TheFilters class="hidden md:block" /> -->
 
-    <div class="flex flex-wrap gap-6">
-      <ProductCard v-for="product in products" :key="product.item_code" :product="product" />
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+    <ProductCard v-for="product in products" :key="product.item_code" :product="product" />
 
-      <div v-if="loading" class="xs:col-span-2 lg:col-span-4 text-center">
-        <h1 class="font-bold pb-4">Cargando Productos</h1>
-        <SfLoaderCircular size="4xl" />
-      </div>
-
-      <div ref="loadMoreTrigger" class="observer-trigger" />
+    <div v-if="loading" class="xs:col-span-2 lg:col-span-4 text-center">
+      <h1 class="font-bold pb-4">Cargando Productos</h1>
+      <SfLoaderCircular size="4xl" />
     </div>
+
+    <div ref="loadMoreTrigger" class="observer-trigger" />
   </div>
 </template>
 
@@ -30,7 +28,6 @@ const products = computed(() => productStore.products)
 const loading = computed(() => productStore.loading)
 const loadMoreTrigger = ref<HTMLDivElement | null>(null)
 
-
 const loadMoreProducts = async () => {
   const nextPage = productStore.currentPage + 1
   await productStore.loadProducts(props.category || null, nextPage)
@@ -47,9 +44,12 @@ const setupIntersectionObserver = () => {
   observer.observe(loadMoreTrigger.value)
 }
 
-watch(() => props.category, (newCategory) => {
-  productStore.loadProducts(newCategory || null, 1)
-})
+watch(
+  () => props.category,
+  (newCategory) => {
+    productStore.loadProducts(newCategory || null, 1)
+  },
+)
 
 onMounted(() => {
   productStore.loadProducts(props.category || null, 1)
