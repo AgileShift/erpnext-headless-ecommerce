@@ -101,19 +101,17 @@
 
       <!-- Mobile drawer -->
       <div v-if="isOpen" class="md:hidden fixed inset-0 bg-neutral-500 bg-opacity-50 z-10" />
-      <SfDrawer ref="drawerRef" v-model="isOpen" placement="left" class="md:hidden right-[50px] max-w-[376px] bg-white overflow-y-auto z-10">
+      <SfDrawer ref="drawerRef" v-model="isOpen" placement="left" class="md:hidden right-[165px] max-w-[376px] bg-white overflow-y-auto z-10">
         <nav>
           <div class="flex items-center justify-between p-4 border-b border-b-neutral-200 border-b-solid">
             <p class="typography-text-base font-medium">Ver por Categorias</p>
-            <SfButton variant="tertiary" square aria-label="Close menu" class="ml-2" @click="close()">
+            <SfButton variant="tertiary" square aria-label="Cerrar Menu" class="ml-2" @click="close()">
               <SfIconClose class="text-neutral-500" />
             </SfButton>
           </div>
           <ul class="mt-2 mb-6">
             <li v-if="activeMenu.key !== 'root'">
-              <SfListItem size="lg" tag="button" type="button"
-                class="border-b border-b-neutral-200 border-b-solid"
-                @click="goBack()">
+              <SfListItem size="lg" tag="button" type="button" class="border-b border-b-neutral-200 border-b-solid" @click="goBack()">
                 <div class="flex items-center">
                   <SfIconArrowBack class="text-neutral-500" />
                   <p class="ml-5 font-medium">{{ activeMenu.value.label }}</p>
@@ -122,7 +120,7 @@
             </li>
             <template v-for="node in activeMenu.children" :key="node.value.label">
               <li v-if="node.isLeaf">
-                <SfListItem size="lg" tag="a" :href="node.value.link" class="first-of-type:mt-2">
+                <SfListItem size="lg" tag="router-link" :to="node.value.link" class="first-of-type:mt-2" @click="close()">
                   <div class="flex items-center">
                     <p class="text-left">{{ node.value.label }}</p>
                   </div>
@@ -251,32 +249,25 @@ const content: Category = {
           isLeaf: true,
         },
         {
-          key: 'CATEGORIES',
-          value: { label: '' },
-          isLeaf: false,
-          children: [
-            {
-              key: 'BLUSAS',
-              value: { label: 'Blusas', link: '/category/Blusas' },
-              isLeaf: true,
-            },
-            {
-              key: 'TOP',
-              value: { label: 'Tops', link: '/category/Top' },
-              isLeaf: true,
-            },
-            {
-              key: 'BODY_SUIT',
-              value: { label: 'BodySuits', link: '/category/Bodysuit' },
-              isLeaf: true,
-            },
-            {
-              key: 'CHALECOS',
-              value: { label: 'Chalecos', link: '/category/Chaleco' },
-              isLeaf: true,
-            },
-          ],
+          key: 'BLUSAS',
+          value: { label: 'Blusas', link: '/category/Blusas' },
+          isLeaf: true,
         },
+        {
+          key: 'TOP',
+          value: { label: 'Tops', link: '/category/Top' },
+          isLeaf: true,
+        },
+        {
+          key: 'BODY_SUIT',
+          value: { label: 'BodySuits', link: '/category/Bodysuit' },
+          isLeaf: true,
+        },
+        {
+          key: 'CHALECOS',
+          value: { label: 'Chalecos', link: '/category/Chaleco' },
+          isLeaf: true,
+        }
       ],
     },
     {
@@ -292,26 +283,19 @@ const content: Category = {
           isLeaf: true,
         },
         {
-          key: 'CATEGORIES',
-          value: { label: '' },
-          isLeaf: false,
-          children: [
-            {
-              key: 'MAXI',
-              value: { label: 'Maxi Vestidos', link: '/category/Maxi Vestidos' },
-              isLeaf: true,
-            },
-            {
-              key: 'MIDI',
-              value: { label: 'Midi Vestidos', link: '/category/Midi Vestidos' },
-              isLeaf: true,
-            },
-            {
-              key: 'CORTOS',
-              value: { label: 'Vestidos Cortos', link: '/category/Vestidos Cortos' },
-              isLeaf: true,
-            },
-          ],
+          key: 'MAXI',
+          value: { label: 'Maxi Vestidos', link: '/category/Maxi Vestidos' },
+          isLeaf: true,
+        },
+        {
+          key: 'MIDI',
+          value: { label: 'Midi Vestidos', link: '/category/Midi Vestidos' },
+          isLeaf: true,
+        },
+        {
+          key: 'CORTOS',
+          value: { label: 'Vestidos Cortos', link: '/category/Vestidos Cortos' },
+          isLeaf: true,
         }
       ],
     },
@@ -328,26 +312,19 @@ const content: Category = {
           isLeaf: true,
         },
         {
-          key: 'CATEGORIES',
-          value: { label: '' },
-          isLeaf: false,
-          children: [
-            {
-              key: 'FALDAS',
-              value: { label: 'Faldas', link: '/category/Faldas' },
-              isLeaf: true,
-            },
-            {
-              key: 'SHORTS',
-              value: { label: 'Shorts', link: '/category/Shorts' },
-              isLeaf: true,
-            },
-            {
-              key: 'FALDA_SHORTS',
-              value: { label: 'Falda Shorts', link: '/category/Falda-Shorts' },
-              isLeaf: true,
-            },
-          ],
+          key: 'FALDAS',
+          value: { label: 'Faldas', link: '/category/Faldas' },
+          isLeaf: true,
+        },
+        {
+          key: 'SHORTS',
+          value: { label: 'Shorts', link: '/category/Shorts' },
+          isLeaf: true,
+        },
+        {
+          key: 'FALDA_SHORTS',
+          value: { label: 'Falda Shorts', link: '/category/Falda-Shorts' },
+          isLeaf: true,
         },
       ],
     },
@@ -364,22 +341,15 @@ const content: Category = {
           isLeaf: true,
         },
         {
-          key: 'CATEGORIES',
-          value: { label: '' },
-          isLeaf: false,
-          children: [
-            {
-              key: 'JEANS',
-              value: { label: 'Jeans', link: '/category/Jeans' },
-              isLeaf: true,
-            },
-            {
-              key: 'PALAZZOS',
-              value: { label: 'Palazzos', link: '/category/Palazzos' },
-              isLeaf: true,
-            }
-          ],
+          key: 'JEANS',
+          value: { label: 'Jeans', link: '/category/Jeans' },
+          isLeaf: true,
         },
+        {
+          key: 'PALAZZOS',
+          value: { label: 'Palazzos', link: '/category/Palazzos' },
+          isLeaf: true,
+        }
       ],
     },
     {
@@ -395,22 +365,15 @@ const content: Category = {
           isLeaf: true,
         },
         {
-          key: 'CATEGORIES',
-          value: { label: '' },
-          isLeaf: false,
-          children: [
-            {
-              key: 'JUMPSUITS',
-              value: { label: 'Jumpsuits', link: '/category/Jumpsuits - Largos' },
-              isLeaf: true,
-            },
-            {
-              key: 'ROMPERS',
-              value: { label: 'Rompers', link: '/category/Rompers - Cortos' },
-              isLeaf: true,
-            }
-          ],
+          key: 'JUMPSUITS',
+          value: { label: 'Jumpsuits', link: '/category/Jumpsuits - Largos' },
+          isLeaf: true,
         },
+        {
+          key: 'ROMPERS',
+          value: { label: 'Rompers', link: '/category/Rompers - Cortos' },
+          isLeaf: true,
+        }
       ],
     },
     {
@@ -426,32 +389,25 @@ const content: Category = {
           isLeaf: true,
         },
         {
-          key: 'CATEGORIES',
-          value: { label: '' },
-          isLeaf: false,
-          children: [
-            {
-              key: 'BLAZERS',
-              value: { label: 'Blazers', link: '/category/Blazers' },
-              isLeaf: true,
-            },
-            {
-              key: 'SUETER',
-              value: { label: 'Sueter', link: '/category/Sueter' },
-              isLeaf: true,
-            },
-            {
-              key: 'KIMONOS',
-              value: { label: 'Kimonos', link: '/category/Kimonos' },
-              isLeaf: true,
-            },
-            {
-              key: 'DENIM',
-              value: { label: ' Chaquetas Denim', link: '/category/Chaquetas Denim' },
-              isLeaf: true,
-            }
-          ],
+          key: 'BLAZERS',
+          value: { label: 'Blazers', link: '/category/Blazers' },
+          isLeaf: true,
         },
+        {
+          key: 'SUETER',
+          value: { label: 'Sueter', link: '/category/Sueter' },
+          isLeaf: true,
+        },
+        {
+          key: 'KIMONOS',
+          value: { label: 'Kimonos', link: '/category/Kimonos' },
+          isLeaf: true,
+        },
+        {
+          key: 'DENIM',
+          value: { label: ' Chaquetas Denim', link: '/category/Chaquetas Denim' },
+          isLeaf: true,
+        }
       ],
     },
     {
@@ -467,22 +423,15 @@ const content: Category = {
           isLeaf: true,
         },
         {
-          key: 'CATEGORIES',
-          value: { label: '' },
-          isLeaf: false,
-          children: [
-            {
-              key: 'CARTERAS',
-              value: { label: 'Carteras', link: '/category/Carteras' },
-              isLeaf: true,
-            },
-            {
-              key: 'BILLETERAS',
-              value: { label: 'Billeteras', link: '/category/Billeteras' },
-              isLeaf: true,
-            },
-          ],
+          key: 'CARTERAS',
+          value: { label: 'Carteras', link: '/category/Carteras' },
+          isLeaf: true,
         },
+        {
+          key: 'BILLETERAS',
+          value: { label: 'Billeteras', link: '/category/Billeteras' },
+          isLeaf: true,
+        }
       ],
     },
   ],

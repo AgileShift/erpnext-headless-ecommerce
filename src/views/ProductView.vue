@@ -61,15 +61,13 @@
   </div>
 
   <div class="text-right">
-    <SfButton size="lg" class="text-center" tag="router-link" to="/">
+    <SfButton size="lg" class="text-center" tag="a" @click="$router.go(-1)">
       <template #prefix>
         <SfIconArrowBack size="sm" />
       </template>
       Volver a la lista
     </SfButton>
   </div>
-
-  <router-link to="/" class="text-primary"></router-link>
 </template>
 
 <script setup lang="ts">
