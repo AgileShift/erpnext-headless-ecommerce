@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 import type { Product } from '@/types/product'
 
 const BASE_URL = 'https://erp.clothingcenterni.com';
-// const BASE_URL = 'http://localhost:8000';
 
 export const useProductStore = defineStore('product', {
   state: () => ({
@@ -19,7 +18,12 @@ export const useProductStore = defineStore('product', {
       return {
         ...item,
         image: item.image ? item.image.startsWith('/') ? BASE_URL + item.image : item.image : 'https://dummyimage.com/300x400/000/fff&text=Clothing+Center',
-        discount_percent: item.price.discount_percent ? `${Math.round(item.price.discount_percent)}%` : null
+        price: {
+         ...item.price,
+          formatted_price: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2, minimumFractionDigits: 0 }).format(item.price.price_list_rate),
+          local_formatted_price: new Intl.NumberFormat('es-NI', { style: 'currency', currency: 'NIO', maximumFractionDigits: 0 }).format(item.price.price_list_rate * 36.6243),
+          formatted_discount_percent: item.price.discount_percent ? `${Math.round(item.price.discount_percent)}%` : null
+        },
       }
     },
 
