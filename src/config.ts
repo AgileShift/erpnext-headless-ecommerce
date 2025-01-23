@@ -1,18 +1,30 @@
 // Environment variables configuration
-export const config = {
-  // API Configuration
-  apiBaseUrl: import.meta.env.VITE_API_BASE_URL,
-
-  siteName: import.meta.env.VITE_SITE_NAME,
-  siteLogo: import.meta.env.VITE_SITE_LOGO,
-
-  // Theme Colors
-  colors: {
-    primary: import.meta.env.VITE_PRIMARY_COLOR
+const configs: any = {
+  'fortechni.com': {
+    apiBaseUrl: 'https://erp.fortechni.com',
+    siteName: 'ForTech Nicaragua',
+    siteLogo: 'LogoClothing.svg',
+    colors: {
+      primary: '0 108 247'
+    },
+    contact: {
+      whatsApp: '50583754233'
+    }
   },
-
-  // Contact Information
-  contact: {
-    whatsApp: import.meta.env.VITE_WHATSAPP_NUMBER,
+  'clothingcenterni.com': {
+    apiBaseUrl: 'https://erp.clothingcenterni.com',
+    siteName: 'Clothing Center',
+    siteLogo: 'LogoClothing.svg',
+    colors: {
+      primary: '247 198 200'
+    },
+    contact: {
+      whatsApp: '50577020233'
+    }
   }
-}
+};
+
+const hostname = window.location.hostname;
+const siteConfig= configs[hostname] || configs['fortechni.com'];
+
+export default siteConfig;

@@ -10,9 +10,9 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
 import TheNavbar from '@/components/TheNavbar.vue'
-import { config } from '@/config'
+import siteConfig from '@/config'
 
-const primary_color = config.colors.primary;
+const primary_color = siteConfig.colors.primary;
 </script>
 
 <style scoped>

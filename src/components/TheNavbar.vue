@@ -164,9 +164,9 @@ import {
 import { ref, computed } from 'vue'
 import { unrefElement } from '@vueuse/core';
 import type { Category } from '@/types/category'
-import { config } from '@/config'
+import siteConfig from '@/config'
 
-const siteLogo = `/src/assets/${config.siteLogo}`;
+const siteLogo = `/src/assets/${siteConfig.siteLogo}`;
 
 const findNode = (keys: string[], node: Category): Category => {
   if (keys.length > 1) {

@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import type { Product } from '@/types/product'
-import { config } from '@/config'
+import siteConfig from '@/config'
 
-const BASE_URL = config.apiBaseUrl;
+const BASE_URL = siteConfig.apiBaseUrl;
 
 export const useProductStore = defineStore('product', {
   state: () => ({

@@ -13,9 +13,9 @@
 
 <script setup lang="ts">
 import { SfButton, SfIconShoppingCart } from '@storefront-ui/vue'
-import { config } from '@/config'
+import siteConfig from '@/config'
 
-const whatsappNumber = config.contact.whatsApp;
+const whatsappNumber = siteConfig.contact.whatsApp;
 
 defineProps<{
   size: "base" | "sm" | "lg" | undefined
