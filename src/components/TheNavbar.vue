@@ -11,8 +11,8 @@
 
         <router-link to="/" aria-label="Home" class="inline-block focus-visible:outline focus-visible:outline-offset focus-visible:rounded-sm shrink-0 mx-10">
           <picture>
-            <source :srcset="LogoClothing" media="(min-width: 1024px)" />
-            <img :src="LogoClothing" alt="Logo" height="505px" width="70px" />
+            <source :srcset="siteLogo" media="(min-width: 1024px)" />
+            <img :src="siteLogo" alt="Logo" height="505px" width="70px" />
           </picture>
         </router-link>
 
@@ -164,8 +164,9 @@ import {
 import { ref, computed } from 'vue'
 import { unrefElement } from '@vueuse/core';
 import type { Category } from '@/types/category'
-import LogoClothing from '@/assets/LogoClothing.svg'
-import { useRouter } from 'vue-router'
+import { config } from '@/config'
+
+const siteLogo = `/src/assets/${config.siteLogo}`;
 
 const findNode = (keys: string[], node: Category): Category => {
   if (keys.length > 1) {

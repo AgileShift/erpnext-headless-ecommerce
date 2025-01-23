@@ -30,7 +30,7 @@
 <script lang="ts" setup>
 import { SfLink } from '@storefront-ui/vue'
 import type { Product } from '@/types/product'
-import ContactButton from '@/views/ContactButton.vue'
+import ContactButton from '@/components/ContactButton.vue'
 
 defineProps<{
   product: Product

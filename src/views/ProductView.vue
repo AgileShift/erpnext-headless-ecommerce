@@ -75,7 +75,7 @@ import {
   SfButton, SfLink, SfLoaderCircular,
   SfIconFavorite, SfIconPackage, SfIconSafetyCheck, SfIconSell, SfIconArrowBack
 } from '@storefront-ui/vue'
-import ContactButton from '@/views/ContactButton.vue'
+import ContactButton from '@/components/ContactButton.vue'
 
 const route = useRoute()
 const productStore = useProductStore()

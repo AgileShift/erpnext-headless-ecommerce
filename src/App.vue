@@ -10,4 +10,13 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
 import TheNavbar from '@/components/TheNavbar.vue'
+import { config } from '@/config'
+
+const primary_color = config.colors.primary;
 </script>
+
+<style scoped>
+main {
+  --colors-primary-700: v-bind(primary_color);
+}
+</style>

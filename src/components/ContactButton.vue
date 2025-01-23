@@ -1,7 +1,7 @@
 <template>
   <SfButton tag="a"
             :size="size"
-            :href="`https://wa.me/50577020233?text=Tengo interés en el producto: ${item_name}`">
+            :href="`https://wa.me/${whatsappNumber}?text=Tengo interés en el producto: ${item_name}`">
     <template #prefix>
       <SfIconShoppingCart size="sm" />
     </template>
@@ -13,6 +13,9 @@
 
 <script setup lang="ts">
 import { SfButton, SfIconShoppingCart } from '@storefront-ui/vue'
+import { config } from '@/config'
+
+const whatsappNumber = config.contact.whatsApp;
 
 defineProps<{
   size: "base" | "sm" | "lg" | undefined

@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
 import type { Product } from '@/types/product'
+import { config } from '@/config'
 
-const BASE_URL = 'https://erp.clothingcenterni.com';
+const BASE_URL = config.apiBaseUrl;
 
 export const useProductStore = defineStore('product', {
   state: () => ({
@@ -13,16 +14,19 @@ export const useProductStore = defineStore('product', {
     limit: 15,
     loading: false
   }),
+
   actions: {
     formatProduct(item: any): Product {
       return {
         ...item,
-        image: item.image ? item.image.startsWith('/') ? BASE_URL + item.image : item.image : 'https://dummyimage.com/300x400/000/fff&text=Clothing+Center',
-        price: {
+        image: item.image ? item.image.startsWith('/') ? BASE_URL + item.image : item.image : 'https://dummyimage.com/300x400/000/fff&text='+item.item_name,
+        price: item.price ? {
          ...item.price,
           formatted_price: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2, minimumFractionDigits: 0 }).format(item.price.price_list_rate),
           local_formatted_price: new Intl.NumberFormat('es-NI', { style: 'currency', currency: 'NIO', maximumFractionDigits: 0 }).format(item.price.price_list_rate * 36.6243),
           formatted_discount_percent: item.price.discount_percent ? `${Math.round(item.price.discount_percent)}%` : null
+        } : {
+          local_formatted_price: 'No price available',
         },
       }
     },
