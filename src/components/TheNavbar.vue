@@ -163,7 +163,7 @@ import {
 } from '@storefront-ui/vue';
 import { ref, computed } from 'vue'
 import { unrefElement } from '@vueuse/core';
-import type { Category } from '@/types/category'
+import type { Category } from '@/types/Category'
 import siteConfig from '@/config'
 
 const siteLogo = `/src/assets/${siteConfig.siteLogo}`;

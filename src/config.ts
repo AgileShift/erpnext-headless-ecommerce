@@ -3,7 +3,7 @@ const configs: any = {
   'fortechni.com': {
     apiBaseUrl: 'https://erp.fortechni.com',
     siteName: 'ForTech Nicaragua',
-    siteLogo: 'LogoClothing.svg',
+    siteLogo: 'LogoFortech.svg',
     colors: {
       primary: '0 108 247'
     },
@@ -25,6 +25,6 @@ const configs: any = {
 };
 
 const hostname = window.location.hostname;
-const siteConfig= configs[hostname] || configs['fortechni.com'];
+const siteConfig = configs[hostname] || configs['fortechni.com'];
 
 export default siteConfig;

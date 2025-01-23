@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import type { Category } from '@/types/Category'
-import { config } from '@/config'
+import siteConfig from '@/config'
 
-const BASE_URL = config.apiBaseUrl;
+const BASE_URL = siteConfig.apiBaseUrl;
 
 export const useCategoryStore = defineStore('category', {
   state: () => ({

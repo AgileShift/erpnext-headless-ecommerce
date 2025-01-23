@@ -12,6 +12,7 @@ import { RouterView } from 'vue-router'
 import TheNavbar from '@/components/TheNavbar.vue'
 import siteConfig from '@/config'
 
+document.title = siteConfig.siteName;
 const primary_color = siteConfig.colors.primary;
 </script>
 

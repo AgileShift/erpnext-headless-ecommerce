@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Product } from '@/types/product'
+import type { Product } from '@/types/Product'
 import siteConfig from '@/config'
 
 const BASE_URL = siteConfig.apiBaseUrl;
