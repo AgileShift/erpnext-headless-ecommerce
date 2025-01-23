@@ -166,7 +166,7 @@ import { unrefElement } from '@vueuse/core';
 import type { Category } from '@/types/Category'
 import siteConfig from '@/config'
 
-const siteLogo = `/src/assets/${siteConfig.siteLogo}`;
+const siteLogo = `/${siteConfig.siteLogo}`;
 
 const findNode = (keys: string[], node: Category): Category => {
   if (keys.length > 1) {
