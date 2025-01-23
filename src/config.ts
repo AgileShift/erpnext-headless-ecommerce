@@ -4,6 +4,7 @@ const configs: any = {
     apiBaseUrl: 'https://erp.fortechni.com',
     siteName: 'ForTech Nicaragua',
     siteLogo: 'LogoFortech.svg',
+    Gtag: 'G-JQ5GCG8Y3W',
     colors: {
       primary: '0 108 247'
     },
@@ -15,6 +16,7 @@ const configs: any = {
     apiBaseUrl: 'https://erp.clothingcenterni.com',
     siteName: 'Clothing Center',
     siteLogo: 'LogoClothing.svg',
+    Gtag: 'G-GZKVCF6LVJ',
     colors: {
       primary: '247 198 200'
     },
