@@ -363,7 +363,7 @@ const configs: any = {
   }
 };
 
-const hostname = window.location.hostname;
+const hostname = window.location.host.replace('www.','');
 const siteConfig = configs[hostname] || configs['fortechni.com'];
 
 export default siteConfig;
