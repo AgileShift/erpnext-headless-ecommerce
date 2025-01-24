@@ -13,7 +13,12 @@ import TheNavbar from '@/components/TheNavbar.vue'
 import siteConfig from '@/config'
 
 document.title = siteConfig.siteName;
+
 const primary_color = siteConfig.colors.primary;
+const favicon = document.querySelector("link[rel~='icon']");
+if (favicon) {
+  favicon.setAttribute('href', siteConfig.siteFavicon);
+}
 </script>
 
 <style scoped>
