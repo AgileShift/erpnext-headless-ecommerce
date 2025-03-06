@@ -361,7 +361,9 @@ const configs: any = {
         {
           key: 'SALE',
           value: {
-            label: 'SALE'
+            label: 'SALE',
+            link: '/sale',
+            extra_classes: 'text-secondary-700 font-bold text-lg'
           },
           isLeaf: true
         }
@@ -371,6 +373,6 @@ const configs: any = {
 };
 
 const hostname = window.location.host.replace('www.','');
-const siteConfig = configs[hostname] || configs['fortechni.com'];
+const siteConfig = configs[hostname] || configs['clothingcenterni.com'];
 
 export default siteConfig;

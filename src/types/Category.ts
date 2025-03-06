@@ -3,6 +3,7 @@ export interface Category {
   value: {
     label: string;
     link?: string;
+    extra_classes?: string;
     banner?: string;
     bannerTitle?: string;
   };

@@ -125,9 +125,9 @@
             </li>
             <template v-for="node in activeMenu.children" :key="node.value.label">
               <li v-if="node.isLeaf">
-                <SfListItem size="lg" tag="router-link" to="/sale" class="first-of-type:mt-2" @click="close()">
+                <SfListItem size="lg" tag="router-link" :to="node.value.link" class="first-of-type:mt-2" @click="close()">
                   <div class="flex items-center">
-                    <p class="text-left">{{ node.value.label }}</p>
+                    <p :class="`text-left ` + node.value.extra_classes">{{ node.value.label }}</p>
                   </div>
                 </SfListItem>
               </li>
@@ -142,7 +142,6 @@
                 </SfListItem>
               </li>
             </template>
-
           </ul>
         </nav>
       </SfDrawer>
