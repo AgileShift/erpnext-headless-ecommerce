@@ -61,13 +61,19 @@
               }
             }">
           <li v-for="(menuNode, index) in content.children" :key="menuNode.key">
-            <SfButton
+            <SfButton v-if="!menuNode.isLeaf"
               ref="triggerRefs" variant="tertiary"
               class="group mr-2 !text-neutral-900 hover:!bg-neutral-200 hover:!text-neutral-700 active:!bg-neutral-300 active:!text-neutral-900"
               @mouseenter="openMenu([menuNode.key])"
               @click="openMenu([menuNode.key])">
               <span>{{ menuNode.value.label }}</span>
               <SfIconChevronRight class="rotate-90 text-neutral-500 group-hover:text-neutral-700 group-active:text-neutral-900" />
+            </SfButton>
+
+            <SfButton v-if="menuNode.isLeaf"  @mouseenter="close()" tag="router-link" :to="`/sale`"
+
+                      class="group mr-2 !text-neutral-900 hover:!bg-neutral-200 hover:!text-neutral-700 active:!bg-neutral-300 active:!text-neutral-900">
+              <span>{{ menuNode.value.label }}</span>
             </SfButton>
 
             <div v-if="isOpen && activeNode.length === 1 && activeNode[0] === menuNode.key"
@@ -137,6 +143,7 @@
                 </SfListItem>
               </li>
             </template>
+
           </ul>
         </nav>
       </SfDrawer>

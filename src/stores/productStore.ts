@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import type { Product } from '@/types/Product'
 import siteConfig from '@/config'
+import { useRoute } from 'vue-router'
 
 const BASE_URL = siteConfig.apiBaseUrl;
 
@@ -31,12 +32,13 @@ export const useProductStore = defineStore('product', {
       }
     },
 
-    async loadProducts(category: string | null = null, page: number = 1) {
+    async loadProducts(category: string | boolean | null = null, sale: boolean = false, page: number = 1) {
       this.loading = true
       const start = (page - 1) * this.limit
 
       let url = `${BASE_URL}/api/method/gr_tools.www.products.get_products?start=${start}&limit=${this.limit}`
       url += category ? `&category=${category}` : ''
+      url += sale ? `&sale=1` : ''
 
       const response = await fetch(url)
       const data = await response.json()
@@ -61,7 +63,7 @@ export const useProductStore = defineStore('product', {
     async loadProduct(itemCode: string) {
       this.loading = true
 
-      const response = await fetch(`${BASE_URL}/api/method/gr_tools.www.products.get_products?item_code=${itemCode}`)
+      const response = await fetch(`${BASE_URL}/api/method/gr_tools.www.products.get_product?item_code=${itemCode}`)
       const data = await response.json()
 
       if (!data || data.message?.length === 0) {
@@ -71,7 +73,7 @@ export const useProductStore = defineStore('product', {
         return
       }
 
-      this.currentProduct = this.formatProduct(data.message[0])
+      this.currentProduct = this.formatProduct(data.message)
       this.loading = false
     },
   },

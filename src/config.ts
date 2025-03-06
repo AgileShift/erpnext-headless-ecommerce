@@ -358,6 +358,13 @@ const configs: any = {
             }
           ],
         },
+        {
+          key: 'SALE',
+          value: {
+            label: 'SALE'
+          },
+          isLeaf: true
+        }
       ],
     }
   }

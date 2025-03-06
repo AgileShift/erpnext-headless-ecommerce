@@ -19,7 +19,10 @@ import { SfLoaderCircular } from '@storefront-ui/vue'
 import ProductCard from '@/components/ProductCard.vue'
 import { useProductStore } from '@/stores/productStore'
 
-const props = defineProps<{ category?: string }>()
+const props = defineProps({
+  category: { type: String, default: undefined },
+  sale: { type: Boolean, default: false }
+})
 
 const productStore = useProductStore()
 
@@ -30,7 +33,7 @@ const loadMoreTrigger = ref<HTMLDivElement | null>(null)
 
 const loadMoreProducts = async () => {
   const nextPage = productStore.currentPage + 1
-  await productStore.loadProducts(props.category || null, nextPage)
+  await productStore.loadProducts(props.category || null, props.sale, nextPage)
 }
 
 const setupIntersectionObserver = () => {
@@ -45,14 +48,14 @@ const setupIntersectionObserver = () => {
 }
 
 watch(
-  () => props.category,
-  (newCategory) => {
-    productStore.loadProducts(newCategory || null, 1)
+  () => [props.sale, props.category],
+  ([newSales, newCategory]) => {
+    productStore.loadProducts( newCategory || null, Boolean(newSales), 1)
   },
 )
 
 onMounted(() => {
-  productStore.loadProducts(props.category || null, 1)
+  productStore.loadProducts(props.category || null, Boolean(props.sale), 1)
   setupIntersectionObserver()
 })
 </script>
