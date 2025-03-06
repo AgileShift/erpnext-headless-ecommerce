@@ -70,8 +70,7 @@
               <SfIconChevronRight class="rotate-90 text-neutral-500 group-hover:text-neutral-700 group-active:text-neutral-900" />
             </SfButton>
 
-            <SfButton v-if="menuNode.isLeaf"  @mouseenter="close()" tag="router-link" :to="`/sale`"
-
+            <SfButton v-if="menuNode.isLeaf"  @mouseenter="close()" tag="router-link" to="/sale"
                       class="group mr-2 !text-neutral-900 hover:!bg-neutral-200 hover:!text-neutral-700 active:!bg-neutral-300 active:!text-neutral-900">
               <span>{{ menuNode.value.label }}</span>
             </SfButton>
@@ -126,7 +125,7 @@
             </li>
             <template v-for="node in activeMenu.children" :key="node.value.label">
               <li v-if="node.isLeaf">
-                <SfListItem size="lg" tag="router-link" :to="node.value.link" class="first-of-type:mt-2" @click="close()">
+                <SfListItem size="lg" tag="router-link" to="/sale" class="first-of-type:mt-2" @click="close()">
                   <div class="flex items-center">
                     <p class="text-left">{{ node.value.label }}</p>
                   </div>
