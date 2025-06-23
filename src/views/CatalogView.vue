@@ -2,7 +2,7 @@
   <!-- <TheFilters class="hidden md:block" /> -->
 
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-    <ProductCard v-for="product in products" :key="product.item_code" :product="product" />
+    <ProductCard v-for="product in products" :key="product.item_code" :product="product" v-bind="$attrs" />
 
     <div v-if="loading" class="xs:col-span-2 lg:col-span-4 text-center">
       <h1 class="font-bold pb-4">Cargando Productos</h1>

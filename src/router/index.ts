@@ -9,7 +9,7 @@ const router = createRouter({
     { path: '/', name: 'Home', component: CatalogView, props: false },
     { path: '/sale', name: 'Sale', component: CatalogView, props: { sale: true } },
     { path: '/category/:category', name: 'Category', component: CatalogView, props: route => ({ category: route.params.category, sale: false }) },
-    { path: '/product/:id(.*)', name: 'Product', component: ProductView, props: true },
+    { path: '/product/:id(.*)', name: 'Product', component: ProductView, props: false },
   ],
 })
 
