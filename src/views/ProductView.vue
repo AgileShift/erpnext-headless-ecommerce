@@ -12,8 +12,13 @@
       </SfLink>
     </section>
     <section class="md:max-w-[640px]">
-      <div v-if="product.price.discount_percent" class="inline-flex items-center justify-center text-sm font-medium text-white bg-secondary-600 py-1.5 px-3 mb-4">
-        <SfIconSell size="sm" class="mr-1.5" /> SALE
+
+      <div v-if="product.price.discount_percent">
+        <div class="inline-flex items-center justify-center text-xs font-medium text-white bg-secondary-600 py-1.5 px-3 mb-1">
+          <SfIconSell size="sm" class="mr-1.5" /> PINK SEASON SALE
+        </div>
+
+        <div class="items-center justify-center text-2xs mb-3">Válido del 24 al 29 de Junio</div>
       </div>
 
       <h1 class="mb-1 font-bold">{{ product.item_name }}</h1>
@@ -34,7 +39,7 @@
         <div class="items-start xs:flex">
           <ContactButton class="w-full" size="lg" suffix="Enviar a WhatsApp" :item_name="product.item_name" />
         </div>
-        <div class="flex justify-center mt-4 gap-x-4">
+        <div class="hidden flex justify-center mt-4 gap-x-4">
           <SfButton size="sm" variant="tertiary">
             <SfIconFavorite size="sm" />Agregar a mi Lista
           </SfButton>
@@ -73,7 +78,7 @@ import { useRoute } from 'vue-router'
 import { useProductStore } from '@/stores/productStore'
 import {
   SfButton, SfLink, SfLoaderCircular,
-  SfIconFavorite, SfIconPackage, SfIconSafetyCheck, SfIconSell, SfIconArrowBack
+  SfIconFavorite, SfIconPackage, SfIconSafetyCheck, SfIconSell, SfIconArrowBack, SfIconCalendarToday, SfIconSchedule
 } from '@storefront-ui/vue'
 import ContactButton from '@/components/ContactButton.vue'
 

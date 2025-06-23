@@ -14,7 +14,6 @@ import siteConfig from '@/config'
 
 document.title = siteConfig.siteName;
 
-const primary_color = siteConfig.colors.primary;
 const favicon = document.querySelector("link[rel~='icon']");
 if (favicon) {
   favicon.setAttribute('href', siteConfig.siteFavicon);
@@ -23,6 +22,10 @@ if (favicon) {
 
 <style scoped>
 main {
-  --colors-primary-700: v-bind(primary_color);
+  --colors-primary-700: v-bind(siteConfig.colors.primary);
+  --colors-primary-800: v-bind(siteConfig.colors.secondary);
+
+  --colors-secondary-600: v-bind(siteConfig.colors.secondary);
+  --colors-secondary-700: v-bind(siteConfig.colors.secondary);
 }
 </style>

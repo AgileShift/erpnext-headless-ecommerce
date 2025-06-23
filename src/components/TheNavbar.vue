@@ -16,38 +16,42 @@
           </picture>
         </router-link>
 
-        <form role="search" class="hidden md:flex flex-[100%] justify-center w-7 mx-10 px-6 py-2 " @submit.prevent="submitSearch">
-          <SfInput v-model="searchQuery" type="search"
-                   class="[&::-webkit-search-cancel-button]:appearance-none" placeholder="Buscar" wrapper-class="h-10 pr-0 xl:w-1/2 md:w-full" size="base">
-            <template #suffix>
-              <span class="flex items-center">
-                <SfButton variant="tertiary" square aria-label="search" type="submit" class="rounded-l-none hover:bg-transparent active:bg-transparent">
-                  <SfIconSearch />
-                </SfButton>
-              </span>
-            </template>
-          </SfInput>
+        <div v-if="siteConfig.siteName === 'Clothing Center'" class="hidden md:flex flex-col items-stretch">
+          <a class="text-3xl font-bold text-white">PINK SEASON</a>
+        </div>
+
+        <form role="search" class="md:hidden hidden md:flex flex-[100%] justify-center w-7 mx-10 px-6 py-2" @submit.prevent="submitSearch">
+<!--          <SfInput v-model="searchQuery" type="search"-->
+<!--                   class="[&::-webkit-search-cancel-button]:appearance-none" placeholder="Buscar" wrapper-class="h-10 pr-0 xl:w-1/2 md:w-full" size="base">-->
+<!--            <template #suffix>-->
+<!--              <span class="flex items-center">-->
+<!--                <SfButton variant="tertiary" square aria-label="search" type="submit" class="rounded-l-none hover:bg-transparent active:bg-transparent">-->
+<!--                  <SfIconSearch />-->
+<!--                </SfButton>-->
+<!--              </span>-->
+<!--            </template>-->
+<!--          </SfInput>-->
         </form>
 
-        <nav class="flex flex-nowrap justify-end items-center md:ml-10 gap-x-1">
-          <SfButton v-for="actionItem in actionItems" :key="actionItem.ariaLabel" :aria-label="actionItem.ariaLabel"
-            class="text-white bg-transparent hover:bg-primary-800 hover:text-white active:bg-primary-900 active:text-white" variant="tertiary" square>
-            <template #prefix>
-              <Component :is="actionItem.icon" />
-            </template>
-          </SfButton>
+        <nav class="flex flex-nowrap justify-end items-center md:ml-10 gap-x-1 px-6">
+<!--          <SfButton v-for="actionItem in actionItems" :key="actionItem.ariaLabel" :aria-label="actionItem.ariaLabel"-->
+<!--            class="text-white bg-transparent hover:bg-primary-800 hover:text-white active:bg-primary-900 active:text-white" variant="tertiary" square>-->
+<!--            <template #prefix>-->
+<!--              <Component :is="actionItem.icon" />-->
+<!--            </template>-->
+<!--          </SfButton>-->
         </nav>
 
         <form role="search" class="flex hidden md:hidden flex-[50%] my-2" @submit.prevent="submitSearch">
-          <SfInput v-model="searchQuery" type="search" class="[&::-webkit-search-cancel-button]:appearance-none" placeholder="Search" wrapper-class="flex-1 h-10 pr-0" size="base">
-            <template #suffix>
-              <span class="flex items-center">
-                <SfButton variant="tertiary" square aria-label="search" type="submit" class="rounded-l-none hover:bg-transparent active:bg-transparent">
-                  <SfIconSearch />
-                </SfButton>
-              </span>
-            </template>
-          </SfInput>
+<!--          <SfInput v-model="searchQuery" type="search" class="[&::-webkit-search-cancel-button]:appearance-none" placeholder="Search" wrapper-class="flex-1 h-10 pr-0" size="base">-->
+<!--            <template #suffix>-->
+<!--              <span class="flex items-center">-->
+<!--                <SfButton variant="tertiary" square aria-label="search" type="submit" class="rounded-l-none hover:bg-transparent active:bg-transparent">-->
+<!--                  <SfIconSearch />-->
+<!--                </SfButton>-->
+<!--              </span>-->
+<!--            </template>-->
+<!--          </SfInput>-->
         </form>
       </div>
 
@@ -70,8 +74,8 @@
               <SfIconChevronRight class="rotate-90 text-neutral-500 group-hover:text-neutral-700 group-active:text-neutral-900" />
             </SfButton>
 
-            <SfButton v-if="menuNode.isLeaf"  @mouseenter="close()" tag="router-link" to="/sale"
-                      class="group mr-2 !text-neutral-900 hover:!bg-neutral-200 hover:!text-neutral-700 active:!bg-neutral-300 active:!text-neutral-900">
+            <SfButton v-if="menuNode.isLeaf"  @mouseenter="close()" tag="router-link" :to="menuNode.value.link"
+                      class="group mr-2 !text-neutral-900 hover:!text-neutral-700 active:!bg-neutral-300 active:!text-neutral-900">
               <span>{{ menuNode.value.label }}</span>
             </SfButton>
 
@@ -151,8 +155,6 @@
 
 <script lang="ts" setup>
 import {
-  SfIconShoppingCart,
-  SfIconFavorite,
   SfIconClose,
   SfButton,
   SfDrawer,
@@ -165,7 +167,7 @@ import {
   useDropdown,
   SfInput,
   SfIconSearch,
-} from '@storefront-ui/vue';
+} from '@storefront-ui/vue'
 import { ref, computed } from 'vue'
 import { unrefElement } from '@vueuse/core';
 import type { Category } from '@/types/Category'
@@ -227,14 +229,13 @@ const focusTrigger = (index: number) => {
 };
 
 const searchQuery = ref('');
-//const router = useRouter();
 
 const submitSearch = () => {
   console.log("TODO" + searchQuery.value);
 };
 
-const actionItems = [
-  {icon: SfIconShoppingCart, label: '', ariaLabel: 'Cart', role: 'button'},
-  {icon: SfIconFavorite, label: '', ariaLabel: 'Wishlist', role: 'button'},
-];
+// const actionItems = [
+//   {icon: SfIconShoppingCart, label: '', ariaLabel: 'Cart', role: 'button'},
+//   {icon: SfIconFavorite, label: '', ariaLabel: 'Wishlist', role: 'button'},
+// ];
 </script>

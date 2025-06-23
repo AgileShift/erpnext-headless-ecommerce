@@ -22,7 +22,7 @@
         <a class="pl-1 text-sm md:text-base text-secondary-700">{{ product.price.formatted_discount_percent }} OFF</a>
       </span>
 
-      <ContactButton class="mt-2" size="sm" suffix="WhatsApp" :item_name="product.item_name" />
+      <ContactButton class="mt-2" size="sm" suffix="Compra Aquí" :item_name="product.item_name" />
     </div>
   </div>
 </template>

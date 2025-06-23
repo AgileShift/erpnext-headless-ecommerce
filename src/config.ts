@@ -7,7 +7,8 @@ const configs: any = {
     siteFavicon: 'fortech.ico',
     Gtag: 'G-JQ5GCG8Y3W',
     colors: {
-      primary: '0 108 247'
+      primary: '0 108 247',
+      secondary: '43 136 255'
     },
     contact: {
       whatsApp: '50583968452'
@@ -150,7 +151,8 @@ const configs: any = {
     siteFavicon: 'clothing.ico',
     Gtag: 'G-GZKVCF6LVJ',
     colors: {
-      primary: '247 198 200'
+      primary: '247 198 200',
+      secondary: '223 113 126'
     },
     contact: {
       whatsApp: '50577020233'
@@ -363,7 +365,7 @@ const configs: any = {
           value: {
             label: 'SALE',
             link: '/sale',
-            extra_classes: 'text-secondary-700 font-bold text-lg'
+            extra_classes: 'bg-primary-800 font-bold text-lg'
           },
           isLeaf: true
         }

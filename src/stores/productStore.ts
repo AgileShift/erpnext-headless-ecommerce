@@ -20,7 +20,7 @@ export const useProductStore = defineStore('product', {
       // Formatted Discount Percent and Discount Percent comes from API
 
       // When 'Formatted Discount Rate' comes from API. This fields are empty so auto-calculated here! -> TODO: MOVE TO API?
-      if (item.price.formatted_discount_rate) {
+      if (item.price && item.price.formatted_discount_rate) {
         item.price.mrp = item.price.formatted_mrp.replace(/[^\d.]/g, "")
         item.price.discount_rate = item.price.formatted_discount_rate.replace(/[^\d.]/g, "")
 
