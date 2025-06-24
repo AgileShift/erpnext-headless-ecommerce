@@ -17,16 +17,6 @@ export const useProductStore = defineStore('product', {
 
   actions: {
     formatProduct(item: any): Product {
-      // Formatted Discount Percent and Discount Percent comes from API
-
-      // When 'Formatted Discount Rate' comes from API. This fields are empty so auto-calculated here! -> TODO: MOVE TO API?
-      if (item.price && item.price.formatted_discount_rate) {
-        item.price.mrp = item.price.formatted_mrp.replace(/[^\d.]/g, "")
-        item.price.discount_rate = item.price.formatted_discount_rate.replace(/[^\d.]/g, "")
-
-        item.price.discount_percent = (item.price.discount_rate / item.price.mrp) * 100
-      }
-
       return {
         ...item,
         image: item.image ? item.image.startsWith('/') ? BASE_URL + item.image : item.image : 'https://dummyimage.com/300x400/000/fff&text='+item.item_name,
