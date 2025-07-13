@@ -17,7 +17,7 @@
         </router-link>
 
         <div v-if="siteConfig.siteName === 'Clothing Center'" class="hidden md:flex flex-col items-stretch">
-          <a class="text-3xl font-bold text-white">PINK SEASON</a>
+          <a class="text-3xl font-bold text-white">CLOTHING CENTER</a>
         </div>
 
         <form role="search" class="md:hidden hidden md:flex flex-[100%] justify-center w-7 mx-10 px-6 py-2" @submit.prevent="submitSearch">

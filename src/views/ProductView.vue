@@ -15,10 +15,8 @@
 
       <div v-if="product.price.discount_percent">
         <div class="inline-flex items-center justify-center text-xs font-medium text-white bg-secondary-600 py-1.5 px-3 mb-1">
-          <SfIconSell size="sm" class="mr-1.5" /> PINK SEASON SALE
+          <SfIconSell size="sm" class="mr-1.5" /> SALE
         </div>
-
-        <div class="items-center justify-center text-2xs mb-3">Válido del 24 al 29 de Junio</div>
       </div>
 
       <h1 class="mb-1 font-bold">{{ product.item_name }}</h1>
