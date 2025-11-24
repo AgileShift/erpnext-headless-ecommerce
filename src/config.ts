@@ -252,18 +252,9 @@ const configs: any = {
               value: { label: 'Falda Shorts', link: '/category/Falda-Shorts' },
               isLeaf: true,
             },
-          ],
-        },
-        {
-          key: 'PANTALONES',
-          value: {
-            label: 'Pantalones',
-          },
-          isLeaf: false,
-          children: [
             {
-              key: 'ALL_PANTALONES',
-              value: { label: 'Todos en Pantalones', link: '/category/Pantalones' },
+              key: 'PANTALONES',
+              value: { label: 'Pantalones', link: '/category/Pantalones' },
               isLeaf: true,
             },
             {
@@ -275,7 +266,7 @@ const configs: any = {
               key: 'PALAZZOS',
               value: { label: 'Palazzos', link: '/category/Palazzos' },
               isLeaf: true,
-            }
+            },
           ],
         },
         {
@@ -349,15 +340,39 @@ const configs: any = {
               isLeaf: true,
             },
             {
-              key: 'CARTERAS',
-              value: { label: 'Carteras', link: '/category/Carteras' },
+              key: 'FAJAS',
+              value: { label: 'Fajas', link: '/category/Faja' },
+              isLeaf: true,
+            },
+            // {
+            //   key: 'CARTERAS',
+            //   value: { label: 'Carteras', link: '/category/Carteras' },
+            //   isLeaf: true,
+            // },
+            // {
+            //   key: 'BILLETERAS',
+            //   value: { label: 'Billeteras', link: '/category/Billeteras' },
+            //   isLeaf: true,
+            // }
+          ],
+        },
+        {
+          key: 'ZAPATOS',
+          value: {
+            label: 'Zapatos',
+          },
+          isLeaf: false,
+          children: [
+            {
+              key: 'ALL_ZAPATOS',
+              value: { label: 'Todos en Zapatos', link: '/category/Zapatos' },
               isLeaf: true,
             },
             {
-              key: 'BILLETERAS',
-              value: { label: 'Billeteras', link: '/category/Billeteras' },
+              key: 'ALL SANDALIAS',
+              value: { label: 'Sandalias', link: '/category/Sandalias' },
               isLeaf: true,
-            }
+            },
           ],
         },
         {
