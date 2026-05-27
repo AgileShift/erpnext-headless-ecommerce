@@ -49,8 +49,10 @@ export const useProductStore = defineStore('product', {
     },
 
     async loadProducts(
-      sale: boolean = false, category: string | boolean | null = null,
-      size: string | null = null, color: string | null = null,
+      sale: boolean = false,
+      category: string | boolean | null = null,
+      size: string | null = null,
+      color: string | null = null,
       page: number = 1,
     ) {
       this.loading = true
@@ -58,9 +60,9 @@ export const useProductStore = defineStore('product', {
 
       let url = `${BASE_URL}/api/method/gr_tools.www.products.get_products?start=${start}&limit=${this.limit}`
       url += sale ? `&sale=1` : ''
-      url += category ? `&category=${category}` : ''
-      url += size ? `&size=${size}` : ''
-      url += color ? `&color=${color}` : ''
+      url += category ? `&category=${encodeURIComponent(category)}` : ''
+      url += size ? `&size=${encodeURIComponent(size)}` : ''
+      url += color ? `&color=${encodeURIComponent(color)}` : ''
 
       const response = await fetch(url)
       const data = await response.json()
