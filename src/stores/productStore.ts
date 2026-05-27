@@ -12,40 +12,61 @@ export const useProductStore = defineStore('product', {
     totalProducts: 0,
     currentPage: 1,
     limit: 15,
-    loading: false
+    loading: false,
   }),
 
   actions: {
     formatProduct(item: any): Product {
       return {
         ...item,
-        image: item.image ? item.image.startsWith('/') ? BASE_URL + item.image : item.image : 'https://dummyimage.com/300x400/000/fff&text='+item.item_name,
-        price: item.price ? {
-         ...item.price,
-          formatted_price: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2, minimumFractionDigits: 0 }).format(item.price.price_list_rate),
-          local_formatted_price: new Intl.NumberFormat('es-NI', { style: 'currency', currency: 'NIO', maximumFractionDigits: 0 }).format(item.price.price_list_rate * 36.6243),
-          formatted_discount_percent: item.price.discount_percent ? `${Math.round(item.price.discount_percent)}%` : null
-        } : {
-          local_formatted_price: 'No price available',
-        },
+        image: item.image
+          ? item.image.startsWith('/')
+            ? BASE_URL + item.image
+            : item.image
+          : 'https://dummyimage.com/300x400/000/fff&text=' + item.item_name,
+        price: item.price
+          ? {
+              ...item.price,
+              formatted_price: new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                maximumFractionDigits: 2,
+                minimumFractionDigits: 0,
+              }).format(item.price.price_list_rate),
+              local_formatted_price: new Intl.NumberFormat('es-NI', {
+                style: 'currency',
+                currency: 'NIO',
+                maximumFractionDigits: 0,
+              }).format(item.price.price_list_rate * 36.6243),
+              formatted_discount_percent: item.price.discount_percent
+                ? `${Math.round(item.price.discount_percent)}%`
+                : null,
+            }
+          : {
+              local_formatted_price: 'No price available',
+            },
       }
     },
 
-    // discount_percent | formatted_discount_percent
-
-    async loadProducts(category: string | boolean | null = null, sale: boolean = false, page: number = 1) {
+    async loadProducts(
+      sale: boolean = false, category: string | boolean | null = null,
+      size: string | null = null, color: string | null = null,
+      page: number = 1,
+    ) {
       this.loading = true
       const start = (page - 1) * this.limit
 
       let url = `${BASE_URL}/api/method/gr_tools.www.products.get_products?start=${start}&limit=${this.limit}`
-      url += category ? `&category=${category}` : ''
       url += sale ? `&sale=1` : ''
+      url += category ? `&category=${category}` : ''
+      url += size ? `&size=${size}` : ''
+      url += color ? `&color=${color}` : ''
 
       const response = await fetch(url)
       const data = await response.json()
 
       if (!data.message) {
-        console.warn('No products found!');
+        console.warn('No products found!')
         this.products = []
         this.loading = false
         return
@@ -65,7 +86,9 @@ export const useProductStore = defineStore('product', {
     async loadProduct(itemCode: string) {
       this.loading = true
 
-      const response = await fetch(`${BASE_URL}/api/method/gr_tools.www.products.get_product?item_code=${itemCode}`)
+      const response = await fetch(
+        `${BASE_URL}/api/method/gr_tools.www.products.get_product?item_code=${itemCode}`,
+      )
       const data = await response.json()
 
       if (!data || data.message?.length === 0) {
