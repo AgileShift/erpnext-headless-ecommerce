@@ -50,7 +50,7 @@ export const useProductStore = defineStore('product', {
 
     async loadProducts(
       sale: boolean = false,
-      category: string | boolean | null = null,
+      category: string | null = null,
       size: string | null = null,
       color: string | null = null,
       page: number = 1,

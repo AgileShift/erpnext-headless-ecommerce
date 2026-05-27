@@ -11,7 +11,7 @@ const configs: any = {
       secondary: '43 136 255'
     },
     contact: {
-      whatsApp: '50583968452'
+      whatsApp: '50583968452',
     },
     categories: {
       key: 'root',
@@ -27,9 +27,9 @@ const configs: any = {
           children: [
             {
               key: 'ALL_LAPTOPS',
-              value: { label: "Todo en Laptops", link: '/category/Laptops' },
+              value: { label: 'Todo en Laptops', link: '/category/Laptops' },
               isLeaf: true,
-            }
+            },
           ],
         },
         {
@@ -41,9 +41,9 @@ const configs: any = {
           children: [
             {
               key: 'ALL_MONITORS',
-              value: { label: "Todo en Monitores", link: '/category/Monitores' },
+              value: { label: 'Todo en Monitores', link: '/category/Monitores' },
               isLeaf: true,
-            }
+            },
           ],
         },
         {
@@ -55,9 +55,9 @@ const configs: any = {
           children: [
             {
               key: 'ALL_SMART_HOME',
-              value: { label: "Todo en Smart Home", link: '/category/Smart Home' },
+              value: { label: 'Todo en Smart Home', link: '/category/Smart Home' },
               isLeaf: true,
-            }
+            },
           ],
         },
         {
@@ -69,7 +69,7 @@ const configs: any = {
           children: [
             {
               key: 'MESA',
-              value: { label: "Decoraciones de Mesa", link: '/category/Decoraciones de Mesa' },
+              value: { label: 'Decoraciones de Mesa', link: '/category/Decoraciones de Mesa' },
               isLeaf: true,
             },
             {
@@ -81,7 +81,7 @@ const configs: any = {
               key: 'SPEAKERS',
               value: { label: 'Parlantes', link: '/category/Parlantes' },
               isLeaf: true,
-            }
+            },
           ],
         },
         {
@@ -100,7 +100,7 @@ const configs: any = {
               key: 'LAMP_MESA',
               value: { label: 'Lamparas de Mesa', link: '/category/Lamparas de Mesa' },
               isLeaf: true,
-            }
+            },
           ],
         },
         {
@@ -112,9 +112,12 @@ const configs: any = {
           children: [
             {
               key: 'ALL_BACKPACKS',
-              value: { label: 'Mochilas, Bolsos y Mats', link: '/category/Mochilas, Bolsos y Mats' },
+              value: {
+                label: 'Mochilas, Bolsos y Mats',
+                link: '/category/Mochilas, Bolsos y Mats',
+              },
               isLeaf: true,
-            }
+            },
           ],
         },
         {
@@ -138,11 +141,11 @@ const configs: any = {
               key: 'CABLES',
               value: { label: 'Cables y Adaptadores', link: '/category/Cables y Adaptadores' },
               isLeaf: true,
-            }
+            },
           ],
         },
       ],
-    }
+    },
   },
   'clothingcenterni.com': {
     apiBaseUrl: 'https://erp.clothingcenterni.com',
@@ -155,7 +158,7 @@ const configs: any = {
       secondary: '223 113 126'
     },
     contact: {
-      whatsApp: '50577020233'
+      whatsApp: '50577020233',
     },
     categories: {
       key: 'root',
@@ -171,7 +174,7 @@ const configs: any = {
           children: [
             {
               key: 'ALL_TOPS',
-              value: { label: "Todo en Tops", link: '/category/Tops' },
+              value: { label: 'Todo en Tops', link: '/category/Tops' },
               isLeaf: true,
             },
             {
@@ -193,7 +196,7 @@ const configs: any = {
               key: 'CHALECOS',
               value: { label: 'Chalecos', link: '/category/Chaleco' },
               isLeaf: true,
-            }
+            },
           ],
         },
         {
@@ -205,7 +208,7 @@ const configs: any = {
           children: [
             {
               key: 'ALL_VESTIDOS',
-              value: { label: "Todos en Vestidos", link: '/category/Vestidos' },
+              value: { label: 'Todos en Vestidos', link: '/category/Vestidos' },
               isLeaf: true,
             },
             {
@@ -222,7 +225,7 @@ const configs: any = {
               key: 'CORTOS',
               value: { label: 'Vestidos Cortos', link: '/category/Vestidos Cortos' },
               isLeaf: true,
-            }
+            },
           ],
         },
         {
@@ -290,7 +293,7 @@ const configs: any = {
               key: 'ROMPERS',
               value: { label: 'Rompers', link: '/category/Rompers - Cortos' },
               isLeaf: true,
-            }
+            },
           ],
         },
         {
@@ -324,7 +327,7 @@ const configs: any = {
               key: 'DENIM',
               value: { label: ' Chaquetas Denim', link: '/category/Chaquetas Denim' },
               isLeaf: true,
-            }
+            },
           ],
         },
         {
@@ -380,14 +383,14 @@ const configs: any = {
           value: {
             label: 'SALE',
             link: '/sale',
-            extra_classes: 'bg-primary-800 font-bold text-lg'
+            extra_classes: 'bg-primary-800 font-bold text-lg',
           },
-          isLeaf: true
-        }
+          isLeaf: true,
+        },
       ],
-    }
-  }
-};
+    },
+  },
+}
 
 const hostname = window.location.host.replace('www.','');
 const siteConfig = configs[hostname] || configs['clothingcenterni.com'];

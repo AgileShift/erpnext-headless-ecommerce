@@ -61,9 +61,14 @@ const setupIntersectionObserver = () => {
 }
 
 watch(
-  () => [props.sale, props.category, props.size, props.color],
-  ([newSale, newCategory, newSize, newColor]) => {
-    productStore.loadProducts(Boolean(newSale), newCategory || null, newSize, newColor, 1)
+  () => ({
+    newSale: props.sale,
+    newCategory: props.category,
+    newSize: props.size,
+    newColor: props.color,
+  }),
+  ({ newSale, newCategory, newSize, newColor }) => {
+    productStore.loadProducts(Boolean(newSale), newCategory, newSize, newColor, 1)
   },
   { immediate: true },
 )
