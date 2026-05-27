@@ -6,13 +6,16 @@
   <div v-else-if="product" class="flex flex-wrap gap-16 place-content-center">
     <section class="md:max-w-[640px]">
       <SfLink href="#">
-        <img class="w-full h-auto border rounded-md border-neutral-200"
-             :src="product.image" :alt="product.item_name" width="176" height="176"
+        <img
+          class="w-full h-auto border rounded-md border-neutral-200"
+          :src="product.image"
+          :alt="product.item_name"
+          width="176"
+          height="176"
         />
       </SfLink>
     </section>
     <section class="md:max-w-[640px]">
-
       <div v-if="product.price.discount_percent">
         <div class="inline-flex items-center justify-center text-xs font-medium text-white bg-secondary-600 py-1.5 px-3 mb-1">
           <SfIconSell size="sm" class="mr-1.5" /> SALE
@@ -20,7 +23,9 @@
       </div>
 
       <h1 class="mb-1 font-bold">{{ product.item_name }}</h1>
-      <h2 class="mb-4 font-light">{{ product.item_group }}</h2>
+      <SfLink tag="router-link" :to="`/category/${product.item_group}`" variant="secondary" class="hidden md:block no-underline pt-0.5 pb-1 font-light leading-5 text-neutral-700">
+        {{ product.item_group }}
+      </SfLink>
 
       <span class="block font-bold text-lg">
         <a>{{ product.price.local_formatted_price }}</a>
@@ -30,12 +35,19 @@
 
       <span v-if="product.price.discount_percent" class="max-sm:block block font-bold">
         <del class="text-sm md:text-base text-neutral-500">{{ product.price.formatted_mrp }}</del>
-        <a class="pl-2 text-sm md:text-base text-secondary-700">{{ product.price.formatted_discount_percent }} OFF</a>
+        <a class="pl-2 text-sm md:text-base text-secondary-700"
+          >{{ product.price.formatted_discount_percent }} OFF</a
+        >
       </span>
 
       <div class="py-4 mt-3 mb-4 border-gray-200 border-y">
         <div class="items-start xs:flex">
-          <ContactButton class="w-full" size="lg" suffix="Enviar a WhatsApp" :item_name="product.item_name" />
+          <ContactButton
+            class="w-full"
+            size="lg"
+            suffix="Enviar a WhatsApp"
+            :item_name="product.item_name"
+          />
         </div>
         <div class="hidden flex justify-center mt-4 gap-x-4">
           <SfButton size="sm" variant="tertiary">
@@ -43,13 +55,22 @@
           </SfButton>
         </div>
       </div>
+
       <div class="flex first:mt-4" v-if="!product.price.discount_percent">
         <SfIconPackage size="sm" class="flex-shrink-0 mr-1 text-neutral-500" />
         <p class="text-sm">Envio Gratis en Managua Centro</p>
       </div>
-      <div class="flex mt-4" v-if="product.price.discount_percent">
-        <SfIconSafetyCheck size="sm" class="flex-shrink-0 mr-1 text-neutral-500" />
-        <p class="text-sm">Prendas en descuento <strong>no aplican</strong> a Cambios o Devoluciones.</p>
+      <div v-if="product.price.discount_percent">
+        <div class="flex mt-4">
+          <SfIconSafetyCheck size="sm" class="flex-shrink-0 mr-1 text-neutral-500" />
+          <p class="text-sm">
+            Prendas en descuento <strong>no aplican</strong> a Cambios o Devoluciones.
+          </p>
+        </div>
+        <div class="flex mt-4">
+          <SfIconPackage size="sm" class="flex-shrink-0 mr-1 text-neutral-500" />
+          <p class="text-sm">Prendas en descuento <strong>no se envian a tallar</strong>.</p>
+        </div>
       </div>
     </section>
   </div>
@@ -63,9 +84,7 @@
       <template #prefix>
         <SfIconArrowBack size="sm" />
       </template>
-      <template #suffix>
-        Volver a la lista
-      </template>
+      <template #suffix>Volver a la lista</template>
     </SfButton>
   </div>
 </template>
@@ -75,8 +94,14 @@ import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useProductStore } from '@/stores/productStore'
 import {
-  SfButton, SfLink, SfLoaderCircular,
-  SfIconFavorite, SfIconPackage, SfIconSafetyCheck, SfIconSell, SfIconArrowBack, SfIconCalendarToday, SfIconSchedule
+  SfButton,
+  SfLink,
+  SfLoaderCircular,
+  SfIconFavorite,
+  SfIconPackage,
+  SfIconSafetyCheck,
+  SfIconSell,
+  SfIconArrowBack,
 } from '@storefront-ui/vue'
 import ContactButton from '@/components/ContactButton.vue'
 
