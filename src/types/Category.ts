@@ -1,12 +1,6 @@
 export interface Category {
-  key: string;
-  value: {
-    label: string;
-    link?: string;
-    extra_classes?: string;
-    banner?: string;
-    bannerTitle?: string;
-  };
-  children?: Category[];
-  isLeaf: boolean;
+  name: string
+  parent_item_group: string | null
+  is_group: boolean
+  children: Category[]
 }
