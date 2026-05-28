@@ -3,6 +3,7 @@ export interface Product {
   item_name: string
   item_group: string
   image: string
+  actual_qty: number
   price: {
     price_list_rate: number // 35.00
     formatted_price: string // "$ 35.00"

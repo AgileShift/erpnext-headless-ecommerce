@@ -23,17 +23,18 @@
         </div>
       </div>
 
-      <h1 class="mb-1 text-xl font-bold leading-snug text-neutral-950 md:text-2xl">
-        {{ product.item_name }}
-      </h1>
       <SfLink
         tag="router-link"
         :to="`/category/${product.item_group}`"
         variant="secondary"
-        class="block no-underline pt-0.5 pb-2 font-light leading-5 text-neutral-700"
+        class="block no-underline pt-0.5 pb-1 font-light leading-5 text-neutral-700"
       >
         {{ product.item_group }}
       </SfLink>
+
+      <p class="mb-2 text-lg font-bold leading-snug text-neutral-950 md:text-xl">
+        {{ product.item_name }}
+      </p>
 
       <span class="block font-bold text-xl text-neutral-950">
         <a>{{ product.price.local_formatted_price }}</a>
@@ -42,10 +43,26 @@
       </span>
 
       <span v-if="product.price.discount_percent" class="max-sm:block block font-bold">
-        <del class="text-sm md:text-base text-neutral-500">{{ product.price.formatted_mrp }}</del>
+        <del class="text-sm md:text-base text-neutral-400">{{ product.price.formatted_mrp }}</del>
         <a class="pl-2 text-sm md:text-base text-secondary-700"
           >{{ product.price.formatted_discount_percent }} OFF</a
         >
+      </span>
+
+      <span
+        v-if="product.actual_qty"
+        class="mt-2 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold"
+        :class="
+          product.actual_qty === 1
+            ? 'bg-primary-800 text-secondary-100'
+            : 'bg-primary-100 text-neutral-700'
+        "
+      >
+        {{
+          product.actual_qty === 1
+            ? 'Última unidad disponible'
+            : `${product.actual_qty} unidades disponibles`
+        }}
       </span>
 
       <div class="py-4 mt-4 mb-4 border-y">
@@ -64,7 +81,10 @@
         </div>
       </div>
 
-      <div v-if="!product.price.discount_percent" class="flex rounded-md bg-neutral-50 p-3 text-neutral-700">
+      <div
+        v-if="!product.price.discount_percent"
+        class="flex rounded-md bg-neutral-50 p-3 text-neutral-700"
+      >
         <SfIconPackage size="sm" class="flex-shrink-0 mr-2 text-neutral-500" />
         <p class="text-sm">Envio Gratis en Managua Centro</p>
       </div>
