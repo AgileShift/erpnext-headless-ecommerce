@@ -3,7 +3,6 @@
     <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
       <div>
         <h1 class="text-2xl font-bold text-neutral-950">Mi selección</h1>
-        <p class="text-sm text-neutral-500">Lista local para revisar o enviar por WhatsApp.</p>
       </div>
 
       <SfButton v-if="selection.items.length" variant="tertiary" size="sm" @click="selection.clear()">

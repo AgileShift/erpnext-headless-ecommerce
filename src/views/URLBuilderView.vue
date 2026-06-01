@@ -1,99 +1,120 @@
 <template>
-  <section class="max-w-5xl mx-auto">
-    <div class="mb-8">
-      <h1 class="mb-2 text-3xl font-bold">Constructor de URLs</h1>
-      <p class="text-neutral-600">
-        Construí URLs de catálogo usando categorías reales, oferta, talla y color.
-      </p>
+  <section class="max-w-7xl mx-auto">
+    <div class="mb-3">
+      <h1 class="text-3xl font-bold">Constructor de URLs</h1>
     </div>
 
     <form class="grid gap-6 rounded-lg border border-neutral-200 bg-white p-6" @submit.prevent>
-      <section class="grid gap-4">
-        <div class="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-          <div>
-            <h2 class="font-medium">Categorías en tiempo real</h2>
-            <p class="text-sm text-neutral-500">
-              La lista se alimenta desde el árbol actual de categorías del catálogo.
-            </p>
+      <div class="grid gap-6 md:grid-cols-2">
+        <section class="grid gap-3">
+          <div class="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+            <div>
+              <h2 class="font-medium">Categorías en tiempo real</h2>
+            </div>
           </div>
 
-          <span
-            class="w-fit rounded-full border border-neutral-200 px-3 py-1 text-sm text-neutral-600"
+          <div
+            v-if="categoryStore.loading"
+            class="rounded-md border border-neutral-200 bg-neutral-50 px-4 py-6 text-sm text-neutral-600"
           >
-            {{ categoryStatusLabel }}
-          </span>
-        </div>
+            Cargando categorías...
+          </div>
 
-        <div
-          v-if="categoryStore.loading"
-          class="rounded-md border border-neutral-200 bg-neutral-50 px-4 py-6 text-sm text-neutral-600"
-        >
-          Cargando categorías...
-        </div>
-
-        <div
-          v-else-if="categoryStore.error"
-          class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-        >
-          {{ categoryStore.error }}
-        </div>
-
-        <div
-          v-else-if="categoryOptions.length === 0"
-          class="rounded-md border border-neutral-200 bg-neutral-50 px-4 py-6 text-sm text-neutral-600"
-        >
-          No hay categorías disponibles.
-        </div>
-
-        <div v-else class="max-h-[420px] overflow-y-auto rounded-md border border-neutral-200">
-          <label
-            v-for="option in categoryOptions"
-            :key="option.id"
-            class="flex cursor-pointer items-center gap-3 border-b border-neutral-100 px-3 py-2 last:border-b-0 hover:bg-neutral-50"
-            :class="{
-              'bg-primary-100 hover:bg-primary-100': selectedCategoryIds.includes(option.id),
-            }"
+          <div
+            v-else-if="categoryStore.error"
+            class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
           >
-            <input
-              v-model="selectedCategoryIds"
-              type="checkbox"
-              :value="option.id"
-              class="h-4 w-4 shrink-0"
-            />
-            <span
-              class="grid min-w-0 gap-0.5"
-              :style="{ paddingLeft: `${option.depth * 0.75}rem` }"
+            {{ categoryStore.error }}
+          </div>
+
+          <div
+            v-else-if="categoryOptions.length === 0"
+            class="rounded-md border border-neutral-200 bg-neutral-50 px-4 py-6 text-sm text-neutral-600"
+          >
+            No hay categorías disponibles.
+          </div>
+
+          <div v-else class="max-h-[1180px] overflow-y-auto rounded-md border border-neutral-200">
+            <label
+              v-for="option in categoryOptions"
+              :key="option.id"
+              class="flex cursor-pointer items-center gap-3 border-b border-neutral-100 px-3 py-2 last:border-b-0 hover:bg-neutral-50"
+              :class="{
+                'bg-primary-100 hover:bg-primary-100': selectedCategoryIds.includes(option.id),
+              }"
             >
-              <span class="flex min-w-0 items-center gap-2">
-                <span class="truncate font-medium text-neutral-900">{{ option.name }}</span>
-                <span
-                  v-if="option.hasChildren"
-                  class="shrink-0 rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600"
-                >
-                  Grupo
+              <input
+                v-model="selectedCategoryIds"
+                type="checkbox"
+                :value="option.id"
+                class="h-4 w-4 shrink-0"
+              />
+              <span
+                class="grid min-w-0 gap-0.5"
+                :style="{ paddingLeft: `${option.depth * 0.75}rem` }"
+              >
+                <span class="flex min-w-0 items-center gap-2">
+                  <span class="truncate font-medium text-neutral-900">{{ option.name }}</span>
+                  <span
+                    v-if="option.hasChildren"
+                    class="shrink-0 rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600"
+                  >
+                    Grupo
+                  </span>
                 </span>
+                <span class="truncate text-xs text-neutral-500">{{ option.breadcrumb }}</span>
               </span>
-              <span class="truncate text-xs text-neutral-500">{{ option.breadcrumb }}</span>
-            </span>
-          </label>
-        </div>
+            </label>
+          </div>
+        </section>
 
-        <p class="text-sm text-neutral-500">
-          Si elegís una sola categoría sin oferta, la URL usa
-          <span class="font-medium text-neutral-700">/category/:category</span>. Con varias
-          categorías u oferta, usa query params.
-        </p>
-      </section>
+        <section class="grid gap-3">
+          <div class="">
+            <h2 class="font-medium">Colores</h2>
+          </div>
 
-      <label class="flex items-center gap-3 border-t border-neutral-200 pt-6">
-        <input v-model="sale" type="checkbox" class="h-4 w-4" />
-        <span class="font-medium">Solo productos en oferta</span>
-      </label>
+          <div
+            v-if="itemAttributeStore.loading"
+            class="rounded-md border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-600"
+          >
+            Cargando colores...
+          </div>
+
+          <div
+            v-else-if="itemAttributeStore.error"
+            class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+          >
+            {{ itemAttributeStore.error }}
+          </div>
+
+          <div
+            v-else-if="colorOptions.length === 0"
+            class="rounded-md border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-600"
+          >
+            No hay colores disponibles.
+          </div>
+
+          <div v-else class="grid grid-cols-2 md:grid-cols-3 gap-2">
+            <label
+              v-for="option in colorOptions"
+              :key="option.value"
+              class="flex cursor-pointer items-center gap-3 rounded-md border border-neutral-200 px-3 py-2 hover:bg-neutral-50"
+            >
+              <input
+                v-model="selectedColors"
+                type="checkbox"
+                :value="option.value"
+                class="h-4 w-4"
+              />
+              <span>{{ option.label }}</span>
+            </label>
+          </div>
+        </section>
+      </div>
 
       <section class="grid gap-3">
         <div>
           <h2 class="font-medium">Tallas</h2>
-          <p class="text-sm text-neutral-500">Se cargan desde el atributo Talla de ERPNext.</p>
         </div>
 
         <div
@@ -134,81 +155,12 @@
         </div>
       </section>
 
-      <section class="grid gap-3">
-        <div>
-          <h2 class="font-medium">Colores</h2>
-          <p class="text-sm text-neutral-500">Se cargan desde el atributo Color de ERPNext.</p>
-        </div>
+      <label class="flex items-center gap-3 border-t border-neutral-200 pt-5">
+        <input v-model="sale" type="checkbox" class="h-4 w-4" />
+        <span class="font-medium">Solo productos en oferta</span>
+      </label>
 
-        <div
-          v-if="itemAttributeStore.loading"
-          class="rounded-md border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-600"
-        >
-          Cargando colores...
-        </div>
-
-        <div
-          v-else-if="itemAttributeStore.error"
-          class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-        >
-          {{ itemAttributeStore.error }}
-        </div>
-
-        <div
-          v-else-if="colorOptions.length === 0"
-          class="rounded-md border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-600"
-        >
-          No hay colores disponibles.
-        </div>
-
-        <div v-else class="grid grid-cols-2 md:grid-cols-3 gap-2">
-          <label
-            v-for="option in colorOptions"
-            :key="option.value"
-            class="flex cursor-pointer items-center gap-3 rounded-md border border-neutral-200 px-3 py-2 hover:bg-neutral-50"
-          >
-            <input v-model="selectedColors" type="checkbox" :value="option.value" class="h-4 w-4" />
-            <span>{{ option.label }}</span>
-          </label>
-        </div>
-      </section>
-
-      <section class="grid gap-3 border-t border-neutral-200 pt-6">
-        <div class="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-          <div>
-            <h2 class="font-medium">Constructor</h2>
-            <p class="text-sm text-neutral-500">
-              Los segmentos cambian conforme seleccionás filtros.
-            </p>
-          </div>
-          <span
-            class="w-fit rounded-full border border-neutral-200 px-3 py-1 text-sm text-neutral-600"
-          >
-            {{ activeFilterCount }} filtros activos
-          </span>
-        </div>
-
-        <dl class="grid gap-3 md:grid-cols-2">
-          <div class="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2">
-            <dt class="text-xs font-medium uppercase text-neutral-500">Ruta base</dt>
-            <dd class="break-all font-medium text-neutral-900">{{ basePath }}</dd>
-          </div>
-          <div class="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2">
-            <dt class="text-xs font-medium uppercase text-neutral-500">Query params</dt>
-            <dd class="break-all font-medium text-neutral-900">{{ queryPreview }}</dd>
-          </div>
-          <div class="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2">
-            <dt class="text-xs font-medium uppercase text-neutral-500">Categorías</dt>
-            <dd class="break-words font-medium text-neutral-900">{{ selectedCategorySummary }}</dd>
-          </div>
-          <div class="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2">
-            <dt class="text-xs font-medium uppercase text-neutral-500">Vista destino</dt>
-            <dd class="font-medium text-neutral-900">{{ destinationLabel }}</dd>
-          </div>
-        </dl>
-      </section>
-
-      <div class="grid gap-2 border-t border-neutral-200 pt-6">
+      <div class="grid gap-1 border-t border-neutral-200 pt-3">
         <span class="font-medium">URL generada</span>
 
         <div class="flex flex-col md:flex-row gap-3">
@@ -276,7 +228,7 @@ const selectedColors = ref<string[]>([])
 
 onMounted(() => {
   categoryStore.loadCategories()
-  itemAttributeStore.loadItemAttributes()
+  itemAttributeStore.loadItemAttributes({ color: true, talla: true })
 })
 
 const buildCategoryOptions = (
@@ -298,25 +250,11 @@ const buildCategoryOptions = (
   })
 }
 
-const categoryOptions = computed(() => {
-  return buildCategoryOptions(categoryStore.categoryTree.children)
-})
+const categoryOptions = computed(() => buildCategoryOptions(categoryStore.categoryTree.children))
 
 const selectedCategoryOptions = computed(() => {
   const selectedIds = new Set(selectedCategoryIds.value)
   return categoryOptions.value.filter((option) => selectedIds.has(option.id))
-})
-
-const categoryStatusLabel = computed(() => {
-  if (categoryStore.loading) {
-    return 'Sincronizando'
-  }
-
-  if (categoryStore.error) {
-    return 'Error al cargar'
-  }
-
-  return `${categoryOptions.value.length} categorías`
 })
 
 const normalizedCategory = computed(() =>
@@ -324,26 +262,6 @@ const normalizedCategory = computed(() =>
 )
 const sizeOptions = computed(() => itemAttributeStore.sizes)
 const colorOptions = computed(() => itemAttributeStore.colors)
-const normalizedSize = computed(() => selectedSizes.value)
-const normalizedColor = computed(() => selectedColors.value)
-
-const selectedCategorySummary = computed(() => {
-  if (selectedCategoryOptions.value.length === 0) {
-    return 'Sin categorías'
-  }
-
-  return selectedCategoryOptions.value.map((option) => option.breadcrumb).join(', ')
-})
-
-const activeFilterCount = computed(() => {
-  return (
-    Number(sale.value) +
-    normalizedCategory.value.length +
-    normalizedSize.value.length +
-    normalizedColor.value.length
-  )
-})
-
 const basePath = computed(() => {
   if (sale.value) {
     return '/sale'
@@ -363,35 +281,19 @@ const queryString = computed(() => {
     params.set('category', normalizedCategory.value.join(','))
   }
 
-  if (normalizedSize.value.length > 0) {
-    params.set('size', normalizedSize.value.join(','))
+  if (selectedSizes.value.length > 0) {
+    params.set('size', selectedSizes.value.join(','))
   }
 
-  if (normalizedColor.value.length > 0) {
-    params.set('color', normalizedColor.value.join(','))
+  if (selectedColors.value.length > 0) {
+    params.set('color', selectedColors.value.join(','))
   }
 
   return params.toString()
 })
 
-const queryPreview = computed(() =>
-  queryString.value ? `?${queryString.value}` : 'Sin parámetros',
-)
-
 const relativeUrl = computed(() => {
   return queryString.value ? `${basePath.value}?${queryString.value}` : basePath.value
-})
-
-const destinationLabel = computed(() => {
-  if (sale.value) {
-    return 'Página de ofertas'
-  }
-
-  if (normalizedCategory.value.length === 1) {
-    return 'Página de categoría'
-  }
-
-  return 'Catálogo general'
 })
 
 const generatedUrl = computed(() => {
