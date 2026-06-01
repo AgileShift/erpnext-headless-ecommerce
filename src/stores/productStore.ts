@@ -353,7 +353,7 @@ export const useProductStore = defineStore('product', {
     currentCategory: null as string | null,
     totalProducts: 0,
     currentPage: 1,
-    limit: 15,
+    limit: 45,
     loading: false,
   }),
 
