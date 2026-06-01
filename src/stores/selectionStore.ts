@@ -33,6 +33,10 @@ export const useSelectionStore = defineStore('selection', {
   },
 
   actions: {
+    reloadFromStorage() {
+      this.items = loadItems()
+    },
+
     persist() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(this.items))
     },

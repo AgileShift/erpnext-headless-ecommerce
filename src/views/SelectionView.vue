@@ -41,12 +41,6 @@
             {{ item.price.local_formatted_price }} | {{ item.price.formatted_price }}
           </p>
           <p class="text-xs text-neutral-500">Cantidad: {{ item.qty }}</p>
-          <router-link
-            :to="getProductLink(item)"
-            class="mt-2 inline-block text-sm font-semibold text-neutral-700 underline-offset-2 hover:underline"
-          >
-            Ver producto
-          </router-link>
         </div>
 
         <button
@@ -71,13 +65,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { SfButton } from '@storefront-ui/vue'
 import siteConfig from '@/config'
 import { type SelectionItem, useSelectionStore } from '@/stores/selectionStore'
 import type { ProductVariantAttributes } from '@/types/Product'
 
 const selection = useSelectionStore()
+
+onMounted(() => {
+  selection.reloadFromStorage()
+})
 
 const formatAttributes = (attributes: ProductVariantAttributes) =>
   Object.entries(attributes)
