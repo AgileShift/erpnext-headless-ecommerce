@@ -18,8 +18,7 @@ const configs: any = {
     },
   },
   'clothingcenterni.com': {
-    // apiBaseUrl: 'https://erp.clothingcenterni.com',
-    apiBaseUrl: 'http://192.168.1.146:8000',
+    apiBaseUrl: 'https://erp.clothingcenterni.com',
     siteName: 'Clothing Center',
     siteLogo: 'LogoClothing.svg',
     siteFavicon: 'clothing.ico',
