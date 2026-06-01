@@ -3,13 +3,16 @@
     <h1 class="font-headings">Cargando Producto</h1>
     <SfLoaderCircular size="4xl" />
   </div>
-  <div v-else-if="product" class="mx-auto grid w-full max-w-7xl grid-cols-1 gap-y-4 px-4 md:grid-cols-2 md:items-start md:gap-x-[60px] md:px-8">
+  <div
+    v-else-if="product"
+    class="mx-auto grid w-full max-w-7xl grid-cols-1 gap-y-4 px-4 md:grid-cols-2 md:items-start md:gap-x-[60px] md:px-8"
+  >
     <section class="w-full min-w-0">
       <div class="overflow-hidden rounded-md border border-neutral-200 bg-neutral-50 shadow-sm">
         <img
-          class="w-full h-auto"
-          :src="product.image"
-          :alt="product.item_name"
+          class="h-auto w-full"
+          :src="displayedImage"
+          :alt="displayedItemName"
           width="176"
           height="176"
         />
@@ -17,8 +20,10 @@
     </section>
 
     <section class="w-full min-w-0 md:max-w-xl">
-      <div v-if="product.price.discount_percent">
-        <div class="inline-flex items-center justify-center text-xs font-semibold text-white bg-secondary-700 py-1.5 px-3 mb-2">
+      <div v-if="displayedPrice?.discount_percent">
+        <div
+          class="mb-2 inline-flex items-center justify-center bg-secondary-700 px-3 py-1.5 text-xs font-semibold text-white"
+        >
           <SfIconSell size="sm" class="mr-1.5" /> SALE
         </div>
       </div>
@@ -33,62 +38,95 @@
       </SfLink>
 
       <p class="mb-2 text-lg font-bold leading-snug text-neutral-950 md:text-xl">
-        {{ product.item_name }}
+        {{ displayedItemName }}
       </p>
 
       <span class="block font-bold text-xl text-neutral-950">
-        <a>{{ product.price.local_formatted_price }}</a>
+        <a>{{ displayedLocalPrice }}</a>
         <a class="font-thin"> | </a>
-        <a>{{ product.price.formatted_price }}</a>
+        <a>{{ displayedUsdPrice }}</a>
       </span>
 
-      <span v-if="product.price.discount_percent" class="max-sm:block block font-bold">
-        <del class="text-sm md:text-base text-neutral-400">{{ product.price.formatted_mrp }}</del>
+      <span v-if="displayedPrice?.discount_percent" class="max-sm:block block font-bold">
+        <del class="text-sm text-neutral-400 md:text-base">{{ displayedPrice?.formatted_mrp }}</del>
         <a class="pl-2 text-sm md:text-base text-secondary-700"
-          >{{ product.price.formatted_discount_percent }} OFF</a
+          >{{ displayedPrice?.formatted_discount_percent }} OFF</a
         >
       </span>
 
       <span
-        v-if="product.actual_qty"
+        v-if="displayedQty"
         class="mt-2 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold"
         :class="
-          product.actual_qty === 1
+          displayedQty === 1
             ? 'bg-primary-800 text-secondary-100'
             : 'bg-primary-100 text-neutral-700'
         "
       >
         {{
-          product.actual_qty === 1
-            ? 'Última unidad disponible'
-            : `${product.actual_qty} unidades disponibles`
+          displayedQty === 1 ? 'Última unidad disponible' : `${displayedQty} unidades disponibles`
         }}
       </span>
 
-      <div class="py-4 mt-4 mb-4 border-y">
+      <div v-if="attributeGroups.length" class="mt-5 space-y-4">
+        <div v-for="group in attributeGroups" :key="group.name" class="min-w-0">
+          <div class="mb-2 flex items-center gap-2 text-sm">
+            <span class="font-semibold text-neutral-900">{{ group.name }}</span>
+          </div>
+
+          <div class="flex min-w-0 flex-wrap gap-2">
+            <button
+              v-for="option in group.options"
+              :key="option.value"
+              type="button"
+              class="inline-flex items-center justify-center border text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-35 disabled:line-through"
+              :class="getAttributeOptionClass(group.name, option.selected)"
+              :disabled="!option.available"
+              @click="selectAttribute(group.name, option.value)"
+            >
+              <span
+                v-if="isColorAttribute(group.name)"
+                class="mr-2 h-4 w-4 rounded-full border border-neutral-300 shadow-inner"
+                :style="{ backgroundColor: getColorSwatch(option.value) }"
+              />
+              <span>{{ option.label }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <SfButton
+        class="mt-5 w-full justify-center border border-neutral-900 bg-neutral-50 !text-neutral-950 hover:bg-neutral-100 hover:!text-neutral-950 disabled:border-neutral-200 disabled:bg-neutral-50 disabled:!text-neutral-400"
+        variant="tertiary"
+        :disabled="!canAddSelection"
+        @click="addSelectedVariant"
+      >
+        <template #prefix>
+          <SfIconFavorite size="sm" />
+        </template>
+        <template #suffix>{{ selectionButtonLabel }}</template>
+      </SfButton>
+
+      <div class="mb-4 mt-4 border-y py-4">
         <div class="justify-center items-start xs:flex">
           <ContactButton
             class="w-full"
             size="lg"
             suffix="Enviar a WhatsApp"
-            :item_name="product.item_name"
+            :item_name="displayedItemName"
+            :message="whatsappMessage"
           />
-        </div>
-        <div class="hidden flex justify-center mt-4 gap-x-4">
-          <SfButton size="sm" variant="tertiary">
-            <SfIconFavorite size="sm" />Agregar a mi Lista
-          </SfButton>
         </div>
       </div>
 
       <div
-        v-if="!product.price.discount_percent"
+        v-if="!displayedPrice?.discount_percent"
         class="flex rounded-md bg-neutral-50 p-3 text-neutral-700"
       >
         <SfIconPackage size="sm" class="flex-shrink-0 mr-2 text-neutral-500" />
         <p class="text-sm">Envio Gratis en Managua Centro</p>
       </div>
-      <div v-if="product.price.discount_percent" class="grid gap-3 rounded-md bg-neutral-50 p-3">
+      <div v-if="displayedPrice?.discount_percent" class="grid gap-3 rounded-md bg-neutral-50 p-3">
         <div class="flex text-neutral-700">
           <SfIconSafetyCheck size="sm" class="flex-shrink-0 mr-2 text-neutral-500" />
           <p class="text-sm">
@@ -118,29 +156,474 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useProductStore } from '@/stores/productStore'
 import {
   SfButton,
   SfLink,
   SfLoaderCircular,
-  SfIconFavorite,
   SfIconPackage,
   SfIconSafetyCheck,
   SfIconSell,
   SfIconArrowBack,
+  SfIconFavorite,
 } from '@storefront-ui/vue'
 import ContactButton from '@/components/ContactButton.vue'
+import type { ProductVariant } from '@/types/Product'
+import { useSelectionStore } from '@/stores/selectionStore'
 
 const route = useRoute()
 const productStore = useProductStore()
+const selectionStore = useSelectionStore()
 
 const product = computed(() => productStore.currentProduct)
 const loading = computed(() => productStore.loading)
+const selectedAttributes = ref<Record<string, string>>({})
 
-onMounted(async () => {
-  const itemCode = route.params.id as string
-  await productStore.loadProduct(itemCode)
+const ATTRIBUTE_VALUE_ABBREVIATIONS: Record<string, string> = {
+  large: 'L',
+  medium: 'M',
+  small: 'S',
+  'extra large': 'XL',
+  'extra small': 'XS',
+}
+
+const COLOR_SWATCHES: Record<string, string> = {
+  amarillo: '#facc15',
+  azul: '#2563eb',
+  'azul navy': '#111827',
+  beige: '#e7d6b6',
+  blanco: '#ffffff',
+  cafe: '#7c2d12',
+  celeste: '#7dd3fc',
+  crema: '#f5e9d4',
+  gris: '#9ca3af',
+  lila: '#c4b5fd',
+  marron: '#7c2d12',
+  morado: '#7e22ce',
+  naranja: '#fb923c',
+  negro: '#171717',
+  rojo: '#dc2626',
+  rosa: '#f9a8d4',
+  rosado: '#f9a8d4',
+  verde: '#16a34a',
+}
+
+const normalizeAttributeName = (value: string) => value.trim().toLowerCase()
+
+const isColorAttribute = (attributeName: string) =>
+  normalizeAttributeName(attributeName) === 'color'
+const isSizeAttribute = (attributeName: string) => normalizeAttributeName(attributeName) === 'talla'
+
+const normalizeColorName = (value: string) =>
+  value
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
+
+const getColorSwatch = (value: string) => COLOR_SWATCHES[normalizeColorName(value)] || '#e5e7eb'
+
+const getAttributeOptionClass = (attributeName: string, selected: boolean) => {
+  if (isSizeAttribute(attributeName)) {
+    return selected
+      ? 'h-10 min-w-10 rounded-md border-neutral-950 bg-neutral-950 px-3 text-white shadow-sm hover:bg-neutral-800'
+      : 'h-10 min-w-10 rounded-md border-neutral-300 bg-white px-3 text-neutral-900 hover:border-neutral-950 hover:bg-neutral-50'
+  }
+
+  if (isColorAttribute(attributeName)) {
+    return selected
+      ? 'h-10 rounded-full border-neutral-950 bg-neutral-950 px-4 text-white shadow-sm hover:bg-neutral-800'
+      : 'h-10 rounded-full border-neutral-300 bg-white px-4 text-neutral-800 hover:border-neutral-950 hover:bg-neutral-50'
+  }
+
+  return selected
+    ? 'h-10 rounded-md border-neutral-950 bg-neutral-950 px-4 text-white shadow-sm hover:bg-neutral-800'
+    : 'h-10 rounded-md border-neutral-300 bg-white px-4 text-neutral-800 hover:border-neutral-950 hover:bg-neutral-50'
+}
+
+const formatAttributeValue = (value: string) => {
+  const normalizedValue = value.trim().toLowerCase()
+  const abbreviation = ATTRIBUTE_VALUE_ABBREVIATIONS[normalizedValue]
+
+  if (abbreviation) {
+    return abbreviation
+  }
+
+  const words = value.trim().match(/[A-Za-z0-9]+/g) || []
+
+  if (words.length > 1) {
+    return words.map((word) => word.charAt(0).toUpperCase()).join('')
+  }
+
+  return value.trim()
+}
+
+const getQueryValue = (value: unknown) => {
+  if (Array.isArray(value)) {
+    return typeof value[0] === 'string' ? value[0] : null
+  }
+
+  return typeof value === 'string' ? value : null
+}
+
+const getVariantAttribute = (variant: ProductVariant, attributeName: string) => {
+  const attribute = Object.entries(variant.attributes).find(
+    ([name]) => normalizeAttributeName(name) === normalizeAttributeName(attributeName),
+  )
+
+  return attribute?.[1] || null
+}
+
+const baseAttributeGroups = computed(() => {
+  if (!product.value) {
+    return []
+  }
+
+  return Object.entries(product.value.available_attributes)
+    .filter(([, values]) => values.length > 0)
+    .map(([name, values]) => ({ name, values }))
+    .sort((firstGroup, secondGroup) => {
+      const priority = (attributeName: string) => {
+        if (isColorAttribute(attributeName)) return 0
+        if (isSizeAttribute(attributeName)) return 1
+        return 2
+      }
+
+      return priority(firstGroup.name) - priority(secondGroup.name)
+    })
+})
+
+const variantMatchesSelection = (variant: ProductVariant, selection: Record<string, string>) =>
+  Object.entries(selection).every(([attributeName, selectedValue]) => {
+    if (!selectedValue) {
+      return true
+    }
+
+    return getVariantAttribute(variant, attributeName) === selectedValue
+  })
+
+const getVariantsForSelection = (selection: Record<string, string>) =>
+  product.value?.variants.filter((variant) => variantMatchesSelection(variant, selection)) || []
+
+const getAttributeOptions = (
+  attributeName: string,
+  values: string[],
+  selection: Record<string, string> = selectedAttributes.value,
+) =>
+  values.map((value) => {
+    const optionSelection = isColorAttribute(attributeName)
+      ? { [attributeName]: value }
+      : { ...selection, [attributeName]: value }
+    const variants = getVariantsForSelection(optionSelection)
+    const stock = variants.reduce((total, variant) => total + variant.actual_qty, 0)
+
+    return {
+      value,
+      label: isSizeAttribute(attributeName) ? formatAttributeValue(value) : value,
+      available: stock > 0,
+      selected: selectedAttributes.value[attributeName] === value,
+    }
+  })
+
+const getAvailableOptions = (
+  attributeName: string,
+  values: string[],
+  selection: Record<string, string>,
+) => getAttributeOptions(attributeName, values, selection).filter((option) => option.available)
+
+const attributeGroups = computed(() =>
+  baseAttributeGroups.value.map((group) => ({
+    ...group,
+    options: getAttributeOptions(group.name, group.values),
+  })),
+)
+
+const activeVariants = computed(() => getVariantsForSelection(selectedAttributes.value))
+
+const selectedVariant = computed(() =>
+  activeVariants.value.length === 1 ? activeVariants.value[0] : null,
+)
+
+const selectionIsComplete = computed(() =>
+  baseAttributeGroups.value.every((group) => selectedAttributes.value[group.name]),
+)
+
+const activeVariantsSharePrice = computed(() => {
+  if (activeVariants.value.length === 0) {
+    return false
+  }
+
+  return new Set(activeVariants.value.map((variant) => variant.price.price_list_rate)).size === 1
+})
+
+const displayedPrice = computed(
+  () =>
+    selectedVariant.value?.price ||
+    (activeVariantsSharePrice.value ? activeVariants.value[0]?.price : null) ||
+    product.value?.price,
+)
+
+const displayedLocalPrice = computed(() => {
+  if (selectedVariant.value || activeVariantsSharePrice.value) {
+    return displayedPrice.value?.local_formatted_price
+  }
+
+  return (
+    product.value?.price_summary.local_formatted_price ||
+    displayedPrice.value?.local_formatted_price
+  )
+})
+
+const displayedUsdPrice = computed(() => {
+  if (selectedVariant.value || activeVariantsSharePrice.value) {
+    return displayedPrice.value?.formatted_price
+  }
+
+  return product.value?.price_summary.formatted_price || displayedPrice.value?.formatted_price
+})
+
+const displayedImage = computed(
+  () => selectedVariant.value?.image || activeVariants.value[0]?.image || product.value?.image,
+)
+
+const displayedItemName = computed(
+  () =>
+    (selectionIsComplete.value && selectedVariant.value?.item_name) ||
+    product.value?.item_name ||
+    '',
+)
+
+const displayedQty = computed(() => {
+  if (selectionIsComplete.value && selectedVariant.value) {
+    return selectedVariant.value.actual_qty
+  }
+
+  if (baseAttributeGroups.value.length === 0) {
+    return product.value?.actual_qty || 0
+  }
+
+  return 0
+})
+
+const selectionItemQty = computed(() => {
+  if (!selectedVariant.value) {
+    return 0
+  }
+
+  return (
+    selectionStore.items.find((item) => item.item_code === selectedVariant.value?.item_code)?.qty ||
+    0
+  )
+})
+
+const selectedVariantStock = computed(() => selectedVariant.value?.actual_qty || 0)
+
+const selectionReachedStock = computed(
+  () =>
+    selectionIsComplete.value &&
+    Boolean(selectedVariant.value) &&
+    selectionItemQty.value >= selectedVariantStock.value,
+)
+
+const canAddSelection = computed(
+  () => selectionIsComplete.value && Boolean(selectedVariant.value) && !selectionReachedStock.value,
+)
+
+const selectionButtonLabel = computed(() => {
+  if (!selectionIsComplete.value || !selectedVariant.value) {
+    return 'Seleccioná las opciones para agregar'
+  }
+
+  if (selectionReachedStock.value) {
+    return selectedVariantStock.value === 1
+      ? 'Ya agregaste la unidad disponible'
+      : `Ya agregaste ${selectedVariantStock.value} unidades disponibles`
+  }
+
+  return selectionItemQty.value
+    ? `Agregar otra (${selectionItemQty.value} en selección)`
+    : 'Agregar a mi selección'
+})
+
+const addSelectedVariant = () => {
+  if (!canAddSelection.value || !selectedVariant.value) {
+    return
+  }
+
+  selectionStore.addItem({
+    item_code: selectedVariant.value.item_code,
+    product_item_code: product.value?.item_code,
+    item_name: selectedVariant.value.item_name,
+    image: selectedVariant.value.image,
+    attributes: selectedVariant.value.attributes,
+    price: selectedVariant.value.price,
+  }, selectedVariant.value.actual_qty)
+}
+
+const findAttributeValue = (attributeName: string, value: string | null) => {
+  if (!value) {
+    return null
+  }
+
+  const group = baseAttributeGroups.value.find(
+    (attributeGroup) =>
+      normalizeAttributeName(attributeGroup.name) === normalizeAttributeName(attributeName),
+  )
+
+  return (
+    group?.values.find(
+      (optionValue) => normalizeAttributeName(optionValue) === normalizeAttributeName(value),
+    ) || null
+  )
+}
+
+const selectOnlyAvailableOptions = (selection: Record<string, string>) => {
+  const nextSelections = { ...selection }
+  const colorGroup = baseAttributeGroups.value.find((group) => isColorAttribute(group.name))
+  let changed = true
+
+  while (changed) {
+    changed = false
+
+    for (const group of baseAttributeGroups.value) {
+      if (nextSelections[group.name]) {
+        continue
+      }
+
+      if (colorGroup && !nextSelections[colorGroup.name] && !isColorAttribute(group.name)) {
+        continue
+      }
+
+      const availableOptions = getAvailableOptions(group.name, group.values, nextSelections)
+
+      if (availableOptions.length === 1) {
+        nextSelections[group.name] = availableOptions[0].value
+        changed = true
+      }
+    }
+  }
+
+  return nextSelections
+}
+
+const initializeSelections = () => {
+  if (!product.value) {
+    selectedAttributes.value = {}
+    return
+  }
+
+  const nextSelections: Record<string, string> = {}
+  const colorGroup = baseAttributeGroups.value.find((group) => isColorAttribute(group.name))
+  const sizeGroup = baseAttributeGroups.value.find((group) => isSizeAttribute(group.name))
+  const queryColor = getQueryValue(route.query.color)
+  const querySize = getQueryValue(route.query.size)
+
+  if (colorGroup) {
+    const selectedColor = findAttributeValue(colorGroup.name, queryColor)
+    const selectedColorIsAvailable =
+      selectedColor &&
+      getAvailableOptions(colorGroup.name, colorGroup.values, nextSelections).some(
+        (option) => option.value === selectedColor,
+      )
+
+    if (selectedColorIsAvailable) {
+      nextSelections[colorGroup.name] = selectedColor
+    }
+  }
+
+  if (sizeGroup && querySize) {
+    const selectedSize = findAttributeValue(sizeGroup.name, querySize)
+
+    if (selectedSize) {
+      const sizeIsAvailable = getAttributeOptions(
+        sizeGroup.name,
+        sizeGroup.values,
+        nextSelections,
+      ).some((option) => option.value === selectedSize && option.available)
+
+      if (sizeIsAvailable) {
+        nextSelections[sizeGroup.name] = selectedSize
+      }
+    }
+  }
+
+  selectedAttributes.value = selectOnlyAvailableOptions(nextSelections)
+}
+
+const selectAttribute = (attributeName: string, value: string) => {
+  const nextSelections = {
+    ...selectedAttributes.value,
+    [attributeName]: value,
+  }
+
+  for (const group of baseAttributeGroups.value) {
+    const selectedValue = nextSelections[group.name]
+
+    if (!selectedValue || group.name === attributeName) {
+      continue
+    }
+
+    const isStillAvailable = getAttributeOptions(group.name, group.values, nextSelections).some(
+      (option) => option.value === selectedValue && option.available,
+    )
+
+    if (!isStillAvailable) {
+      delete nextSelections[group.name]
+    }
+  }
+
+  selectedAttributes.value = selectOnlyAvailableOptions(nextSelections)
+}
+
+const selectedAttributesMessage = computed(() =>
+  Object.entries(selectedAttributes.value)
+    .filter(([, value]) => value)
+    .map(([name, value]) => `${name}: ${value}`)
+    .join(' | '),
+)
+
+const availableSizesMessage = computed(() => {
+  const sizeGroup = baseAttributeGroups.value.find((group) => isSizeAttribute(group.name))
+
+  if (!sizeGroup || selectedAttributes.value[sizeGroup.name]) {
+    return ''
+  }
+
+  const availableSizes = getAttributeOptions(sizeGroup.name, sizeGroup.values)
+    .filter((option) => option.available)
+    .map((option) => option.label)
+    .join(', ')
+
+  return availableSizes ? ` Tallas disponibles: ${availableSizes}.` : ''
+})
+
+const whatsappMessage = computed(() => {
+  if (!product.value) {
+    return ''
+  }
+
+  const selectedMessage = selectedAttributesMessage.value
+    ? ` Selección: ${selectedAttributesMessage.value}.`
+    : ''
+  const variantMessage = selectedVariant.value ? ` Código: ${selectedVariant.value.item_code}.` : ''
+
+  return `Tengo interés en el producto: ${displayedItemName.value}.${selectedMessage}${variantMessage}${availableSizesMessage.value}`
+})
+
+watch(
+  () => route.params.id,
+  async (itemCode) => {
+    if (typeof itemCode === 'string') {
+      await productStore.loadProduct(itemCode)
+    }
+  },
+  { immediate: true },
+)
+
+watch(() => [product.value?.item_code, route.fullPath], initializeSelections, {
+  immediate: true,
 })
 </script>

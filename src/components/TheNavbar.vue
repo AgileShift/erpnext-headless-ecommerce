@@ -50,12 +50,22 @@
         </form>
 
         <nav class="flex flex-nowrap justify-end items-center md:ml-10 gap-x-1 px-6">
-          <!--          <SfButton v-for="actionItem in actionItems" :key="actionItem.ariaLabel" :aria-label="actionItem.ariaLabel"-->
-          <!--            class="text-white bg-transparent hover:bg-primary-800 hover:text-white active:bg-primary-900 active:text-white" variant="tertiary" square>-->
-          <!--            <template #prefix>-->
-          <!--              <Component :is="actionItem.icon" />-->
-          <!--            </template>-->
-          <!--          </SfButton>-->
+          <SfButton
+            tag="router-link"
+            to="/selection"
+            aria-label="Mi selección"
+            class="relative bg-transparent text-white hover:bg-primary-800 hover:text-white active:bg-primary-900 active:text-white"
+            variant="tertiary"
+            square
+          >
+            <SfIconFavorite />
+            <span
+              v-if="selection.count"
+              class="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-neutral-950 px-1 text-xs font-bold text-white"
+            >
+              {{ selection.count }}
+            </span>
+          </SfButton>
         </nav>
 
         <form
@@ -244,6 +254,12 @@
                 Sale
               </router-link>
             </li>
+            <li v-if="isRootCategory(activeMenu)">
+              <router-link to="/selection" class="block px-4 py-3 text-left" @click="close()">
+                Mi selección
+                <span v-if="selection.count" class="font-semibold">({{ selection.count }})</span>
+              </router-link>
+            </li>
             <template v-for="node in activeMenu.children" :key="node.name">
               <li v-if="!hasCategoryChildren(node)">
                 <SfListItem
@@ -285,6 +301,7 @@ import {
   SfIconChevronRight,
   SfIconMenu,
   SfIconArrowBack,
+  SfIconFavorite,
   useDisclosure,
   useTrapFocus,
   useDropdown,
@@ -294,9 +311,11 @@ import { unrefElement } from '@vueuse/core'
 import type { Category } from '@/types/Category'
 import siteConfig from '@/config'
 import { ROOT_CATEGORY_NAME, useCategoryStore } from '@/stores/categoryStore'
+import { useSelectionStore } from '@/stores/selectionStore'
 
 const siteLogo = `/${siteConfig.siteLogo}`
 const categoryStore = useCategoryStore()
+const selection = useSelectionStore()
 const content = computed<Category>(() => categoryStore.categoryTree)
 
 onMounted(() => {

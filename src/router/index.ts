@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, type RouteLocationNormalizedLoaded } fr
 
 import CatalogView from '@/views/CatalogView.vue'
 import ProductView from '@/views/ProductView.vue'
+import SelectionView from '@/views/SelectionView.vue'
 import URLBuilderView from '@/views/URLBuilderView.vue'
 
 const getFilterProps = (route: RouteLocationNormalizedLoaded) => ({
@@ -23,6 +24,7 @@ const router = createRouter({
     { path: '/sale', name: 'Sale', component: CatalogView, props: getFilterProps },
     { path: '/category/:category', name: 'Category', component: CatalogView, props: getFilterProps },
     { path: '/product/:id(.*)', name: 'Product', component: ProductView, props: false },
+    { path: '/selection', name: 'Selection', component: SelectionView },
     { path: '/url-builder', name: 'URLBuilder', component: URLBuilderView },
   ],
 })

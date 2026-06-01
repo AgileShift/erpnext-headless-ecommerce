@@ -4,7 +4,7 @@
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
     <ProductCard
       v-for="product in products"
-      :key="product.item_code"
+      :key="product.catalog_key"
       :product="product"
       v-bind="$attrs"
     />

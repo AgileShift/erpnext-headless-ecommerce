@@ -1,8 +1,350 @@
 import { defineStore } from 'pinia'
-import type { Product } from '@/types/Product'
+import type {
+  Product,
+  ProductPrice,
+  ProductPriceSummary,
+  ProductVariant,
+  ProductVariantAttributes,
+} from '@/types/Product'
 import siteConfig from '@/config'
 
-const BASE_URL = siteConfig.apiBaseUrl;
+const BASE_URL = siteConfig.apiBaseUrl
+const EXCHANGE_RATE = 36.6243
+const SIZE_ATTRIBUTE_NAMES = new Set(['talla', 'size'])
+const SIZE_VALUE_ORDER: Record<string, number> = {
+  'extra extra small': 0,
+  xxs: 0,
+  'extra small': 1,
+  xs: 1,
+  small: 2,
+  s: 2,
+  medium: 3,
+  m: 3,
+  large: 4,
+  l: 4,
+  'extra large': 5,
+  xl: 5,
+  'extra extra large': 6,
+  xxl: 6,
+  '2xl': 6,
+  '3xl': 7,
+  xxxl: 7,
+}
+
+const formatUsd = (amount: number) =>
+  new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
+  }).format(amount)
+
+const formatNio = (amount: number) =>
+  new Intl.NumberFormat('es-NI', {
+    style: 'currency',
+    currency: 'NIO',
+    maximumFractionDigits: 0,
+  }).format(amount)
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+
+const toNumber = (value: unknown): number | null => {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value
+  }
+
+  if (typeof value === 'string' && value.trim().length > 0) {
+    const parsedValue = Number(value)
+
+    return Number.isFinite(parsedValue) ? parsedValue : null
+  }
+
+  return null
+}
+
+const toText = (value: unknown, fallback = ''): string =>
+  typeof value === 'string' && value.trim().length > 0 ? value.trim() : fallback
+
+const normalizeComparableText = (value: string) =>
+  value
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
+
+const isSizeAttribute = (attributeName: string) =>
+  SIZE_ATTRIBUTE_NAMES.has(normalizeComparableText(attributeName))
+
+const getSizeValueOrder = (value: string) => SIZE_VALUE_ORDER[normalizeComparableText(value)]
+
+const sortAttributeValues = (attributeName: string, values: string[]) => {
+  if (!isSizeAttribute(attributeName)) {
+    return values
+  }
+
+  return [...values].sort((firstValue, secondValue) => {
+    const firstOrder = getSizeValueOrder(firstValue)
+    const secondOrder = getSizeValueOrder(secondValue)
+
+    if (firstOrder !== undefined && secondOrder !== undefined) {
+      return firstOrder - secondOrder
+    }
+
+    if (firstOrder !== undefined) {
+      return -1
+    }
+
+    if (secondOrder !== undefined) {
+      return 1
+    }
+
+    return firstValue.localeCompare(secondValue, undefined, {
+      numeric: true,
+      sensitivity: 'base',
+    })
+  })
+}
+
+const formatImage = (image: unknown, itemName: unknown) => {
+  const imagePath = toText(image)
+
+  if (!imagePath) {
+    return 'https://dummyimage.com/300x400/000/fff&text=' + encodeURIComponent(toText(itemName))
+  }
+
+  return imagePath.startsWith('/') ? BASE_URL + imagePath : imagePath
+}
+
+const formatProductPrice = (price: unknown, fallbackRate?: number): ProductPrice => {
+  const priceRecord = isRecord(price) ? price : {}
+  const rawRate = toNumber(priceRecord.price_list_rate)
+  const priceListRate = rawRate ?? fallbackRate ?? 0
+  const hasPrice = rawRate !== null || typeof fallbackRate === 'number'
+  const discountPercent = toNumber(priceRecord.discount_percent)
+
+  return {
+    ...priceRecord,
+    price_list_rate: priceListRate,
+    currency: toText(priceRecord.currency, 'USD'),
+    currency_symbol: toText(priceRecord.currency_symbol, '$'),
+    formatted_price: hasPrice ? formatUsd(priceListRate) : 'No price available',
+    formatted_price_sales_uom:
+      typeof priceRecord.formatted_price_sales_uom === 'string'
+        ? priceRecord.formatted_price_sales_uom
+        : undefined,
+    local_price_list_rate: priceListRate * EXCHANGE_RATE,
+    local_formatted_price: hasPrice
+      ? formatNio(priceListRate * EXCHANGE_RATE)
+      : 'No price available',
+    formatted_mrp: typeof priceRecord.formatted_mrp === 'string' ? priceRecord.formatted_mrp : null,
+    discount_percent: discountPercent,
+    formatted_discount_percent: discountPercent ? `${Math.round(discountPercent)}%` : null,
+  }
+}
+
+const formatPriceSummary = (
+  priceSummary: unknown,
+  price: unknown,
+  variants: ProductVariant[],
+): ProductPriceSummary => {
+  const summaryRecord = isRecord(priceSummary) ? priceSummary : {}
+  const variantPrices = variants.map((variant) => variant.price.price_list_rate)
+  const fallbackPrice = toNumber(isRecord(price) ? price.price_list_rate : null)
+  const priceCandidates = fallbackPrice !== null ? [...variantPrices, fallbackPrice] : variantPrices
+  const minPrice =
+    toNumber(summaryRecord.min_price) ??
+    (priceCandidates.length > 0 ? Math.min(...priceCandidates) : 0)
+  const maxPrice =
+    toNumber(summaryRecord.max_price) ??
+    (priceCandidates.length > 0 ? Math.max(...priceCandidates) : minPrice)
+  const summaryType = toText(summaryRecord.type, minPrice === maxPrice ? 'single' : 'range')
+
+  return {
+    type: summaryType,
+    min_price: minPrice,
+    max_price: maxPrice,
+    formatted_price:
+      minPrice === maxPrice
+        ? formatUsd(minPrice)
+        : `${formatUsd(minPrice)} - ${formatUsd(maxPrice)}`,
+    local_formatted_price:
+      minPrice === maxPrice
+        ? formatNio(minPrice * EXCHANGE_RATE)
+        : `${formatNio(minPrice * EXCHANGE_RATE)} - ${formatNio(maxPrice * EXCHANGE_RATE)}`,
+  }
+}
+
+const formatVariantAttributes = (attributes: unknown): ProductVariantAttributes => {
+  if (!isRecord(attributes)) {
+    return {}
+  }
+
+  return Object.entries(attributes).reduce<ProductVariantAttributes>((normalized, [key, value]) => {
+    const attributeName = key.trim()
+    const attributeValue = toText(value)
+
+    if (attributeName && attributeValue) {
+      normalized[attributeName] = attributeValue
+    }
+
+    return normalized
+  }, {})
+}
+
+const getAvailableAttributes = (variants: ProductVariant[]) => {
+  const attributes: Record<string, string[]> = {}
+
+  variants.forEach((variant) => {
+    Object.entries(variant.attributes).forEach(([attributeName, attributeValue]) => {
+      if (!attributeValue) {
+        return
+      }
+
+      if (!attributes[attributeName]) {
+        attributes[attributeName] = []
+      }
+
+      if (!attributes[attributeName].includes(attributeValue)) {
+        attributes[attributeName].push(attributeValue)
+      }
+    })
+  })
+
+  return Object.fromEntries(
+    Object.entries(attributes).map(([attributeName, values]) => [
+      attributeName,
+      sortAttributeValues(attributeName, values),
+    ]),
+  )
+}
+
+const formatVariant = (
+  variant: unknown,
+  parentItem: Record<string, unknown>,
+  parentImage: string,
+): ProductVariant | null => {
+  if (!isRecord(variant)) {
+    return null
+  }
+
+  const itemName = toText(variant.item_name, toText(parentItem.item_name))
+
+  return {
+    item_code: toText(variant.item_code),
+    item_name: itemName,
+    item_group: toText(variant.item_group, toText(parentItem.item_group)),
+    image: formatImage(variant.image || parentImage, itemName),
+    variant_of: toText(variant.variant_of, toText(parentItem.item_code)),
+    actual_qty: toNumber(variant.actual_qty) ?? 0,
+    attributes: formatVariantAttributes(variant.attributes),
+    price: formatProductPrice(variant.price),
+  }
+}
+
+const getVariantColor = (variant: ProductVariant): string | null => {
+  const colorAttribute = Object.entries(variant.attributes).find(
+    ([attributeName]) => attributeName.trim().toLowerCase() === 'color',
+  )
+
+  return colorAttribute?.[1] || null
+}
+
+const getProductSingleColor = (product: Product): string | null => {
+  const colorAttribute = Object.entries(product.available_attributes).find(
+    ([attributeName, values]) =>
+      normalizeComparableText(attributeName) === 'color' && values.length === 1,
+  )
+
+  return colorAttribute?.[1][0] || getVariantColor(product.variants[0]) || null
+}
+
+const getCatalogMergeKey = (product: Product) => {
+  const color = getProductSingleColor(product)
+
+  return color
+    ? `${product.item_code}:color:${normalizeComparableText(color)}`
+    : product.item_code
+}
+
+const buildProductFromVariants = (product: Product, variants: ProductVariant[]): Product => {
+  const representativeVariant = variants[0]
+  const priceSummary = formatPriceSummary(null, null, variants)
+
+  return {
+    ...product,
+    catalog_key: representativeVariant?.item_code || product.catalog_key,
+    item_code: product.item_code,
+    image: representativeVariant?.image || product.image,
+    price_summary: priceSummary,
+    variants,
+    available_attributes: getAvailableAttributes(variants),
+    actual_qty: variants.reduce((total, variant) => total + variant.actual_qty, 0),
+    price: representativeVariant?.price || product.price,
+  }
+}
+
+const splitProductByColor = (product: Product): Product[] => {
+  if (product.variants.length === 0) {
+    return [product]
+  }
+
+  const variantsByColor = new Map<string, ProductVariant[]>()
+
+  for (const variant of product.variants) {
+    const color = getVariantColor(variant)
+
+    if (!color) {
+      return [product]
+    }
+
+    const colorKey = normalizeComparableText(color)
+    const variants = variantsByColor.get(colorKey) || []
+    variants.push(variant)
+    variantsByColor.set(colorKey, variants)
+  }
+
+  if (variantsByColor.size <= 1) {
+    return [product]
+  }
+
+  return [...variantsByColor.values()].map((variants) =>
+    buildProductFromVariants(product, variants),
+  )
+}
+
+const mergeCatalogProduct = (existingProduct: Product, incomingProduct: Product): Product => {
+  const variantsByCode = new Map<string, ProductVariant>()
+
+  for (const variant of [...existingProduct.variants, ...incomingProduct.variants]) {
+    variantsByCode.set(variant.item_code, variant)
+  }
+
+  const variants = [...variantsByCode.values()]
+
+  if (variants.length === 0) {
+    return existingProduct
+  }
+
+  return buildProductFromVariants(existingProduct, variants)
+}
+
+const mergeCatalogProducts = (existingProducts: Product[], incomingProducts: Product[]) => {
+  const productsByMergeKey = new Map<string, Product>()
+
+  for (const product of [...existingProducts, ...incomingProducts]) {
+    const mergeKey = getCatalogMergeKey(product)
+    const existingProduct = productsByMergeKey.get(mergeKey)
+
+    productsByMergeKey.set(
+      mergeKey,
+      existingProduct ? mergeCatalogProduct(existingProduct, product) : product,
+    )
+  }
+
+  return [...productsByMergeKey.values()]
+}
 
 export const useProductStore = defineStore('product', {
   state: () => ({
@@ -16,35 +358,38 @@ export const useProductStore = defineStore('product', {
   }),
 
   actions: {
-    formatProduct(item: any): Product {
+    formatProduct(item: unknown): Product {
+      const productItem = isRecord(item) ? item : {}
+      const itemName = toText(productItem.item_name)
+      const itemImage = formatImage(productItem.image, itemName)
+      const variants = Array.isArray(productItem.variants)
+        ? productItem.variants
+            .map((variant) => formatVariant(variant, productItem, itemImage))
+            .filter((variant): variant is ProductVariant => variant !== null)
+        : []
+      const priceSummary = formatPriceSummary(
+        productItem.price_summary,
+        productItem.price,
+        variants,
+      )
+      const totalQty =
+        variants.length > 0
+          ? variants.reduce((total, variant) => total + variant.actual_qty, 0)
+          : (toNumber(productItem.actual_qty) ?? 0)
+
       return {
-        ...item,
-        image: item.image
-          ? item.image.startsWith('/')
-            ? BASE_URL + item.image
-            : item.image
-          : 'https://dummyimage.com/300x400/000/fff&text=' + item.item_name,
-        price: item.price
-          ? {
-              ...item.price,
-              formatted_price: new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                maximumFractionDigits: 2,
-                minimumFractionDigits: 0,
-              }).format(item.price.price_list_rate),
-              local_formatted_price: new Intl.NumberFormat('es-NI', {
-                style: 'currency',
-                currency: 'NIO',
-                maximumFractionDigits: 0,
-              }).format(item.price.price_list_rate * 36.6243),
-              formatted_discount_percent: item.price.discount_percent
-                ? `${Math.round(item.price.discount_percent)}%`
-                : null,
-            }
-          : {
-              local_formatted_price: 'No price available',
-            },
+        catalog_key: toText(productItem.item_code),
+        item_code: toText(productItem.item_code),
+        item_name: itemName,
+        item_group: toText(productItem.item_group),
+        image: itemImage,
+        price_summary: priceSummary,
+        variants,
+        available_attributes: getAvailableAttributes(variants),
+        actual_qty: totalQty,
+        price: isRecord(productItem.price)
+          ? formatProductPrice(productItem.price, priceSummary.min_price)
+          : variants[0]?.price || formatProductPrice(null, priceSummary.min_price),
       }
     },
 
@@ -58,7 +403,7 @@ export const useProductStore = defineStore('product', {
       this.loading = true
       const start = (page - 1) * this.limit
 
-      let url = `${BASE_URL}/api/method/gr_tools.www.products.get_products?start=${start}&limit=${this.limit}`
+      let url = `${BASE_URL}/api/method/gr_tools.www.products.get_items?start=${start}&limit=${this.limit}`
       url += sale ? `&sale=1` : ''
       url += category ? `&category=${encodeURIComponent(category)}` : ''
       url += size ? `&size=${encodeURIComponent(size)}` : ''
@@ -74,11 +419,13 @@ export const useProductStore = defineStore('product', {
         return
       }
 
-      const products = data.message.map(this.formatProduct)
+      const products = data.message.flatMap((item: unknown) =>
+        splitProductByColor(this.formatProduct(item)),
+      )
       if (page === 1) {
-        this.products = products
+        this.products = mergeCatalogProducts([], products)
       } else {
-        this.products = [...this.products, ...products]
+        this.products = mergeCatalogProducts(this.products, products)
       }
 
       this.currentPage = page
@@ -88,20 +435,28 @@ export const useProductStore = defineStore('product', {
     async loadProduct(itemCode: string) {
       this.loading = true
 
-      const response = await fetch(
-        `${BASE_URL}/api/method/gr_tools.www.products.get_product?item_code=${itemCode}`,
-      )
-      const data = await response.json()
+      try {
+        const encodedItemCode = encodeURIComponent(itemCode)
+        const response = await fetch(
+          `${BASE_URL}/api/method/gr_tools.www.products.get_items_from_template?item_code=${encodedItemCode}`,
+        )
+        const data = await response.json()
 
-      if (!data || data.message?.length === 0) {
-        console.error(`Product with item_code ${itemCode} not found!`)
+        const productItem = Array.isArray(data?.message) ? data.message[0] : data?.message
+
+        if (!productItem) {
+          console.error(`Product with item_code ${itemCode} not found!`)
+          this.currentProduct = null
+          return
+        }
+
+        this.currentProduct = this.formatProduct(productItem)
+      } catch (error) {
+        console.error(`Product with item_code ${itemCode} could not be loaded!`, error)
         this.currentProduct = null
+      } finally {
         this.loading = false
-        return
       }
-
-      this.currentProduct = this.formatProduct(data.message)
-      this.loading = false
     },
   },
 })

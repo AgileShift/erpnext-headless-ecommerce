@@ -3,7 +3,7 @@
     class="flex h-full max-w-[280px] flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white hover:shadow-lg"
   >
     <div class="relative">
-      <SfLink tag="router-link" :to="`/product/${product.item_code}`" class="block">
+      <SfLink tag="router-link" :to="productUrl" class="block">
         <img
           :src="product.image"
           :alt="product.item_name"
@@ -16,7 +16,7 @@
     <div class="flex flex-1 flex-col p-4 pt-2">
       <SfLink
         tag="router-link"
-        :to="`/product/${product.item_code}`"
+        :to="productUrl"
         variant="secondary"
         class="text-sm font-medium no-underline md:text-base"
         >{{ product.item_name }}</SfLink
@@ -30,11 +30,11 @@
         {{ product.item_group }}
       </SfLink>
 
-      <div>
-        <span class="block font-bold">
-          <a>{{ product.price.local_formatted_price }}</a>
+      <div class="mt-1">
+        <span class="block text-sm font-bold leading-tight md:text-base">
+          <a>{{ product.price_summary.local_formatted_price }}</a>
           <a class="font-thin"> | </a>
-          <a>{{ product.price.formatted_price }}</a>
+          <a>{{ product.price_summary.formatted_price }}</a>
         </span>
 
         <span v-if="product.price.discount_percent" class="max-sm:block block font-bold">
@@ -45,12 +45,31 @@
         </span>
       </div>
 
-      <div class="mt-auto pt-1">
+      <div v-if="visibleAttributes.length" class="mt-2 space-y-1.5">
+        <div
+          v-for="attribute in visibleAttributes"
+          :key="attribute.name"
+          class="flex min-w-0 flex-wrap items-center gap-1 text-xs text-neutral-700"
+          :title="attribute.title"
+        >
+          <span class="mr-0.5 font-medium text-neutral-500">{{ attribute.name }}:</span>
+          <span
+            v-for="value in attribute.formattedValues"
+            :key="value"
+            class="inline-flex h-5 min-w-5 items-center justify-center rounded-md border border-neutral-200 bg-neutral-50 px-1.5 text-[11px] font-medium leading-none text-neutral-700"
+          >
+            {{ value }}
+          </span>
+        </div>
+      </div>
+
+      <div class="mt-auto pt-3">
         <ContactButton
           class="w-full justify-center"
           size="sm"
-          suffix="Enviar a WhatsApp"
+          suffix="WhatsApp"
           :item_name="product.item_name"
+          :message="whatsappMessage"
         />
       </div>
     </div>
@@ -58,11 +77,87 @@
 </template>
 
 <script lang="ts" setup>
+import { computed } from 'vue'
 import { SfLink } from '@storefront-ui/vue'
 import type { Product } from '@/types/Product'
 import ContactButton from '@/components/ContactButton.vue'
+import siteConfig from '@/config'
 
-defineProps<{
+const ATTRIBUTE_VALUE_ABBREVIATIONS: Record<string, string> = {
+  large: 'L',
+  medium: 'M',
+  small: 'S',
+  'extra large': 'XL',
+  'extra small': 'XS',
+}
+
+const props = defineProps<{
   product: Product
 }>()
+
+const normalizeAttributeName = (value: string) => value.trim().toLowerCase()
+
+const formatAttributeValue = (value: string) => {
+  const normalizedValue = value.trim().toLowerCase()
+  const abbreviation = ATTRIBUTE_VALUE_ABBREVIATIONS[normalizedValue]
+
+  if (abbreviation) {
+    return abbreviation
+  }
+
+  const words = value.trim().match(/[A-Za-z0-9]+/g) || []
+
+  if (words.length > 1) {
+    return words.map((word) => word.charAt(0).toUpperCase()).join('')
+  }
+
+  return value.trim().charAt(0).toUpperCase()
+}
+
+const visibleAttributeNames = computed(() =>
+  (siteConfig.catalog?.productCardVisibleAttributes || ['Talla']).map(normalizeAttributeName),
+)
+
+const attributes = computed(() =>
+  Object.entries(props.product.available_attributes)
+    .filter(
+      ([name, values]) =>
+        values.length > 0 && visibleAttributeNames.value.includes(normalizeAttributeName(name)),
+    )
+    .map(([name, values]) => ({
+      name,
+      formattedValues: values.map(formatAttributeValue),
+      title: `${name}: ${values.join(', ')}`,
+    })),
+)
+
+const visibleAttributes = computed(() => attributes.value)
+
+const cardColor = computed(() => {
+  const colorAttribute = Object.entries(props.product.available_attributes).find(
+    ([name, values]) => normalizeAttributeName(name) === 'color' && values.length === 1,
+  )
+
+  return colorAttribute?.[1][0] || null
+})
+
+const productUrl = computed(() => ({
+  path: `/product/${props.product.item_code}`,
+  query: cardColor.value ? { color: cardColor.value } : {},
+}))
+
+const availableOptionsMessage = computed(() =>
+  Object.entries(props.product.available_attributes)
+    .filter(([, values]) => values.length > 0)
+    .map(([name, values]) => `${name}: ${values.join(', ')}`)
+    .join(' | '),
+)
+
+const whatsappMessage = computed(() => {
+  const optionsMessage = availableOptionsMessage.value
+    ? ` Opciones disponibles: ${availableOptionsMessage.value}.`
+    : ''
+
+  return `Tengo interés en el producto: ${props.product.item_name}.${optionsMessage}`
+})
 </script>

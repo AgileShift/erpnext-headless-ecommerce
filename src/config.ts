@@ -13,9 +13,13 @@ const configs: any = {
     contact: {
       whatsApp: '50583968452',
     },
+    catalog: {
+      productCardVisibleAttributes: [],
+    },
   },
   'clothingcenterni.com': {
-    apiBaseUrl: 'https://erp.clothingcenterni.com',
+    // apiBaseUrl: 'https://erp.clothingcenterni.com',
+    apiBaseUrl: 'http://192.168.1.146:8000',
     siteName: 'Clothing Center',
     siteLogo: 'LogoClothing.svg',
     siteFavicon: 'clothing.ico',
@@ -26,6 +30,9 @@ const configs: any = {
     },
     contact: {
       whatsApp: '50577020233',
+    },
+    catalog: {
+      productCardVisibleAttributes: ['Talla'],
     },
   },
 }
