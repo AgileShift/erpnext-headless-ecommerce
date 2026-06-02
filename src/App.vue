@@ -22,6 +22,18 @@ if (favicon) {
 
 <style scoped>
 main {
+  --color-primary-100: rgb(v-bind(siteConfig.colors.primary) / 0.18);
+  --color-primary-200: rgb(v-bind(siteConfig.colors.primary) / 0.32);
+  --color-primary-300: rgb(v-bind(siteConfig.colors.primary) / 0.48);
+  --color-primary-500: rgb(v-bind(siteConfig.colors.primary));
+  --color-primary-700: rgb(v-bind(siteConfig.colors.primary));
+  --color-primary-800: rgb(v-bind(siteConfig.colors.secondary));
+  --color-primary-900: rgb(v-bind(siteConfig.colors.secondary));
+
+  --color-secondary-100: rgb(v-bind(siteConfig.colors.secondary) / 0.18);
+  --color-secondary-600: rgb(v-bind(siteConfig.colors.secondary));
+  --color-secondary-700: rgb(v-bind(siteConfig.colors.secondary));
+
   --colors-primary-700: v-bind(siteConfig.colors.primary);
   --colors-primary-800: v-bind(siteConfig.colors.secondary);
 
