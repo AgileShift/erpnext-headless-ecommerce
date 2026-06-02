@@ -7,29 +7,11 @@ import type {
   ProductVariantAttributes,
 } from '@/types/Product'
 import siteConfig from '@/config'
+import { normalizeComparableText, sortSizeValues } from '@/utils/sizeOrdering'
 
 const BASE_URL = siteConfig.apiBaseUrl
-const EXCHANGE_RATE = 36.6243
 const SIZE_ATTRIBUTE_NAMES = new Set(['talla', 'size'])
-const SIZE_VALUE_ORDER: Record<string, number> = {
-  'extra extra small': 0,
-  xxs: 0,
-  'extra small': 1,
-  xs: 1,
-  small: 2,
-  s: 2,
-  medium: 3,
-  m: 3,
-  large: 4,
-  l: 4,
-  'extra large': 5,
-  xl: 5,
-  'extra extra large': 6,
-  xxl: 6,
-  '2xl': 6,
-  '3xl': 7,
-  xxxl: 7,
-}
+const EXCHANGE_RATE = siteConfig.catalog.exchangeRate
 
 const formatUsd = (amount: number) =>
   new Intl.NumberFormat('en-US', {
@@ -46,65 +28,18 @@ const formatNio = (amount: number) =>
     maximumFractionDigits: 0,
   }).format(amount)
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value)
-
-const toNumber = (value: unknown): number | null => {
-  if (typeof value === 'number' && Number.isFinite(value)) {
-    return value
-  }
-
-  if (typeof value === 'string' && value.trim().length > 0) {
-    const parsedValue = Number(value)
-
-    return Number.isFinite(parsedValue) ? parsedValue : null
-  }
-
-  return null
-}
-
 const toText = (value: unknown, fallback = ''): string =>
   typeof value === 'string' && value.trim().length > 0 ? value.trim() : fallback
 
-const normalizeComparableText = (value: string) =>
-  value
-    .trim()
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/\s+/g, ' ')
-
 const isSizeAttribute = (attributeName: string) =>
   SIZE_ATTRIBUTE_NAMES.has(normalizeComparableText(attributeName))
-
-const getSizeValueOrder = (value: string) => SIZE_VALUE_ORDER[normalizeComparableText(value)]
 
 const sortAttributeValues = (attributeName: string, values: string[]) => {
   if (!isSizeAttribute(attributeName)) {
     return values
   }
 
-  return [...values].sort((firstValue, secondValue) => {
-    const firstOrder = getSizeValueOrder(firstValue)
-    const secondOrder = getSizeValueOrder(secondValue)
-
-    if (firstOrder !== undefined && secondOrder !== undefined) {
-      return firstOrder - secondOrder
-    }
-
-    if (firstOrder !== undefined) {
-      return -1
-    }
-
-    if (secondOrder !== undefined) {
-      return 1
-    }
-
-    return firstValue.localeCompare(secondValue, undefined, {
-      numeric: true,
-      sensitivity: 'base',
-    })
-  })
+  return sortSizeValues(values)
 }
 
 const formatImage = (image: unknown, itemName: unknown) => {
@@ -118,11 +53,10 @@ const formatImage = (image: unknown, itemName: unknown) => {
 }
 
 const formatProductPrice = (price: unknown, fallbackRate?: number): ProductPrice => {
-  const priceRecord = isRecord(price) ? price : {}
-  const rawRate = toNumber(priceRecord.price_list_rate)
-  const priceListRate = rawRate ?? fallbackRate ?? 0
-  const hasPrice = rawRate !== null || typeof fallbackRate === 'number'
-  const discountPercent = toNumber(priceRecord.discount_percent)
+  const priceRecord = (price ?? {}) as Record<string, unknown>
+  const priceListRate = (priceRecord.price_list_rate as number | undefined) ?? fallbackRate ?? 0
+  const hasPrice = typeof priceRecord.price_list_rate === 'number' || typeof fallbackRate === 'number'
+  const discountPercent = (priceRecord.discount_percent as number | undefined) ?? null
 
   return {
     ...priceRecord,
@@ -130,15 +64,10 @@ const formatProductPrice = (price: unknown, fallbackRate?: number): ProductPrice
     currency: toText(priceRecord.currency, 'USD'),
     currency_symbol: toText(priceRecord.currency_symbol, '$'),
     formatted_price: hasPrice ? formatUsd(priceListRate) : 'No price available',
-    formatted_price_sales_uom:
-      typeof priceRecord.formatted_price_sales_uom === 'string'
-        ? priceRecord.formatted_price_sales_uom
-        : undefined,
+    formatted_price_sales_uom: priceRecord.formatted_price_sales_uom as string | undefined,
     local_price_list_rate: priceListRate * EXCHANGE_RATE,
-    local_formatted_price: hasPrice
-      ? formatNio(priceListRate * EXCHANGE_RATE)
-      : 'No price available',
-    formatted_mrp: typeof priceRecord.formatted_mrp === 'string' ? priceRecord.formatted_mrp : null,
+    local_formatted_price: hasPrice ? formatNio(priceListRate * EXCHANGE_RATE) : 'No price available',
+    formatted_mrp: (priceRecord.formatted_mrp as string | null) ?? null,
     discount_percent: discountPercent,
     formatted_discount_percent: discountPercent ? `${Math.round(discountPercent)}%` : null,
   }
@@ -149,15 +78,16 @@ const formatPriceSummary = (
   price: unknown,
   variants: ProductVariant[],
 ): ProductPriceSummary => {
-  const summaryRecord = isRecord(priceSummary) ? priceSummary : {}
+  const summaryRecord = (priceSummary ?? {}) as Record<string, unknown>
   const variantPrices = variants.map((variant) => variant.price.price_list_rate)
-  const fallbackPrice = toNumber(isRecord(price) ? price.price_list_rate : null)
-  const priceCandidates = fallbackPrice !== null ? [...variantPrices, fallbackPrice] : variantPrices
+  const fallbackPrice = (price as { price_list_rate?: number } | null)?.price_list_rate
+  const priceCandidates =
+    typeof fallbackPrice === 'number' ? [...variantPrices, fallbackPrice] : variantPrices
   const minPrice =
-    toNumber(summaryRecord.min_price) ??
+    (summaryRecord.min_price as number | undefined) ??
     (priceCandidates.length > 0 ? Math.min(...priceCandidates) : 0)
   const maxPrice =
-    toNumber(summaryRecord.max_price) ??
+    (summaryRecord.max_price as number | undefined) ??
     (priceCandidates.length > 0 ? Math.max(...priceCandidates) : minPrice)
   const summaryType = toText(summaryRecord.type, minPrice === maxPrice ? 'single' : 'range')
 
@@ -176,22 +106,20 @@ const formatPriceSummary = (
   }
 }
 
-const formatVariantAttributes = (attributes: unknown): ProductVariantAttributes => {
-  if (!isRecord(attributes)) {
-    return {}
-  }
+const formatVariantAttributes = (attributes: unknown): ProductVariantAttributes =>
+  Object.entries((attributes ?? {}) as Record<string, unknown>).reduce<ProductVariantAttributes>(
+    (normalized, [key, value]) => {
+      const attributeName = key.trim()
+      const attributeValue = toText(value)
 
-  return Object.entries(attributes).reduce<ProductVariantAttributes>((normalized, [key, value]) => {
-    const attributeName = key.trim()
-    const attributeValue = toText(value)
+      if (attributeName && attributeValue) {
+        normalized[attributeName] = attributeValue
+      }
 
-    if (attributeName && attributeValue) {
-      normalized[attributeName] = attributeValue
-    }
-
-    return normalized
-  }, {})
-}
+      return normalized
+    },
+    {},
+  )
 
 const getAvailableAttributes = (variants: ProductVariant[]) => {
   const attributes: Record<string, string[]> = {}
@@ -225,21 +153,18 @@ const formatVariant = (
   parentItem: Record<string, unknown>,
   parentImage: string,
 ): ProductVariant | null => {
-  if (!isRecord(variant)) {
-    return null
-  }
-
-  const itemName = toText(variant.item_name, toText(parentItem.item_name))
+  const variantItem = (variant ?? {}) as Record<string, unknown>
+  const itemName = toText(variantItem.item_name, toText(parentItem.item_name))
 
   return {
-    item_code: toText(variant.item_code),
+    item_code: toText(variantItem.item_code),
     item_name: itemName,
-    item_group: toText(variant.item_group, toText(parentItem.item_group)),
-    image: formatImage(variant.image || parentImage, itemName),
-    variant_of: toText(variant.variant_of, toText(parentItem.item_code)),
-    actual_qty: toNumber(variant.actual_qty) ?? 0,
-    attributes: formatVariantAttributes(variant.attributes),
-    price: formatProductPrice(variant.price),
+    item_group: toText(variantItem.item_group, toText(parentItem.item_group)),
+    image: formatImage(variantItem.image || parentImage, itemName),
+    variant_of: toText(variantItem.variant_of, toText(parentItem.item_code)),
+    actual_qty: (variantItem.actual_qty as number | undefined) ?? 0,
+    attributes: formatVariantAttributes(variantItem.attributes),
+    price: formatProductPrice(variantItem.price),
   }
 }
 
@@ -393,7 +318,7 @@ export const useProductStore = defineStore('product', {
 
   actions: {
     formatProduct(item: unknown): Product {
-      const productItem = isRecord(item) ? item : {}
+      const productItem = (item ?? {}) as Record<string, unknown>
       const itemName = toText(productItem.item_name)
       const itemImage = formatImage(productItem.image, itemName)
       const variants = Array.isArray(productItem.variants)
@@ -409,7 +334,7 @@ export const useProductStore = defineStore('product', {
       const totalQty =
         variants.length > 0
           ? variants.reduce((total, variant) => total + variant.actual_qty, 0)
-          : (toNumber(productItem.actual_qty) ?? 0)
+          : ((productItem.actual_qty as number | undefined) ?? 0)
 
       return {
         catalog_key: toText(productItem.item_code),
@@ -421,7 +346,7 @@ export const useProductStore = defineStore('product', {
         variants,
         available_attributes: getAvailableAttributes(variants),
         actual_qty: totalQty,
-        price: isRecord(productItem.price)
+        price: productItem.price
           ? formatProductPrice(productItem.price, priceSummary.min_price)
           : variants[0]?.price || formatProductPrice(null, priceSummary.min_price),
       }
@@ -474,7 +399,7 @@ export const useProductStore = defineStore('product', {
         this.products = mergeCatalogProducts(this.products, products)
       }
 
-      this.hasMoreProducts = message.length >= this.limit
+      this.hasMoreProducts = true
       this.currentPage = page
       this.loading = false
     },

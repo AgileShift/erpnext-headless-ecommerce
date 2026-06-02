@@ -29,8 +29,15 @@ const createEmptyAttributes = (): ItemAttributeGroups => ({
   Color: [],
 })
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+type RawAttributeOption =
+  | string
+  | {
+      value?: unknown
+      attribute_value?: unknown
+      label?: unknown
+      name?: unknown
+      abbr?: unknown
+    }
 
 const normalizeAttributeKey = (value: unknown): ItemAttributeKey | null => {
   if (typeof value !== 'string') {
@@ -40,7 +47,7 @@ const normalizeAttributeKey = (value: unknown): ItemAttributeKey | null => {
   return ATTRIBUTE_ALIASES[value.trim().toLowerCase()] || null
 }
 
-const toAttributeOption = (value: unknown): ItemAttributeOption | null => {
+const toAttributeOption = (value: RawAttributeOption): ItemAttributeOption | null => {
   if (typeof value === 'string') {
     return {
       label: value,
@@ -49,18 +56,14 @@ const toAttributeOption = (value: unknown): ItemAttributeOption | null => {
     }
   }
 
-  if (!isRecord(value)) {
-    return null
-  }
-
-  const rawValue = value.value || value.attribute_value || value.label || value.name
+  const rawValue =
+    value.value || value.attribute_value || value.label || value.name
 
   if (typeof rawValue !== 'string' || rawValue.trim().length === 0) {
     return null
   }
 
-  const label =
-    typeof value.label === 'string' && value.label.trim().length > 0 ? value.label : rawValue
+  const label = typeof value.label === 'string' && value.label.trim().length > 0 ? value.label : rawValue
   const abbr = typeof value.abbr === 'string' && value.abbr.trim().length > 0 ? value.abbr : null
 
   return {
@@ -104,7 +107,7 @@ const normalizeOptions = (message: unknown) =>
   Array.isArray(message)
     ? uniqueOptions(
         message
-          .map(toAttributeOption)
+          .map((entry) => toAttributeOption(entry as RawAttributeOption))
           .filter((option): option is ItemAttributeOption => option !== null),
       )
     : []

@@ -5,6 +5,7 @@
       :key="`${filter.type}-${filter.value}`"
       :model-value="true"
       size="sm"
+      class="border border-primary-200 bg-primary-100 text-neutral-950 shadow-sm"
       @update:model-value="removeFilter(filter.type, filter.value)"
     >
       {{ filter.label }}
@@ -56,7 +57,7 @@
             v-model="selectedSizes"
             square
             size="sm"
-            class="min-w-9"
+            :class="getFilterChipClass(selectedSizes, size.value, 'min-w-9')"
             :input-props="{ value: size.value }"
           >
             {{ getSizeOptionLabel(size) }}
@@ -72,7 +73,7 @@
             :key="category"
             v-model="selectedCategories"
             size="sm"
-            class="min-w-0 justify-start"
+            :class="getFilterChipClass(selectedCategories, category, 'min-w-0 justify-start')"
             :input-props="{ value: category }"
           >
             <span class="truncate">{{ category }}</span>
@@ -88,7 +89,7 @@
             :key="color.value"
             v-model="selectedColors"
             size="sm"
-            class="min-w-0 justify-start"
+            :class="getFilterChipClass(selectedColors, color.value, 'min-w-0 justify-start')"
             :input-props="{ value: color.value }"
           >
             <template #prefix>
@@ -139,6 +140,7 @@ import { useItemAttributeStore } from '@/stores/itemAttributeStore'
 import type { Category } from '@/types/Category'
 import { getColorSwatch } from '@/utils/colorSwatches'
 import { isNumericAttributeValue } from '@/utils/attributeFormatting'
+import { compareSizeValues } from '@/utils/sizeOrdering'
 
 const props = defineProps<{
   sale?: boolean
@@ -179,57 +181,29 @@ const getLeafCategoryNames = (node: Category): string[] => {
 const categoryOptions = computed(() =>
   Array.from(new Set(getLeafCategoryNames(categoryStore.categoryTree))),
 )
-const sizeValueOrder: Record<string, number> = {
-  xxs: 0,
-  'extra extra small': 0,
-  xs: 1,
-  'extra small': 1,
-  s: 2,
-  small: 2,
-  m: 3,
-  medium: 3,
-  l: 4,
-  large: 4,
-  xl: 5,
-  'extra large': 5,
-  xxl: 6,
-  'extra extra large': 6,
-  '2xl': 6,
-  xxxl: 7,
-  '3xl': 7,
-}
-
-const normalizeSizeValue = (value: string) => value.trim().toLowerCase()
-
-const getSizeSortValue = (value: string) => sizeValueOrder[normalizeSizeValue(value)]
-
 const sizeOptions = computed(() =>
-  [...itemAttributeStore.sizes].sort((firstSize, secondSize) => {
-    const firstOrder = getSizeSortValue(firstSize.label)
-    const secondOrder = getSizeSortValue(secondSize.label)
-
-    if (firstOrder !== undefined && secondOrder !== undefined) {
-      return firstOrder - secondOrder
-    }
-
-    if (firstOrder !== undefined) {
-      return -1
-    }
-
-    if (secondOrder !== undefined) {
-      return 1
-    }
-
-    return firstSize.label.localeCompare(secondSize.label, undefined, {
-      numeric: true,
-      sensitivity: 'base',
-    })
-  }),
+  [...itemAttributeStore.sizes].sort((firstSize, secondSize) =>
+    compareSizeValues(firstSize.label, secondSize.label),
+  ),
 )
 const colorOptions = computed(() => itemAttributeStore.colors)
 
 const getSizeOptionLabel = (size: { label: string; abbr: string | null }) =>
   isNumericAttributeValue(size.label) ? size.label : size.abbr || size.label
+
+const getFilterChipClass = (
+  selectedValues: string[],
+  value: string,
+  baseClass = '',
+) => {
+  const activeClass = 'border border-primary-200 bg-primary-100 text-neutral-950 shadow-sm'
+  const inactiveClass = 'border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50'
+
+  return [
+    baseClass,
+    selectedValues.includes(value) ? activeClass : inactiveClass,
+  ].join(' ')
+}
 
 const activeFilters = computed(() => [
   ...selectedSizes.value.map((value) => ({

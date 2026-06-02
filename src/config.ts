@@ -15,6 +15,7 @@ const configs: any = {
     },
     catalog: {
       productCardVisibleAttributes: [],
+      exchangeRate: 36.6243,
     },
   },
   'clothingcenterni.com': {
@@ -32,6 +33,7 @@ const configs: any = {
     },
     catalog: {
       productCardVisibleAttributes: ['Talla'],
+      exchangeRate: 36.6243,
     },
   },
 }
