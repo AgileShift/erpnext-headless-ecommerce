@@ -56,16 +56,10 @@
 
       <span
         v-if="displayedQty"
-        class="mt-2 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold"
-        :class="
-          displayedQty === 1
-            ? 'bg-primary-800 text-secondary-100'
-            : 'bg-primary-100 text-neutral-700'
-        "
+        class="mt-2 inline-flex rounded-full border px-2.5 py-1 text-xs font-medium"
+        :class="stockBadgeClass"
       >
-        {{
-          displayedQty === 1 ? 'Última unidad disponible' : `${displayedQty} unidades disponibles`
-        }}
+        {{ stockBadgeLabel }}
       </span>
 
       <div v-if="attributeGroups.length" class="mt-5 space-y-4">
@@ -75,22 +69,25 @@
           </div>
 
           <div class="flex min-w-0 flex-wrap gap-2">
-            <button
+            <SfChip
               v-for="option in group.options"
               :key="option.value"
-              type="button"
-              class="inline-flex items-center justify-center border text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-35 disabled:line-through"
-              :class="getAttributeOptionClass(group.name, option.selected)"
-              :disabled="!option.available"
-              @click="selectAttribute(group.name, option.value)"
+              :model-value="option.selected"
+              :square="isSizeAttribute(group.name)"
+              :class="getAttributeOptionClass(group.name)"
+              :input-props="{ value: option.value, disabled: !option.available }"
+              @click="option.selected && $event.preventDefault()"
+              @update:model-value="$event === true && selectAttribute(group.name, option.value)"
             >
-              <span
-                v-if="isColorAttribute(group.name)"
-                class="mr-2 h-4 w-4 rounded-full border border-neutral-300 shadow-inner"
-                :style="{ backgroundColor: getColorSwatch(option.value) }"
-              />
+              <template v-if="isColorAttribute(group.name)" #prefix>
+                <SfThumbnail
+                  size="sm"
+                  class="border border-neutral-300"
+                  :style="{ backgroundColor: getColorSwatch(option.value) }"
+                />
+              </template>
               <span>{{ option.label }}</span>
-            </button>
+            </SfChip>
           </div>
         </div>
       </div>
@@ -107,7 +104,7 @@
         <template #suffix>{{ selectionButtonLabel }}</template>
       </SfButton>
 
-      <div class="mb-4 mt-4 border-y py-4">
+      <div class="mb-4 mt-4 border-y border-neutral-200 py-4">
         <div class="justify-center items-start xs:flex">
           <ContactButton
             class="w-full"
@@ -161,6 +158,7 @@ import { useRoute } from 'vue-router'
 import { useProductStore } from '@/stores/productStore'
 import {
   SfButton,
+  SfChip,
   SfLink,
   SfLoaderCircular,
   SfIconPackage,
@@ -168,10 +166,13 @@ import {
   SfIconSell,
   SfIconArrowBack,
   SfIconFavorite,
+  SfThumbnail,
 } from '@storefront-ui/vue'
 import ContactButton from '@/components/ContactButton.vue'
 import type { ProductVariant } from '@/types/Product'
 import { useSelectionStore } from '@/stores/selectionStore'
+import { getColorSwatch } from '@/utils/colorSwatches'
+import { formatAttributeValue, normalizeAttributeName } from '@/utils/attributeFormatting'
 
 const route = useRoute()
 const productStore = useProductStore()
@@ -181,84 +182,23 @@ const product = computed(() => productStore.currentProduct)
 const loading = computed(() => productStore.loading)
 const selectedAttributes = ref<Record<string, string>>({})
 
-const ATTRIBUTE_VALUE_ABBREVIATIONS: Record<string, string> = {
-  large: 'L',
-  medium: 'M',
-  small: 'S',
-  'extra large': 'XL',
-  'extra small': 'XS',
-}
-
-const COLOR_SWATCHES: Record<string, string> = {
-  amarillo: '#facc15',
-  azul: '#2563eb',
-  'azul navy': '#111827',
-  beige: '#e7d6b6',
-  blanco: '#ffffff',
-  cafe: '#7c2d12',
-  celeste: '#7dd3fc',
-  crema: '#f5e9d4',
-  gris: '#9ca3af',
-  lila: '#c4b5fd',
-  marron: '#7c2d12',
-  morado: '#7e22ce',
-  naranja: '#fb923c',
-  negro: '#171717',
-  rojo: '#dc2626',
-  rosa: '#f9a8d4',
-  rosado: '#f9a8d4',
-  verde: '#16a34a',
-}
-
-const normalizeAttributeName = (value: string) => value.trim().toLowerCase()
-
 const isColorAttribute = (attributeName: string) =>
   normalizeAttributeName(attributeName) === 'color'
 const isSizeAttribute = (attributeName: string) => normalizeAttributeName(attributeName) === 'talla'
 
-const normalizeColorName = (value: string) =>
-  value
-    .trim()
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/\s+/g, ' ')
+const getAttributeOptionClass = (attributeName: string) => {
+  const selectedStateClass =
+    'peer-next-checked:bg-primary-100 peer-next-checked:text-neutral-950 peer-next-checked:shadow-sm'
 
-const getColorSwatch = (value: string) => COLOR_SWATCHES[normalizeColorName(value)] || '#e5e7eb'
-
-const getAttributeOptionClass = (attributeName: string, selected: boolean) => {
   if (isSizeAttribute(attributeName)) {
-    return selected
-      ? 'h-10 min-w-10 rounded-md border-neutral-950 bg-neutral-950 px-3 text-white shadow-sm hover:bg-neutral-800'
-      : 'h-10 min-w-10 rounded-md border-neutral-300 bg-white px-3 text-neutral-900 hover:border-neutral-950 hover:bg-neutral-50'
+    return `min-w-10 ${selectedStateClass} disabled:cursor-not-allowed disabled:opacity-35 disabled:line-through`
   }
 
   if (isColorAttribute(attributeName)) {
-    return selected
-      ? 'h-10 rounded-full border-neutral-950 bg-neutral-950 px-4 text-white shadow-sm hover:bg-neutral-800'
-      : 'h-10 rounded-full border-neutral-300 bg-white px-4 text-neutral-800 hover:border-neutral-950 hover:bg-neutral-50'
+    return `${selectedStateClass} disabled:cursor-not-allowed disabled:opacity-35 disabled:line-through`
   }
 
-  return selected
-    ? 'h-10 rounded-md border-neutral-950 bg-neutral-950 px-4 text-white shadow-sm hover:bg-neutral-800'
-    : 'h-10 rounded-md border-neutral-300 bg-white px-4 text-neutral-800 hover:border-neutral-950 hover:bg-neutral-50'
-}
-
-const formatAttributeValue = (value: string) => {
-  const normalizedValue = value.trim().toLowerCase()
-  const abbreviation = ATTRIBUTE_VALUE_ABBREVIATIONS[normalizedValue]
-
-  if (abbreviation) {
-    return abbreviation
-  }
-
-  const words = value.trim().match(/[A-Za-z0-9]+/g) || []
-
-  if (words.length > 1) {
-    return words.map((word) => word.charAt(0).toUpperCase()).join('')
-  }
-
-  return value.trim()
+  return `${selectedStateClass} disabled:cursor-not-allowed disabled:opacity-35 disabled:line-through`
 }
 
 const getQueryValue = (value: unknown) => {
@@ -407,6 +347,18 @@ const displayedQty = computed(() => {
 
   return 0
 })
+
+const stockBadgeLabel = computed(() =>
+  displayedQty.value === 1
+    ? 'Última unidad disponible'
+    : `Disponible: ${displayedQty.value} unidades`,
+)
+
+const stockBadgeClass = computed(() =>
+  displayedQty.value === 1
+    ? 'border-warning-500 bg-warning-500 text-neutral-950'
+    : 'border-neutral-200 bg-neutral-50 text-neutral-700',
+)
 
 const selectionItemQty = computed(() => {
   if (!selectedVariant.value) {

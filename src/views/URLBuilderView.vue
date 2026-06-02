@@ -9,7 +9,7 @@
         <section class="grid gap-3">
           <div class="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
             <div>
-              <h2 class="font-medium">Categorías en tiempo real</h2>
+              <h2 class="font-medium">Categorías</h2>
             </div>
           </div>
 
@@ -34,7 +34,7 @@
             No hay categorías disponibles.
           </div>
 
-          <div v-else class="max-h-[1180px] overflow-y-auto rounded-md border border-neutral-200">
+          <div v-else class="max-h-[740px] overflow-y-auto rounded-md border border-neutral-200">
             <label
               v-for="option in categoryOptions"
               :key="option.id"

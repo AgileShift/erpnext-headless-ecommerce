@@ -53,13 +53,16 @@
           :title="attribute.title"
         >
           <span class="mr-0.5 font-medium text-neutral-500">{{ attribute.name }}:</span>
-          <span
+          <SfChip
             v-for="value in attribute.formattedValues"
             :key="value"
-            class="inline-flex h-5 min-w-5 items-center justify-center rounded-md border border-neutral-200 bg-neutral-50 px-1.5 text-[11px] font-medium leading-none text-neutral-700"
+            :model-value="true"
+            square
+            size="sm"
+            class="pointer-events-none min-w-6"
           >
             {{ value }}
-          </span>
+          </SfChip>
         </div>
       </div>
 
@@ -78,41 +81,15 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { SfLink } from '@storefront-ui/vue'
+import { SfChip, SfLink } from '@storefront-ui/vue'
 import type { Product } from '@/types/Product'
 import ContactButton from '@/components/ContactButton.vue'
 import siteConfig from '@/config'
-
-const ATTRIBUTE_VALUE_ABBREVIATIONS: Record<string, string> = {
-  large: 'L',
-  medium: 'M',
-  small: 'S',
-  'extra large': 'XL',
-  'extra small': 'XS',
-}
+import { formatCompactAttributeValue, normalizeAttributeName } from '@/utils/attributeFormatting'
 
 const props = defineProps<{
   product: Product
 }>()
-
-const normalizeAttributeName = (value: string) => value.trim().toLowerCase()
-
-const formatAttributeValue = (value: string) => {
-  const normalizedValue = value.trim().toLowerCase()
-  const abbreviation = ATTRIBUTE_VALUE_ABBREVIATIONS[normalizedValue]
-
-  if (abbreviation) {
-    return abbreviation
-  }
-
-  const words = value.trim().match(/[A-Za-z0-9]+/g) || []
-
-  if (words.length > 1) {
-    return words.map((word) => word.charAt(0).toUpperCase()).join('')
-  }
-
-  return value.trim().charAt(0).toUpperCase()
-}
 
 const visibleAttributeNames = computed(() =>
   (siteConfig.catalog?.productCardVisibleAttributes || ['Talla']).map(normalizeAttributeName),
@@ -126,7 +103,7 @@ const attributes = computed(() =>
     )
     .map(([name, values]) => ({
       name,
-      formattedValues: values.map(formatAttributeValue),
+      formattedValues: values.map(formatCompactAttributeValue),
       title: `${name}: ${values.join(', ')}`,
     })),
 )

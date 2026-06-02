@@ -346,6 +346,39 @@ const mergeCatalogProducts = (existingProducts: Product[], incomingProducts: Pro
   return [...productsByMergeKey.values()]
 }
 
+type CatalogFilterValue = string | string[] | null
+
+const normalizeFilterValues = (value: CatalogFilterValue) => {
+  if (Array.isArray(value)) {
+    return value.map((entry) => entry.trim()).filter(Boolean)
+  }
+
+  return value && value.trim() ? [value.trim()] : []
+}
+
+const getFilterCombinations = (
+  category: CatalogFilterValue,
+  size: CatalogFilterValue,
+  color: CatalogFilterValue,
+) => {
+  const categories = normalizeFilterValues(category)
+  const sizes = normalizeFilterValues(size)
+  const colors = normalizeFilterValues(color)
+  const categoryValues = categories.length ? categories : [null]
+  const sizeValues = sizes.length ? sizes : [null]
+  const colorValues = colors.length ? colors : [null]
+
+  return categoryValues.flatMap((categoryValue) =>
+    sizeValues.flatMap((sizeValue) =>
+      colorValues.map((colorValue) => ({
+        category: categoryValue,
+        size: sizeValue,
+        color: colorValue,
+      })),
+    ),
+  )
+}
+
 export const useProductStore = defineStore('product', {
   state: () => ({
     products: [] as Product[],
@@ -355,6 +388,7 @@ export const useProductStore = defineStore('product', {
     currentPage: 1,
     limit: 33,
     loading: false,
+    hasMoreProducts: true,
   }),
 
   actions: {
@@ -395,31 +429,43 @@ export const useProductStore = defineStore('product', {
 
     async loadProducts(
       sale: boolean = false,
-      category: string | null = null,
-      size: string | null = null,
-      color: string | null = null,
+      category: CatalogFilterValue = null,
+      size: CatalogFilterValue = null,
+      color: CatalogFilterValue = null,
       page: number = 1,
     ) {
       this.loading = true
       const start = (page - 1) * this.limit
+      const combinations = getFilterCombinations(category, size, color)
 
-      let url = `${BASE_URL}/api/method/gr_tools.www.products.get_items?start=${start}&limit=${this.limit}`
-      url += sale ? `&sale=1` : ''
-      url += category ? `&category=${encodeURIComponent(category)}` : ''
-      url += size ? `&size=${encodeURIComponent(size)}` : ''
-      url += color ? `&color=${encodeURIComponent(color)}` : ''
+      const responses = await Promise.all(
+        combinations.map(async (combination) => {
+          let url = `${BASE_URL}/api/method/gr_tools.www.products.get_items?start=${start}&limit=${this.limit}`
+          url += sale ? `&sale=1` : ''
+          url += combination.category ? `&category=${encodeURIComponent(combination.category)}` : ''
+          url += combination.size ? `&size=${encodeURIComponent(combination.size)}` : ''
+          url += combination.color ? `&color=${encodeURIComponent(combination.color)}` : ''
 
-      const response = await fetch(url)
-      const data = await response.json()
+          const response = await fetch(url)
+          const data = await response.json()
 
-      if (!data.message) {
+          return Array.isArray(data.message) ? data.message : []
+        }),
+      )
+      const message = responses.flat()
+
+      if (message.length === 0) {
         console.warn('No products found!')
-        this.products = []
+        this.hasMoreProducts = false
+        if (page === 1) {
+          this.products = []
+        }
+        this.currentPage = Math.max(1, page - 1)
         this.loading = false
         return
       }
 
-      const products = data.message.flatMap((item: unknown) =>
+      const products = message.flatMap((item: unknown) =>
         splitProductByColor(this.formatProduct(item)),
       )
       if (page === 1) {
@@ -428,6 +474,7 @@ export const useProductStore = defineStore('product', {
         this.products = mergeCatalogProducts(this.products, products)
       }
 
+      this.hasMoreProducts = message.length >= this.limit
       this.currentPage = page
       this.loading = false
     },
