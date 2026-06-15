@@ -10,12 +10,15 @@
     "test:unit": "vitest",
     "test:e2e": "playwright test",
     "build-only": "vite build",
+    "audit:trust": "node scripts/audit-trust-readiness.mjs",
+    "audit:trust:live": "node scripts/audit-live-trust.mjs",
     "type-check": "vue-tsc --build --force",
     "lint": "eslint . --fix",
     "format": "prettier --write src/",
     "devhost": "vite --host"
   },
   "dependencies": {
+    "dompurify": "^3.4.8",
     "pinia": "^3.0.4",
     "vue": "^3.5.17",
     "vue-gtag": "^3.7.1",
