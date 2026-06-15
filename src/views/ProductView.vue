@@ -173,6 +173,7 @@ import type { ProductVariant } from '@/types/Product'
 import { useSelectionStore } from '@/stores/selectionStore'
 import { getColorSwatch } from '@/utils/colorSwatches'
 import { formatAttributeValue, normalizeAttributeName } from '@/utils/attributeFormatting'
+import { getProductMetaDescription, setPageMeta } from '@/utils/pageMeta'
 
 const route = useRoute()
 const productStore = useProductStore()
@@ -565,6 +566,12 @@ const whatsappMessage = computed(() => {
   return `Tengo interés en el producto: ${displayedItemName.value}.${selectedMessage}${variantMessage}${availableSizesMessage.value}`
 })
 
+const productMetaDescription = computed(() => {
+  const price = [displayedLocalPrice.value, displayedUsdPrice.value].filter(Boolean).join(' | ')
+
+  return product.value?.item_name ? getProductMetaDescription(product.value.item_name, price) : ''
+})
+
 watch(
   () => route.params.id,
   async (itemCode) => {
@@ -578,4 +585,26 @@ watch(
 watch(() => [product.value?.item_code, route.fullPath], initializeSelections, {
   immediate: true,
 })
+
+watch(
+  () => [
+    displayedItemName.value,
+    displayedImage.value,
+    productMetaDescription.value,
+    route.fullPath,
+  ],
+  () => {
+    if (!product.value || !displayedItemName.value) {
+      return
+    }
+
+    setPageMeta({
+      title: product.value.item_name,
+      description: productMetaDescription.value,
+      canonicalPath: route.fullPath,
+      imagePath: displayedImage.value,
+    })
+  },
+  { immediate: true },
+)
 </script>
