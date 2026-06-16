@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /url-builder
+
+Sitemap: https://clothingcenterni.com/sitemap-clothing.xml
+Sitemap: https://fortechni.com/sitemap-fortech.xml
