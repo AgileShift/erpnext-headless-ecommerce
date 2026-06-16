@@ -7,7 +7,7 @@
         <SfButton
           variant="tertiary"
           square
-          aria-label="Close menu"
+          aria-label="Abrir menú"
           class="block md:hidden mr-10 bg-transparent hover:bg-primary-800 hover:text-white active:bg-primary-900 active:text-white"
           @click="openMenu([])"
         >
@@ -32,23 +32,6 @@
           <a class="text-3xl font-bold text-white">CLOTHING CENTER</a>
         </div>
 
-        <form
-          role="search"
-          class="md:hidden hidden md:flex flex-[100%] justify-center w-7 mx-10 px-6 py-2"
-          @submit.prevent="submitSearch"
-        >
-          <!--          <SfInput v-model="searchQuery" type="search"-->
-          <!--                   class="[&::-webkit-search-cancel-button]:appearance-none" placeholder="Buscar" wrapper-class="h-10 pr-0 xl:w-1/2 md:w-full" size="base">-->
-          <!--            <template #suffix>-->
-          <!--              <span class="flex items-center">-->
-          <!--                <SfButton variant="tertiary" square aria-label="search" type="submit" class="rounded-l-none hover:bg-transparent active:bg-transparent">-->
-          <!--                  <SfIconSearch />-->
-          <!--                </SfButton>-->
-          <!--              </span>-->
-          <!--            </template>-->
-          <!--          </SfInput>-->
-        </form>
-
         <nav class="flex flex-nowrap justify-end items-center md:ml-10 gap-x-1 px-6">
           <SfButton
             tag="router-link"
@@ -68,21 +51,6 @@
           </SfButton>
         </nav>
 
-        <form
-          role="search"
-          class="flex hidden md:hidden flex-[50%] my-2"
-          @submit.prevent="submitSearch"
-        >
-          <!--          <SfInput v-model="searchQuery" type="search" class="[&::-webkit-search-cancel-button]:appearance-none" placeholder="Search" wrapper-class="flex-1 h-10 pr-0" size="base">-->
-          <!--            <template #suffix>-->
-          <!--              <span class="flex items-center">-->
-          <!--                <SfButton variant="tertiary" square aria-label="search" type="submit" class="rounded-l-none hover:bg-transparent active:bg-transparent">-->
-          <!--                  <SfIconSearch />-->
-          <!--                </SfButton>-->
-          <!--              </span>-->
-          <!--            </template>-->
-          <!--          </SfInput>-->
-        </form>
       </div>
 
       <!-- Desktop dropdown -->
@@ -380,14 +348,4 @@ const focusTrigger = (index: number) => {
   unrefElement(triggerRefs.value[index]).focus()
 }
 
-const searchQuery = ref('')
-
-const submitSearch = () => {
-  console.log('TODO' + searchQuery.value)
-}
-
-// const actionItems = [
-//   {icon: SfIconShoppingCart, label: '', ariaLabel: 'Cart', role: 'button'},
-//   {icon: SfIconFavorite, label: '', ariaLabel: 'Wishlist', role: 'button'},
-// ];
 </script>
