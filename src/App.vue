@@ -1,18 +1,36 @@
 <template>
-  <main>
+  <main class="flex min-h-screen flex-col">
     <TheNavbar />
-    <div class="w-10/12 mx-auto py-8">
+    <div class="w-10/12 mx-auto flex-1 py-8">
       <RouterView />
     </div>
+    <TheFooter />
+    <FloatingHelpButton />
+    <CookieConsentBanner />
   </main>
 </template>
 
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
+import { watchEffect } from 'vue'
+import { RouterView, useRoute } from 'vue-router'
+import CookieConsentBanner from '@/components/CookieConsentBanner.vue'
+import FloatingHelpButton from '@/components/FloatingHelpButton.vue'
 import TheNavbar from '@/components/TheNavbar.vue'
+import TheFooter from '@/components/TheFooter.vue'
 import siteConfig from '@/config'
+import { DEFAULT_META_DESCRIPTION, setPageMeta } from '@/utils/pageMeta'
 
-document.title = siteConfig.siteName;
+const route = useRoute()
+
+watchEffect(() => {
+  if (!route.meta.legalDocument) {
+    setPageMeta({
+      title: siteConfig.siteName,
+      description: DEFAULT_META_DESCRIPTION,
+      canonicalPath: route.path,
+    })
+  }
+})
 
 const favicon = document.querySelector("link[rel~='icon']");
 if (favicon) {
