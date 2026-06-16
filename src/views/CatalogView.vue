@@ -113,14 +113,22 @@
   </div>
 
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+    <template v-if="isInitialLoading">
+      <ProductCardSkeleton
+        v-for="index in skeletonCards"
+        :key="`catalog-skeleton-${index}`"
+      />
+    </template>
+
     <ProductCard
-      v-for="product in products"
+      v-for="(product, index) in products"
       :key="product.catalog_key"
       :product="product"
+      :eager="index < eagerProductCount"
       v-bind="$attrs"
     />
 
-    <div v-if="loading" class="xs:col-span-2 lg:col-span-4 text-center">
+    <div v-if="loading && products.length" class="xs:col-span-2 lg:col-span-4 text-center">
       <h1 class="font-bold pb-4">Cargando Productos</h1>
       <SfLoaderCircular size="4xl" />
     </div>
@@ -134,6 +142,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { SfButton, SfChip, SfIconCloseSm, SfLoaderCircular, SfThumbnail } from '@storefront-ui/vue'
 import ProductCard from '@/components/ProductCard.vue'
+import ProductCardSkeleton from '@/components/ProductCardSkeleton.vue'
 import { useProductStore } from '@/stores/productStore'
 import { ROOT_CATEGORY_NAME, useCategoryStore } from '@/stores/categoryStore'
 import { useItemAttributeStore } from '@/stores/itemAttributeStore'
@@ -158,6 +167,10 @@ const itemAttributeStore = useItemAttributeStore()
 // Reactive state
 const products = computed(() => productStore.products)
 const loading = computed(() => productStore.loading)
+const isInitialLoading = computed(() => loading.value && products.value.length === 0)
+const skeletonCards = Array.from({ length: 12 }, (_, index) => index + 1)
+const eagerProductCount =
+  window.innerWidth >= 1280 ? 5 : window.innerWidth >= 1024 ? 4 : window.innerWidth >= 768 ? 3 : 2
 const loadMoreTrigger = ref<HTMLDivElement | null>(null)
 const filtersOpen = ref(false)
 const selectedCategories = ref<string[]>([...(props.category || [])])
