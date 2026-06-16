@@ -8,11 +8,10 @@ export const getImgurThumbnailUrl = (imageUrl: string, size: 'm' | 'l' | 'h' = '
 export const getImgurCatalogImageUrl = (imageUrl: string) => getImgurThumbnailUrl(imageUrl, 'l')
 
 export const getImgurCatalogImageSrcset = (imageUrl: string) => {
-  const small = getImgurThumbnailUrl(imageUrl, 'm')
   const large = getImgurThumbnailUrl(imageUrl, 'l')
   const huge = getImgurThumbnailUrl(imageUrl, 'h')
 
-  return small === imageUrl && large === imageUrl && huge === imageUrl
+  return large === imageUrl && huge === imageUrl
     ? undefined
-    : `${small} 320w, ${large} 640w, ${huge} 1024w`
+    : `${large} 640w, ${huge} 1024w`
 }

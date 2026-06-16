@@ -2,8 +2,8 @@
   <div
     class="flex h-full max-w-[280px] flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white hover:shadow-lg"
   >
-    <div class="relative">
-      <SfLink tag="router-link" :to="productUrl" class="block">
+    <div class="relative aspect-square overflow-hidden">
+      <SfLink tag="router-link" :to="productUrl" class="block h-full">
         <img
           :src="catalogImage"
           :srcset="catalogImageSrcset"
@@ -14,7 +14,7 @@
           :loading="eager ? 'eager' : 'lazy'"
           decoding="async"
           :fetchpriority="eager ? 'high' : 'low'"
-          class="block aspect-square h-auto w-full object-cover"
+          class="block h-full w-full object-cover"
           @error="useOriginalImage"
         />
       </SfLink>

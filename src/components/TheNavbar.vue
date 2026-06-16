@@ -21,7 +21,13 @@
         >
           <picture>
             <source :srcset="siteLogo" media="(min-width: 1024px)" />
-            <img :src="siteLogo" alt="Logo" height="505px" width="70px" />
+            <img
+              :src="siteLogo"
+              alt="Logo"
+              width="57"
+              height="57"
+              class="h-14 w-14 md:h-[70px] md:w-[70px]"
+            />
           </picture>
         </router-link>
 
