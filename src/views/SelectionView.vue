@@ -54,7 +54,11 @@
 
       <div class="rounded-md border border-neutral-200 bg-neutral-50 p-4">
         <p class="text-sm font-semibold text-neutral-900">
-          Total aproximado: {{ formattedTotal }}
+          Total de selección: {{ formattedTotal }}
+        </p>
+        <p class="mt-1 text-sm leading-5 text-neutral-600">
+          Esta selección no finaliza una compra en la web. <br>
+          Confirmaremos disponibilidad, datos de entrega y forma de pago por nuestros canales autorizados antes de cerrar el pedido.
         </p>
         <SfButton tag="a" :href="whatsappHref" class="mt-3 w-full justify-center" size="lg">
           Enviar selección por WhatsApp
@@ -164,7 +168,7 @@ const whatsappMessage = computed(() => {
     )
     .join('\n')
 
-  return `Hola, quiero consultar esta selección:\n${items}\nTotal aprox: ${formattedTotal.value}`
+  return `Hola, quiero consultar esta selección:\n${items}\nTotal de selección: ${formattedTotal.value}`
 })
 
 const whatsappHref = computed(

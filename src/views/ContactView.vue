@@ -28,20 +28,20 @@
           rel="noreferrer"
           class="mt-4 w-full !bg-primary-700 !text-white hover:!bg-primary-800"
         >
-          <SfIconContactSupport size="sm" />
+          <SfIconCall size="sm" />
           WhatsApp +{{ siteConfig.contact.whatsApp }}
         </SfButton>
       </div>
     </section>
 
     <section class="grid gap-4 py-6 md:grid-cols-[1fr_1fr]">
-      <a :class="[contactBlockClass, 'md:row-span-2']" :href="siteConfig.contact.googleMaps" target="_blank" rel="noreferrer">
+      <a :class="[contactBlockClass, 'md:row-span-2']" :href="addressLink.href" target="_blank" rel="noreferrer">
         <span :class="contactIconClass">
-          <SfIconLocationOnFilled size="sm" />
+          <component :is="addressLink.icon" size="sm" />
         </span>
         <span class="min-w-0">
-          <span :class="contactLabelClass">Dirección</span>
-          <strong :class="contactValueClass">{{ siteConfig.contact.address }}</strong>
+          <span :class="contactLabelClass">{{ addressLink.label }}</span>
+          <strong :class="contactValueClass">{{ addressLink.value }}</strong>
           <span class="mt-3 block text-sm font-semibold text-secondary-700">Abrir en Google Maps</span>
         </span>
       </a>
@@ -111,32 +111,15 @@
 import {
   SfButton,
   SfIconCall,
-  SfIconContactSupport,
-  SfIconEmail,
-  SfIconFacebook,
-  SfIconInstagram,
-  SfIconLanguage,
-  SfIconLocationOnFilled,
   SfIconSchedule,
 } from '@storefront-ui/vue'
-import { markRaw, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import siteConfig from '@/config'
+import { contactLinks, socialLinks } from '@/utils/contactLinks'
 import { setPageMeta } from '@/utils/pageMeta'
 
-const contactChannels = [
-  {
-    label: 'Correo',
-    value: siteConfig.contact.email,
-    href: `mailto:${siteConfig.contact.email}`,
-    icon: markRaw(SfIconEmail),
-  },
-  {
-    label: 'Sitio web',
-    value: siteConfig.contact.website,
-    href: siteConfig.contact.website,
-    icon: markRaw(SfIconLanguage),
-  },
-]
+const addressLink = contactLinks.find((link) => link.key === 'address')!
+const contactChannels = contactLinks.filter((link) => ['email', 'website'].includes(link.key))
 
 const contactBlockClass =
   'flex min-w-0 gap-3.5 rounded-lg border border-neutral-200 p-4 text-neutral-700 transition hover:-translate-y-px hover:border-secondary-700 hover:shadow-lg'
@@ -146,19 +129,6 @@ const contactLabelClass =
   'block text-xs font-bold uppercase tracking-wide text-neutral-500'
 const contactValueClass =
   'mt-1 block [overflow-wrap:anywhere] text-neutral-950'
-
-const socialLinks = [
-  {
-    label: 'Instagram',
-    href: siteConfig.contact.socialLinks.instagram,
-    icon: markRaw(SfIconInstagram),
-  },
-  {
-    label: 'Facebook / Messenger',
-    href: siteConfig.contact.socialLinks.facebook,
-    icon: markRaw(SfIconFacebook),
-  },
-]
 
 onMounted(() => {
   setPageMeta({
