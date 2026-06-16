@@ -5,11 +5,17 @@
     <div class="relative">
       <SfLink tag="router-link" :to="productUrl" class="block">
         <img
-          :src="product.image"
+          :src="catalogImage"
+          :srcset="catalogImageSrcset"
+          sizes="(min-width: 1280px) 280px, (min-width: 768px) 33vw, 50vw"
           :alt="product.item_name"
           width="300"
           height="300"
+          :loading="eager ? 'eager' : 'lazy'"
+          decoding="async"
+          :fetchpriority="eager ? 'high' : 'low'"
           class="block aspect-square h-auto w-full object-cover"
+          @error="useOriginalImage"
         />
       </SfLink>
     </div>
@@ -86,14 +92,25 @@ import type { Product } from '@/types/Product'
 import ContactButton from '@/components/ContactButton.vue'
 import siteConfig from '@/config'
 import { formatCompactAttributeValue, normalizeAttributeName } from '@/utils/attributeFormatting'
+import { getImgurCatalogImageSrcset, getImgurCatalogImageUrl } from '@/utils/imgurImages'
 
 const props = defineProps<{
   product: Product
+  eager?: boolean
 }>()
 
 const visibleAttributeNames = computed(() =>
   (siteConfig.catalog?.productCardVisibleAttributes || ['Talla']).map(normalizeAttributeName),
 )
+
+const catalogImage = computed(() => getImgurCatalogImageUrl(props.product.image))
+const catalogImageSrcset = computed(() => getImgurCatalogImageSrcset(props.product.image))
+
+const useOriginalImage = (event: Event) => {
+  const image = event.target as HTMLImageElement
+  image.srcset = ''
+  image.src = props.product.image
+}
 
 const attributes = computed(() =>
   Object.entries(props.product.available_attributes)

@@ -25,6 +25,8 @@
           <img
             :src="item.image"
             :alt="item.item_name"
+            loading="lazy"
+            decoding="async"
             class="h-24 w-20 rounded-md object-cover"
           />
         </router-link>

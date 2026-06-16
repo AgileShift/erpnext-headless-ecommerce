@@ -15,6 +15,9 @@
           :alt="displayedItemName"
           width="176"
           height="176"
+          loading="eager"
+          decoding="async"
+          fetchpriority="high"
         />
       </div>
     </section>
