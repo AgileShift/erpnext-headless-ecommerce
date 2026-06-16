@@ -9,6 +9,9 @@ import router from './router'
 
 import siteConfig from '@/config'
 import { applyStoredConsentPreference } from '@/utils/consentMode'
+import { ensurePreconnectTag } from '@/utils/preconnectTag'
+
+ensurePreconnectTag(siteConfig.apiBaseUrl)
 
 const app = createApp(App)
 
