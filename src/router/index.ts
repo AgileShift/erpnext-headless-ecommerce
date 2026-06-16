@@ -30,7 +30,7 @@ const router = createRouter({
     { path: '/', name: 'Home', component: CatalogView, props: getFilterProps },
     { path: '/sale', name: 'Sale', component: CatalogView, props: getFilterProps },
     { path: '/category/:category', name: 'Category', component: CatalogView, props: getFilterProps },
-    { path: '/contact', name: 'Contact', component: ContactView },
+    { path: '/contact', alias: '/contacto', name: 'Contact', component: ContactView },
     ...getEnabledLegalDocumentRoutes().map((documentRoute) => ({
       path: documentRoute.path,
       name: documentRoute.name,
