@@ -1,5 +1,10 @@
 <template>
-  <SfButton tag="a" :size="size" :href="whatsappHref">
+  <SfButton
+    tag="a"
+    :size="size"
+    :href="whatsappHref"
+    class="border border-primary-300 !bg-primary-700 !text-neutral-950 hover:!bg-primary-100 active:!bg-primary-200"
+  >
     <template #prefix>
       <SfIconShoppingCart size="sm" />
     </template>
