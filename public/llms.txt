@@ -1,0 +1,22 @@
+# ERPNext Headless Ecommerce
+
+Public catalog storefront for real-time product availability, prices, and customer support through authorized sales channels.
+
+## Sites
+
+- [Clothing Center Nicaragua](https://clothingcenterni.com/)
+- [ForTech Nicaragua](https://fortechni.com/)
+
+## Useful Pages
+
+- [Clothing Center contact](https://clothingcenterni.com/contact)
+- [Clothing Center safe shopping](https://clothingcenterni.com/safe-shopping)
+- [Clothing Center shipping](https://clothingcenterni.com/shipping)
+- [Clothing Center payments](https://clothingcenterni.com/payments)
+- [Clothing Center returns](https://clothingcenterni.com/returns)
+- [Clothing Center terms](https://clothingcenterni.com/terms)
+
+## Sitemaps
+
+- [Clothing Center sitemap](https://clothingcenterni.com/sitemap-clothing.xml)
+- [ForTech sitemap](https://fortechni.com/sitemap-fortech.xml)
