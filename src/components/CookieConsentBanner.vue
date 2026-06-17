@@ -10,7 +10,7 @@
           Usamos almacenamiento necesario para Mi selección y, con tu permiso, analíticas para
           mejorar el catálogo. Podés aceptar o rechazar las analíticas.
         </p>
-        <router-link class="mt-2 inline-block text-sm font-semibold text-secondary-700" to="/cookies">
+        <router-link class="mt-2 inline-block text-sm font-semibold text-secondary-700 underline" to="/cookies">
           Ver política de cookies
         </router-link>
       </div>
@@ -19,7 +19,11 @@
         <SfButton size="sm" variant="tertiary" class="border border-neutral-300" @click="reject">
           Rechazar
         </SfButton>
-        <SfButton size="sm" class="justify-center" @click="accept">
+        <SfButton
+          size="sm"
+          class="justify-center border border-primary-300 !bg-primary-700 !text-neutral-950 hover:!bg-primary-800 active:!bg-primary-900"
+          @click="accept"
+        >
           Aceptar
         </SfButton>
       </div>
