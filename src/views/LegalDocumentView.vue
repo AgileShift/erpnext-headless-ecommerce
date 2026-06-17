@@ -209,4 +209,57 @@ watchEffect(() => {
   border-top: 1px solid rgb(229 229 229);
   margin: 1.5rem 0;
 }
+
+.wiki-content :deep(.callout) {
+  align-items: flex-start;
+  border: 1px solid rgb(229 229 229);
+  border-radius: 0.5rem;
+  display: flex;
+  gap: 0.75rem;
+  margin: 1rem 0;
+  padding: 1rem;
+}
+
+.wiki-content :deep(.callout-caution) {
+  background: rgb(255 251 235);
+  border-color: rgb(245 158 11);
+}
+
+.wiki-content :deep(.callout-icon) {
+  color: rgb(146 64 14);
+  display: inline-flex;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.wiki-content :deep(.callout-icon:empty::before) {
+  content: '!';
+  align-items: center;
+  border: 1px solid currentColor;
+  border-radius: 9999px;
+  display: inline-flex;
+  font-size: 0.75rem;
+  font-weight: 700;
+  height: 1.25rem;
+  justify-content: center;
+  width: 1.25rem;
+}
+
+.wiki-content :deep(.callout-body) {
+  min-width: 0;
+}
+
+.wiki-content :deep(.callout-title) {
+  color: rgb(120 53 15);
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 0.25rem;
+}
+
+.wiki-content :deep(.callout-content p) {
+  color: rgb(64 64 64);
+  margin: 0;
+}
 </style>

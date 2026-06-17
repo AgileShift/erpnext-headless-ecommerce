@@ -37,28 +37,17 @@
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { SfButton, SfIconCloseSm, SfIconHelp } from '@storefront-ui/vue'
+import { getHelpLegalDocumentRoutes } from '@/router/legalRoutes'
 
 const route = useRoute()
 const open = ref(false)
-const hiddenRoutes = new Set([
-  'Contact',
-  'Terms',
-  'Privacy',
-  'Cookies',
-  'Shipping',
-  'Returns',
-  'Payments',
-  'SafeShopping',
-])
 
-const visible = computed(() => !hiddenRoutes.has(String(route.name || '')))
-
-const helpLinks = [
+const visible = computed(() => route.name !== 'Contact' && !route.meta.legalDocument)
+const helpLinks = computed(() => [
   { to: '/contact', label: 'Contacto' },
-  { to: '/safe-shopping', label: 'Compra segura' },
-  { to: '/shipping', label: 'Envíos' },
-  { to: '/payments', label: 'Formas de pago' },
-  { to: '/returns', label: 'Cambios y devoluciones' },
-  { to: '/terms', label: 'Términos y condiciones' },
-]
+  ...getHelpLegalDocumentRoutes().map((documentRoute) => ({
+    to: documentRoute.path,
+    label: documentRoute.label,
+  })),
+])
 </script>
