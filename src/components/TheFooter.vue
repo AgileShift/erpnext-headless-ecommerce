@@ -1,14 +1,14 @@
 <template>
   <footer class="mt-8 border-t border-neutral-200 bg-white">
-    <div class="mx-auto w-full max-w-7xl px-4 py-6 md:px-8">
-      <div class="grid gap-6 md:grid-cols-4">
-        <div class="space-y-2">
+    <div class="mx-auto w-full max-w-7xl px-4 py-5 md:px-8 md:py-6">
+      <div class="grid gap-5 md:grid-cols-4 md:gap-6">
+        <div class="space-y-2 border-b border-neutral-100 pb-4 md:border-b-0 md:pb-0">
           <p class="text-sm font-semibold uppercase tracking-wide text-neutral-500">Legal</p>
-          <nav class="flex flex-col gap-2 text-sm text-neutral-700">
+          <nav class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-neutral-700 md:flex md:flex-col">
             <router-link
               v-for="documentRoute in legalLinks"
               :key="documentRoute.key"
-              class="hover:text-neutral-950"
+              class="leading-5 hover:text-neutral-950"
               :to="documentRoute.path"
             >
               {{ documentRoute.label }}
@@ -16,26 +16,31 @@
           </nav>
         </div>
 
-        <div class="space-y-2">
+        <div class="space-y-2 border-b border-neutral-100 pb-4 md:border-b-0 md:pb-0">
           <p class="text-sm font-semibold uppercase tracking-wide text-neutral-500">Compra</p>
-          <router-link
-            class="block text-sm text-neutral-700 hover:text-neutral-950"
-            to="/selection"
-          >
-            Mi selección
-          </router-link>
-          <router-link class="block text-sm text-neutral-700 hover:text-neutral-950" to="/sale">
-            SALE
-          </router-link>
-          <button
-            type="button"
-            class="block text-left text-sm text-neutral-700 hover:text-neutral-950"
-            @click="openCookiePreferences"
-          >
-            Preferencias de cookies
-          </button>
+          <nav class="grid grid-cols-2 gap-x-4 gap-y-2 md:flex md:flex-col">
+            <router-link
+              class="text-sm text-neutral-700 hover:text-neutral-950"
+              to="/selection"
+            >
+              Mi selección
+            </router-link>
+            <router-link
+              class="text-sm text-neutral-700 hover:text-neutral-950"
+              to="/sale"
+            >
+              SALE
+            </router-link>
+            <button
+              type="button"
+              class="col-span-2 text-left text-sm text-neutral-700 hover:text-neutral-950 md:col-span-1"
+              @click="openCookiePreferences"
+            >
+              Preferencias de cookies
+            </button>
+          </nav>
         </div>
-        <div class="space-y-2">
+        <div class="space-y-2 border-b border-neutral-100 pb-4 md:border-b-0 md:pb-0">
           <router-link
             class="block text-sm font-semibold uppercase tracking-wide text-neutral-500 hover:text-neutral-950"
             to="/contact"
@@ -56,17 +61,19 @@
         </div>
         <div class="space-y-2">
           <p class="text-sm font-semibold uppercase tracking-wide text-neutral-500">Redes</p>
-          <a
-            v-for="social in socialLinks"
-            :key="social.key"
-            class="flex items-center gap-2 text-sm text-neutral-700 hover:text-neutral-950"
-            :href="social.href"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <component :is="social.icon" class="h-4 w-4 text-primary-700" size="sm" />
-            {{ social.label }}
-          </a>
+          <nav class="grid grid-cols-2 gap-x-4 gap-y-2 md:flex md:flex-col">
+            <a
+              v-for="social in socialLinks"
+              :key="social.key"
+              class="flex items-center gap-2 text-sm text-neutral-700 hover:text-neutral-950"
+              :href="social.href"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <component :is="social.icon" class="h-4 w-4 text-primary-700" size="sm" />
+              {{ social.label }}
+            </a>
+          </nav>
         </div>
       </div>
     </div>
@@ -78,7 +85,9 @@ import { getEnabledLegalDocumentRoutes } from '@/router/legalRoutes'
 import { contactLinks, socialLinks } from '@/utils/contactLinks'
 
 const legalLinks = getEnabledLegalDocumentRoutes()
-const footerContactLinks = contactLinks.filter((link) => ['email', 'whatsapp', 'address'].includes(link.key))
+const footerContactLinks = contactLinks.filter((link) =>
+  ['email', 'whatsapp', 'address'].includes(link.key),
+)
 
 const openCookiePreferences = () => {
   window.dispatchEvent(new Event('cookie-consent:open'))
