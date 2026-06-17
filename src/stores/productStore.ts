@@ -304,6 +304,19 @@ const getFilterCombinations = (
   )
 }
 
+const getCatalogRequestKey = (
+  sale: boolean,
+  category: CatalogFilterValue,
+  size: CatalogFilterValue,
+  color: CatalogFilterValue,
+) =>
+  JSON.stringify({
+    sale,
+    category: normalizeFilterValues(category),
+    size: normalizeFilterValues(size),
+    color: normalizeFilterValues(color),
+  })
+
 export const useProductStore = defineStore('product', {
   state: () => ({
     products: [] as Product[],
@@ -314,6 +327,7 @@ export const useProductStore = defineStore('product', {
     limit: 33,
     loading: false,
     hasMoreProducts: true,
+    catalogRequestKey: '',
   }),
 
   actions: {
@@ -359,6 +373,12 @@ export const useProductStore = defineStore('product', {
       color: CatalogFilterValue = null,
       page: number = 1,
     ) {
+      const requestKey = getCatalogRequestKey(sale, category, size, color)
+
+      if (page === 1 && this.catalogRequestKey === requestKey && this.products.length > 0) {
+        return
+      }
+
       this.loading = true
       const start = (page - 1) * this.limit
       const combinations = getFilterCombinations(category, size, color)
@@ -382,6 +402,7 @@ export const useProductStore = defineStore('product', {
       if (message.length === 0) {
         console.warn('No products found!')
         this.hasMoreProducts = false
+        this.catalogRequestKey = requestKey
         if (page === 1) {
           this.products = []
         }
@@ -401,6 +422,7 @@ export const useProductStore = defineStore('product', {
 
       this.hasMoreProducts = true
       this.currentPage = page
+      this.catalogRequestKey = requestKey
       this.loading = false
     },
 
