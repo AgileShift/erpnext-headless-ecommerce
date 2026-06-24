@@ -90,6 +90,10 @@
                 />
               </template>
               <span>{{ option.label }}</span>
+              <span
+                v-if="!option.available"
+                class="pointer-events-none absolute inset-x-1 top-1/2 h-px -rotate-12 bg-neutral-500"
+              />
             </SfChip>
           </div>
         </div>
@@ -193,16 +197,14 @@ const isSizeAttribute = (attributeName: string) => normalizeAttributeName(attrib
 const getAttributeOptionClass = (attributeName: string) => {
   const selectedStateClass =
     'peer-next-checked:bg-primary-100 peer-next-checked:text-neutral-950 peer-next-checked:shadow-sm'
+  const unavailableStateClass =
+    'relative overflow-hidden peer-next-disabled:bg-neutral-200 peer-next-disabled:text-neutral-600 peer-next-disabled:opacity-100 peer-next-disabled:ring-neutral-400'
 
   if (isSizeAttribute(attributeName)) {
-    return `min-w-10 ${selectedStateClass} disabled:cursor-not-allowed disabled:opacity-35 disabled:line-through`
+    return `min-w-10 ${selectedStateClass} ${unavailableStateClass}`
   }
 
-  if (isColorAttribute(attributeName)) {
-    return `${selectedStateClass} disabled:cursor-not-allowed disabled:opacity-35 disabled:line-through`
-  }
-
-  return `${selectedStateClass} disabled:cursor-not-allowed disabled:opacity-35 disabled:line-through`
+  return `${selectedStateClass} ${unavailableStateClass}`
 }
 
 const getQueryValue = (value: unknown) => {

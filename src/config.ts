@@ -115,7 +115,7 @@ const configs: Record<string, SiteConfig> = {
       },
     },
     catalog: {
-      productCardVisibleAttributes: ['Talla'],
+      productCardVisibleAttributes: ['Talla', 'Talla - Largo'],
       exchangeRate: 36.6243,
     },
   },
