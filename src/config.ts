@@ -92,7 +92,7 @@ const configs: Record<string, SiteConfig> = {
       address: 'DDF La Vicky 1c Norte, 1/2c Este. Altamira, Managua, Nicaragua',
       googleMaps: 'https://maps.app.goo.gl/S952rpBWWEfCTtYM6',
       businessHours: [
-        'Lunes a Viernes: 9:00 am - 6:00 pm',
+        'Lunes a Viernes: 9:00 am - 5:45 pm',
         'Sábados: 9:00 am - 4:00 pm',
         'Domingos: Cerrado',
       ],
@@ -103,15 +103,15 @@ const configs: Record<string, SiteConfig> = {
     },
     wiki: {
       baseUrl: 'https://erp.gruporeal.org',
-      routePrefix: 'clothing-center',
+      routePrefix: 'clothing-center/ecommerce',
       documents: {
-        terms: 'terminos-y-condiciones',
-        privacy: 'politicas/politica-de-privacidad',
-        cookies: 'politicas/politica-de-cookies',
+        terms: 'legal/terminos-y-condiciones',
+        privacy: 'legal/politica-de-privacidad',
+        cookies: 'legal/politica-de-cookies',
         shipping: 'politica-de-envios',
         returns: 'cambios-y-devoluciones',
         payments: 'formas-de-pago',
-        safeShopping: 'politicas/catalogo-web/compra-segura',
+        safeShopping: 'compra-segura',
       },
     },
     catalog: {
