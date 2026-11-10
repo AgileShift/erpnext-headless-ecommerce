@@ -62,3 +62,8 @@ npm run test:e2e -- --debug
 ```sh
 npm run lint
 ```
+
+## Clothing Center ecommerce
+
+See the [ecommerce project guide](docs/ecommerce/README.md) for the local source inventory, proposed contracts,
+first implementation block and delivery backlogs.

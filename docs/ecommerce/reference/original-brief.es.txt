@@ -1,0 +1,1221 @@
+
+# Proyecto: ecommerce headless de Clothing Center
+
+## 1. Tu misión
+
+Actuá como responsable técnico del proyecto.
+
+Primero:
+1. Inspeccioná los repositorios locales y sus instrucciones.
+2. Contrastá esta memoria con el código actual.
+3. Creá o actualizá la documentación y los backlogs.
+4. Identificá las decisiones pendientes y las dependencias reales.
+5. Prepará el primer bloque de implementación concreto y verificable.
+
+En esta primera tarea están autorizados:
+- Lectura del código y documentación locales.
+- Inventario de repositorios, ramas y cambios existentes.
+- Creación o actualización de documentación del proyecto.
+- Creación de backlogs, contratos propuestos y criterios de aceptación.
+- Preparación de una rama local para esos cambios.
+
+No interpretes esta memoria como autorización para:
+- Modificar producción.
+- Crear documentos comerciales o contables reales.
+- Cambiar DNS, firewall o acceso al ERP.
+- Comprar o provisionar servidores o servicios.
+- Ejecutar migraciones destructivas.
+- Crear o modificar esquemas de Frappe mediante mecanismos prohibidos por
+  las instrucciones de los repositorios.
+
+Cuando se autorice implementar una etapa concreta, avanzá dentro de ese
+alcance sin pedir repetidamente la misma autorización.
+
+## 2. Contexto del negocio
+
+La empresa es Clothing Center, Nicaragua.
+
+Existe:
+- Un catálogo público en Vue:
+  https://clothingcenterni.com
+- Una instancia ERPNext:
+  https://erp.clothingcenterni.com
+- Aproximadamente 1.600 ítems, según el propietario.
+- Código propio relacionado con catálogo y personalizaciones de ERPNext.
+
+Queremos convertir el catálogo existente en un ecommerce operativo.
+
+Objetivo principal:
+Reutilizar Frappe, ERPNext, los componentes existentes y servicios de
+autenticación ya hechos, manteniendo la menor cantidad razonable de código
+propio, especialmente Python.
+
+No sacrificar validaciones, permisos ni integridad contable para reducir
+líneas de código.
+
+## 3. Repositorios
+
+Localizá y verificá estos repositorios:
+
+### Frontend
+https://github.com/AgileShift/erpnext-headless-ecommerce
+
+Responsabilidades:
+- Catálogo y experiencia de compra.
+- Autenticación de la tienda.
+- Carrito y checkout.
+- Historial y documentos del comprador.
+- Backend público de tienda, si se decide alojarlo en este repositorio.
+- Documentación transversal del ecommerce.
+
+### Backend de destino
+https://github.com/AgileShift/grupo_real_tools
+
+Responsabilidades:
+- Módulo administrativo Ecommerce dentro de la app existente.
+- Configuración específica de la tienda.
+- Extensiones mínimas necesarias de ERPNext.
+- Asociación entre identidad externa y cliente/contacto.
+- Validación y coordinación de operaciones comerciales.
+
+### Backend anterior
+https://github.com/AgileShift/gr_tools
+
+Responsabilidades actuales que debemos estudiar:
+- Servicios de catálogo.
+- Categorías, atributos, variantes, precios y disponibilidad.
+- Otras personalizaciones que no deben migrarse automáticamente.
+
+Migrar únicamente el código pertinente al alcance autorizado.
+
+No asumir que una rama local, una versión declarada en pyproject.toml o el
+estado de GitHub coincide con lo instalado en producción.
+
+## 4. Instrucciones de trabajo
+
+Antes de proponer cambios:
+- Identificá la raíz real de cada repositorio.
+- Leé AGENTS.md, README.md, CONTRIBUTING.md si existe y las instrucciones
+  locales aplicables.
+- Revisá git status y preservá cambios ajenos.
+- Confirmá remotos, rama y commit.
+- No hagas una actualización masiva de dependencias como tarea incidental.
+- No reestructures módulos ajenos al ecommerce.
+- Diferenciá comportamiento implementado, decisión aprobada, propuesta y
+  aspecto pendiente.
+
+El repositorio grupo_real_tools tenía instrucciones importantes:
+- Documentación y código en inglés.
+- Mensajes de producto preparados para localización.
+- Preferir funciones y documentos nativos antes de implementar duplicados.
+- Mantener cálculos y validaciones comerciales autoritativas en Python.
+- Crear estructura y metadata de Frappe mediante la interfaz correspondiente.
+- No escribir manualmente JSON generado de DocTypes.
+- No crear campos mediante SQL, patches o fixtures para evitar la UI.
+- Nuevos hooks y overrides requieren autorización específica.
+- No inspeccionar datos comerciales de producción sin autorización.
+- No crear, presentar, cancelar o modificar documentos reales sin
+  autorización.
+- Mantener cambios pequeños y verificables.
+
+Releé las instrucciones actuales: esta memoria no sustituye a los archivos.
+
+El AGENTS.md de grupo_real_tools referenciaba:
+../../frappe-app-standards/skills/frappe-app-docs-normalize/SKILL.md
+
+Buscá ese recurso localmente si corresponde al trabajo documental.
+Si no existe, indicá qué parte queda afectada; no inventes su contenido ni
+bloquees trabajo independiente innecesariamente.
+
+## 5. Decisiones aceptadas del ecommerce
+
+### Frontend
+
+Conservar:
+- Vue 3.
+- Pinia.
+- Storefront UI.
+- La experiencia de catálogo existente.
+
+No migrar a React para aprovechar un SDK.
+
+No reemplazar la biblioteca visual sin una necesidad demostrada.
+
+### ERP
+
+ERPNext es el sistema de referencia para:
+- Productos y variantes.
+- Listas de precios.
+- Descuentos y reglas comerciales.
+- Impuestos.
+- Monedas y conversiones.
+- Existencias y reservas.
+- Clientes, contactos y direcciones.
+- Cotizaciones.
+- Pedidos.
+- Facturas.
+- Cobros.
+- Entregas.
+- Documentos y notificaciones comerciales.
+
+El propietario confirmó Frappe/ERPNext v16.50 o superior.
+Verificar los números y commits exactos antes de usar APIs específicas.
+
+### Exclusiones
+
+No utilizar:
+- Frappe Shop.
+- Frappe Webshop.
+- Un segundo ERP para gestionar la tienda.
+- Un nuevo motor comercial como Medusa o Shopify.
+- Una migración a React.
+- Google/Facebook OAuth en el lanzamiento.
+- WhatsApp/SMS para autenticación en el lanzamiento.
+- Compra como invitado.
+
+No crear 1.600 Website Item como requisito para publicar el catálogo.
+
+### Autenticación
+
+Proveedor elegido explícitamente:
+Supabase Auth gestionado.
+
+Método elegido:
+Código de un solo uso por correo electrónico.
+
+No desarrollar:
+- Un motor de contraseñas propio.
+- Un generador de OTP propio.
+- Un sistema propio de recuperación de contraseñas.
+- Un emisor propio de tokens cuando el proveedor ya resuelve esa necesidad.
+
+Supabase gestiona:
+- Identidad de autenticación.
+- Códigos de acceso.
+- Verificación.
+- Sesiones y renovación según su SDK y configuración.
+
+Las cuentas de Supabase viven fuera de la base del ERP.
+
+### Separación de usuarios
+
+Los compradores NO deben crearse en el DocType User del ERP.
+
+Esto incluye:
+- System User.
+- Website User.
+
+No usar el signup nativo del ERP para compradores.
+No activar Social Login del ERP para resolver la autenticación de la tienda.
+No utilizar funciones de invitación que creen Website User.
+
+El hecho de que una persona sea Customer o Contact no debe convertirla en
+usuario del ERP.
+
+### ERP privado
+
+Los compradores no deben acceder a la aplicación del ERP ni depender de su
+dominio desde el navegador.
+
+Esto afecta:
+- APIs.
+- Imágenes.
+- Archivos.
+- PDFs.
+- Historial.
+- Enlaces en correos.
+- Retornos de pago.
+- Callbacks del proveedor.
+
+Ocultar enlaces o configurar CORS no hace privado el ERP.
+
+La restricción necesita una arquitectura de red/acceso que preserve:
+- Acceso autorizado del personal.
+- Comunicación del servidor de tienda con ERP.
+- Procesamiento de callbacks mediante una entrada pública acotada.
+
+## 6. Arquitectura propuesta
+
+Comprador:
+Vue + Storefront UI + SDK de Supabase.
+
+Servidor público de tienda:
+Un backend TypeScript pequeño con operaciones comerciales explícitas.
+
+ERP privado:
+ERPNext + grupo_real_tools.
+
+Flujo:
+
+Navegador
+  ├─ Supabase Auth: correo y sesión
+  └─ Backend público de tienda
+       └─ Conexión privada autenticada a ERPNext
+
+El backend público:
+- Verifica el token de Supabase.
+- Valida issuer, audience, expiración y firma.
+- Rechaza identidades anónimas o no verificadas.
+- Construye un contexto de identidad confiable.
+- Expone únicamente endpoints permitidos.
+- Mantiene las credenciales ERP exclusivamente en servidor.
+- Filtra errores y respuestas.
+- Sirve o redirige de manera segura los recursos públicos y documentos
+  autorizados.
+
+No convertirlo en un proxy genérico hacia métodos o recursos de Frappe.
+
+Puede usarse frappe-js-sdk en el cliente ERP del servidor si simplifica el
+trabajo. Su funcionalidad de login de Frappe no es la autenticación de los
+compradores.
+
+La ubicación exacta del backend TypeScript y su origen público están
+pendientes de confirmar.
+
+El repositorio tenía un workflow de Azure Static Web Apps sin API declarada.
+Eso no demuestra por sí solo dónde está desplegado actualmente.
+
+No presentar el proxy de desarrollo de Vite como backend de producción.
+
+## 7. Estado observado del frontend
+
+Revalidar contra el código local actual.
+
+Se había observado:
+- Catálogo.
+- Filtros por categoría, talla y color.
+- Variantes.
+- Disponibilidad presentada en interfaz.
+- Páginas de producto.
+- Contacto y páginas legales.
+- Selección persistida en localStorage.
+- Envío de la selección a WhatsApp.
+
+No se había encontrado un checkout transaccional completo.
+
+Archivos relevantes:
+- src/config.ts
+- src/stores/productStore.ts
+- src/stores/categoryStore.ts
+- src/stores/itemAttributeStore.ts
+- src/stores/selectionStore.ts
+- src/views/CatalogView.vue
+- src/views/ProductView.vue
+- src/views/SelectionView.vue
+- src/router/index.ts
+- staticwebapp.config.json
+
+Las llamadas del catálogo utilizaban:
+- gr_tools.www.products.get_items
+- gr_tools.www.products.get_items_from_template
+- gr_tools.www.categories.get_item_groups
+
+El frontend:
+- Transformaba y agrupaba variantes.
+- Calculaba precios mostrados en USD/NIO.
+- Usaba una tasa de cambio fija.
+- Anteponía el dominio ERP a imágenes con rutas relativas.
+
+No usar esas operaciones del navegador como autoridad de precios o stock.
+
+El repositorio también tenía configuración para ForTech.
+No romper esa marca ni redirigirla silenciosamente al backend de Clothing
+Center. Definir configuración/build por marca cuando corresponda.
+
+La prueba Playwright observada era scaffolding inicial de Vue.
+No tratarla como cobertura de ecommerce.
+
+## 8. Módulo Ecommerce propuesto en grupo_real_tools
+
+Usar administración nativa de Frappe.
+
+Propuesta de navegación:
+
+Grupo Real Tools
+└── Ecommerce
+    ├── Productos
+    │   └── Item, Item Price, Pricing Rule
+    ├── Compradores
+    │   └── Contact, Customer y Address
+    ├── Cotizaciones
+    │   └── Quotation
+    ├── Pedidos
+    │   └── Sales Order
+    ├── Cobros
+    │   └── Payment Request y Payment Entry
+    ├── Facturas
+    │   └── Sales Invoice
+    ├── Entregas
+    │   └── Delivery Note
+    ├── Correos
+    │   └── Notification, Email Template y Email Queue
+    └── Configuración de tienda
+        └── Ecommerce Settings, si el análisis confirma ese modelo
+
+Los accesos son vistas y atajos sobre documentos existentes.
+No crear reemplazos de productos, pedidos, facturas o pagos.
+
+La creación del módulo, navegación, settings y campos aún es una propuesta.
+No está implementada ni instalada.
+
+## 9. Modelo de comprador: propuesta mínima
+
+Antes de crear un nuevo DocType Store Buyer, evaluar reutilizar Contact.
+
+Contact ya aporta:
+- Nombre.
+- Correos.
+- Teléfonos.
+- Vínculos dinámicos con Customer.
+
+Customer aporta la relación comercial.
+Supabase conserva la identidad de autenticación.
+
+Propuesta:
+- Extender Contact con el identificador externo de Supabase.
+- Validar el issuer/proyecto esperado desde configuración confiable.
+- Agregar un campo específico de acceso habilitado a la tienda si se adopta
+  este modelo.
+- Relacionar Contact con el Customer autorizado.
+
+Contact.status no representa habilitación de una cuenta de tienda.
+
+Contact.user:
+- Es opcional.
+- Puede vincularse automáticamente con un User existente por coincidencia
+  de correo.
+- No debe usarse para autenticar ni autorizar al comprador.
+
+Nunca invocar Contact.invite_user desde este flujo: puede crear User.
+
+Reglas de identidad:
+- No asociar o fusionar clientes automáticamente solo porque coincide el
+  correo.
+- No confiar en un Customer enviado por el navegador.
+- Usar identidad verificada y un vínculo controlado.
+- En la propuesta inicial, una identidad Supabase por Contact.
+- El vínculo de identidad no se cambia salvo migración revisada.
+- Fusionar, eliminar, renombrar o reasignar contactos no debe transferir
+  silenciosamente acceso histórico a pedidos.
+- Si existen varios contactos para un Customer, filtrar únicamente por
+  Customer puede exponer compras ajenas.
+- Si un Contact tiene varios vínculos a Customer, no elegir el primero
+  arbitrariamente.
+
+Si Contact no expresa de manera segura el ciclo necesario, documentar ese
+gap y evaluar una tabla de asociación específica.
+
+El modelo definitivo, sus campos y permisos necesitan revisión mediante
+la UI de Frappe antes de implementarse.
+
+## 10. Configuración específica de tienda
+
+Propuesta de un Single DocType Ecommerce Settings, si no existe una
+configuración instalada que cubra correctamente la necesidad.
+
+Posibles referencias:
+- Store enabled.
+- Company.
+- Warehouse.
+- Selling Price List.
+- Publicación de productos.
+- Monedas admitidas.
+- Issuer/proyecto de Supabase.
+- Opciones de pago publicadas.
+- Opciones de entrega/retiro.
+- URLs públicas de tienda.
+
+Opciones de pago:
+- Habilitada.
+- Nombre visible.
+- Orden.
+- Mode of Payment.
+- Payment Gateway Account cuando corresponda.
+- Instrucciones.
+
+Opciones de entrega:
+- Entrega o retiro.
+- Condiciones aprobadas.
+- Referencia a Shipping Rule cuando encaje.
+
+No duplicar:
+- Cuentas contables.
+- Monedas.
+- Tarifas/impuestos nativos.
+- Motores de pago o envío.
+
+Agregar una fila de configuración no implementa una pasarela nueva.
+
+No guardar secretos expuestos al comprador en esa configuración.
+Utilizar el mecanismo de secretos soportado por el despliegue.
+
+## 11. Qué debe quedar en Python
+
+Limitar Python a necesidades comprobadas de ERP:
+
+1. Resolver identidad externa → Contact/perfil → Customer.
+2. Aplicar permisos de comprador sobre direcciones, cotizaciones, pedidos,
+   pagos y documentos.
+3. Exponer catálogo publicado y datos sanitizados.
+4. Preparar cotizaciones con cálculos nativos.
+5. Confirmar pedidos con validación e idempotencia.
+6. Coordinar integraciones de pago mediante entradas soportadas.
+
+No recrear:
+- Contraseñas o códigos.
+- Sesiones de autenticación ya gestionadas.
+- Una cola de correos.
+- Cálculos contables.
+- Pricing rules.
+- Impuestos.
+- Conversiones monetarias.
+- Un framework genérico de ecommerce.
+
+No trasladar las validaciones comerciales al navegador para reducir Python.
+
+Paquete sugerido:
+grupo_real_tools/ecommerce/
+
+La organización exacta debe seguir necesidades reales.
+No crear un archivo/controlador/tabla por cada entrada del menú.
+
+## 12. Reutilización de ERPNext
+
+Verificar en el source instalado:
+- Controladores de documentos comerciales.
+- SellingController.
+- get_item_details.
+- Mapeo público de Quotation a Sales Order.
+- Payment Request.
+- Payment Entry.
+- Shipping Rule.
+- Notification.
+- Print Format.
+
+Observaciones verificadas en version-16 durante la evaluación:
+- get_item_details utilizaba ctx; no asumir firmas antiguas con args.
+- Algunas operaciones de precios pueden escribir Item Price según
+  configuración/permisos.
+- El mapeador de Quotation a Sales Order requiere una Quotation presentada.
+- El mapeador devuelve un documento: hay que respetar insert/submit.
+- El mapeador puede permitir pedidos parciales; no garantiza por sí solo
+  que un checkout produzca un único pedido.
+- Presentar Sales Order no es una garantía universal contra sobreventa.
+- Payment Request solicita dinero; no prueba recepción de fondos.
+
+Revalidar estas observaciones en la versión instalada antes de programar.
+
+No escribir docstatus directamente en la base para evitar el ciclo nativo.
+
+## 13. Contratos públicos propuestos
+
+Base sugerida:
+/api/store/v1
+
+Los nombres son propuestas, no endpoints ya implementados.
+
+Públicos:
+- GET /catalog/products
+- GET /catalog/products/{id}
+- GET /catalog/categories
+- GET /catalog/attributes
+- GET /media/{id}
+- GET /content/{slug}
+
+Comprador autenticado:
+- POST /me/bootstrap
+- GET /me
+- PATCH /me
+- GET /me/addresses
+- POST /me/addresses
+- PATCH /me/addresses/{id}
+- POST /checkout/quote
+- POST /checkout/confirm
+- GET /me/orders
+- GET /me/orders/{id}
+- GET /me/orders/{id}/documents/{document_id}
+- POST /me/orders/{id}/payment
+
+Proveedor autenticado/verificado:
+- POST /webhooks/payments/{provider}
+
+No exponer CRUD genérico de ERP.
+No permitir que el cliente elija métodos Python, DocTypes, URLs de origen
+o archivos arbitrarios.
+
+Cada endpoint privado debe resolver ownership desde la identidad verificada.
+
+La cuenta técnica compartida no identifica al comprador:
+doc.owner no es suficiente para separar compradores.
+
+## 14. Flujo de checkout
+
+### Preparación
+
+El navegador envía:
+- SKU real de la variante.
+- Cantidad.
+- Dirección propia o campos permitidos de una dirección nueva.
+- Opción de entrega.
+- Opción de pago.
+
+El servidor decide:
+- Customer.
+- Company.
+- Warehouse.
+- Price List.
+- Precios.
+- Descuentos.
+- Impuestos.
+- Conversión monetaria.
+- Envío.
+- Totales.
+
+Respuesta propuesta:
+- quote_id opaco.
+- version.
+- expires_at.
+- currency.
+- Líneas y cantidades.
+- Subtotal.
+- Descuentos.
+- Impuestos.
+- Envío.
+- Total.
+- Opciones y mensajes de disponibilidad.
+
+Usar precisión de ERP y valores decimales de transporte adecuados.
+No confiar en sumas de punto flotante del navegador.
+
+### Confirmación
+
+Solicitar:
+- quote_id.
+- version.
+- Total/moneda aceptados como guardia de comparación, no como insumo de precio.
+- Idempotency-Key.
+
+Dentro de una operación coherente:
+1. Autenticar y resolver al comprador.
+2. Resolver la cotización propia y operación.
+3. Si la operación ya terminó con el mismo payload, devolver su resultado
+   antes de volver a evaluar vencimiento o precios.
+4. Para una operación nueva, bloquear/verificar el consumo del checkout.
+5. Revalidar estado, versión, totales y disponibilidad.
+6. Si algo cambió, devolver nueva cotización y exigir confirmación del comprador.
+7. Presentar Quotation mediante el ciclo nativo.
+8. Mapear y crear/presentar Sales Order mediante entradas soportadas.
+9. Guardar vínculo de resultado e idempotencia en la transacción ERP.
+10. Confirmar antes de devolver éxito y de iniciar trabajo externo independiente.
+
+Un checkout lógico puede producir como máximo un pedido completo.
+Cambiar la idempotency key o la versión no debe crear otro pedido.
+
+La misma clave con distinto payload debe generar conflicto.
+
+El resultado de una respuesta perdida debe poder recuperarse aunque la
+cotización ya haya vencido.
+
+La persistencia de estas garantías requiere metadata/constraints aprobados.
+No prometer que un diccionario en memoria resuelve idempotencia.
+
+### Stock
+
+Definir y probar:
+- Momento de reserva.
+- Momento de liberación.
+- Expiración de pedidos pendientes.
+- Cancelación.
+- Dos compradores intentando comprar la última unidad.
+
+No presentar la comprobación de cantidad en Vue como control suficiente.
+
+## 15. Pagos
+
+Métodos iniciales y pasarela siguen pendientes de decisión.
+
+Reutilizar:
+- Mode of Payment.
+- Payment Gateway Account.
+- Payment Request.
+- Payment Entry.
+- Integración de pasarela soportada, cuando exista.
+
+La integración debe:
+- Publicar solo métodos habilitados y aplicables.
+- Mantener pagos manuales pendientes hasta su confirmación autorizada.
+- Procesar callbacks firmados o verificados según el proveedor.
+- Evitar duplicación por evento y por identidad semántica de pago/captura.
+- Representar correctamente pagos parciales.
+- Recuperarse de timeouts y respuestas perdidas.
+- No marcar pagado porque el navegador volvió a una pantalla de éxito.
+
+Mantener separado el pedido de la iniciación de pago.
+
+Inspeccionar la transacción nativa del proveedor: Payment Request puede
+llamar al controlador externo durante su presentación.
+No crear overrides para satisfacer una abstracción ideal sin comprobar
+cómo funciona la integración soportada.
+
+Los callbacks públicos llegan al backend de tienda.
+No deben depender de que el proveedor pueda entrar al ERP privado.
+
+## 16. Correos
+
+### Acceso
+
+Supabase Auth:
+- Correo con código.
+- SMTP de producción.
+- Plantilla de OTP.
+- Límites y caducidad explícitos.
+- URLs de retorno permitidas.
+
+Su envío predeterminado de pruebas no debe darse por suficiente para
+clientes reales.
+
+No necesitamos flujo de contraseña/forgot password en el lanzamiento OTP.
+
+### Transacciones
+
+ERPNext/Frappe:
+- Email Account.
+- Email Template.
+- Notification.
+- Print Format.
+- Email Queue.
+- Workers/scheduler operativos.
+
+Reglas propuestas:
+- Sales Order Submit: pedido confirmado, si ese es el evento comercial aprobado.
+- Payment Request: solicitud de cobro con enlace público correcto.
+- Payment Entry Submit: recibo de cobro, distinguiendo parcial/completo.
+- Sales Invoice Submit: factura/PDF.
+- Delivery Note Submit: despacho únicamente si el proceso real lo representa.
+- Cancel: aviso correspondiente.
+
+Filtrar por operaciones de la tienda.
+No enviar mensajes de todas las ventas internas.
+No usar owner como destinatario del comprador.
+No activar eventos superpuestos que repitan el mismo mensaje.
+
+Las notificaciones nativas estándar no necesitan un hook nuevo solo para
+reaccionar a Submit/New/Cancel.
+
+Los correos, PDFs y enlaces no deben dirigir al comprador al ERP.
+
+## 17. Migración de gr_tools
+
+Inspeccionar:
+- gr_tools/www/products.py
+- gr_tools/www/categories.py
+- Helpers usados por esos endpoints.
+- Sus consultas, precio, reservas, caché y publicación.
+- Código del frontend que consume sus respuestas.
+
+Preservar el comportamiento comercial aprobado, no copiar automáticamente
+todos los defectos o suposiciones de la implementación anterior.
+
+Mantener:
+- SKU de variantes.
+- Filtros y categorías.
+- Orden de tallas.
+- Agrupación por color.
+- Paginación según el comportamiento definido.
+- Compatibilidad con marcas fuera del alcance autorizado.
+
+La migración debe coordinar backend y frontend.
+Evaluar wrappers temporales si son necesarios para un cutover seguro.
+
+Licencias observadas:
+- gr_tools: AGPL.
+- grupo_real_tools: MIT.
+
+Resolver derechos y tratamiento de licencia antes de copiar código.
+Mover un archivo no lo convierte en MIT.
+No asumir que conservar un aviso autoriza relicenciar todo el contenido.
+
+## 18. Backlog del ecommerce
+
+Crear o mantener tickets con:
+- ID estable.
+- Prioridad.
+- Estado.
+- Alcance.
+- Dependencias.
+- Decisiones pendientes.
+- Criterios de aceptación.
+- Evidencia de pruebas.
+- Rama/commit/PR o configuración UI.
+- Esfuerzo estimado y real cuando exista.
+
+Estados:
+- Planned.
+- Ready.
+- In progress.
+- Waiting.
+- Done.
+- Not applicable, solo con decisión explícita de alcance.
+
+El backlog propuesto contenía 23 tareas:
+
+### Etapa 0: preparación
+
+EC-001:
+Inventariar versiones, apps, source, staging y rutas de acceso.
+
+EC-002:
+Cerrar las decisiones comerciales pertinentes a la siguiente etapa:
+compañía, precios, publicación, pagos, entrega, clientes y stock.
+
+EC-003:
+Resolver tratamiento de licencia y flujo de metadata mediante UI.
+
+### Etapa 1: identidad y backend público
+
+EC-010:
+Configurar Supabase Auth gestionado, correo OTP y SMTP.
+
+EC-011:
+Implementar pantallas Vue de correo/código y ciclo de sesión.
+
+EC-012:
+Establecer backend TypeScript, verificación de identidad y cliente ERP privado.
+
+### Etapa 2: módulo y compradores
+
+EC-020:
+Validar Contact/Customer, ownership, merges y metadata mínima.
+
+EC-021:
+Crear módulo, navegación, configuración y campos mediante la UI autorizada.
+
+EC-022:
+Implementar el vínculo del comprador y los controles de acceso ERP.
+
+### Etapa 3: catálogo y recursos
+
+EC-030:
+Migrar servicios necesarios de catálogo a grupo_real_tools.
+
+EC-031:
+Servir catálogo, atributos, contenido y media desde el límite público de tienda.
+
+EC-032:
+Actualizar configuración/build/CSP de Clothing Center preservando otras marcas.
+
+### Etapa 4: checkout y pedidos
+
+EC-040:
+Implementar direcciones propias y cotizaciones autoritativas.
+
+EC-041:
+Confirmar un pedido por checkout con idempotencia durable.
+
+EC-042:
+Implementar política aprobada de reserva, liberación, expiración y cancelación.
+
+EC-043:
+Completar checkout y estados de confirmación en Vue.
+
+### Etapa 5: pagos, historial y correos
+
+EC-050:
+Configurar opciones e iniciación de pago aprobadas.
+
+EC-051:
+Integrar eventos del proveedor y recuperación de pagos si se elige pasarela online.
+
+EC-052:
+Implementar historial y documentos propios del comprador.
+
+EC-053:
+Configurar notificaciones transaccionales nativas y correo.
+
+### Etapa 6: verificación y salida
+
+EC-060:
+Comprobar aislamiento ERP y routing público de extremo a extremo.
+
+EC-061:
+Ejecutar aceptación de staging del alcance elegido y resolver fallos.
+
+EC-062:
+Preparar y ejecutar el cutover aprobado con rollback.
+
+No marcar trabajo de implementación como terminado porque exista documentación.
+
+## 19. Estimación inicial del ecommerce
+
+Supuesto:
+Un implementador experimentado asistido por agente, revisión del propietario,
+reutilización del catálogo y acceso a staging.
+
+Rangos de esfuerzo:
+- Preparación: 0,5–1 día.
+- Autenticación/backend: 1–2 días.
+- Módulo/asociación: 1–2 días.
+- Catálogo/media: 1–2 días.
+- Checkout/pedidos/stock: 2–4 días.
+- Pago manual aprobado, historial y correos: 1–2 días.
+- Pruebas y salida: 1–2 días.
+
+Base:
+8–15 días efectivos, redondeados.
+
+Pasarela online ya compatible:
+Añadir aproximadamente 2–5 días.
+
+Total con pasarela compatible:
+10–20 días laborables, aproximadamente 2–4 semanas.
+
+Estas cifras:
+- Son estimaciones iniciales, no compromiso de fecha.
+- Incluyen integración y verificación.
+- No equivalen al tiempo que un modelo tarda en generar archivos.
+- Excluyen esperas externas.
+- Excluyen migración de servidor y correo.
+- Deben actualizarse tras inventario y primer checkout probado.
+- No sirven para una nueva integración bancaria desconocida sin estudiar su API.
+
+No asumir pago manual como decisión del propietario: es un escenario de
+estimación, no alcance aprobado automáticamente.
+
+## 20. Backlog paralelo de infraestructura
+
+Mantener separado del ecommerce, pero vincular dependencias.
+
+Situación reportada:
+- Servidor propio.
+- Ubuntu 20.04 LTS.
+- frappe-bench instalado directamente en bare metal.
+- Dependencias/infraestructura mayormente antiguas.
+- Frappe/ERPNext v16.50 o superior, según el propietario.
+- Un servidor con varios sitios y varios dominios.
+- Todos los sitios usan el mismo conjunto de versiones.
+- No se necesita multiversión.
+- Se quiere un servidor nuevo con Ubuntu 26.04 LTS.
+- Se quiere evaluar Pilot.
+- Existe Mail-in-a-Box; topología y versiones exactas por inventariar.
+- Se quiere evaluar Frappe Suite/Mail en un proyecto paralelo.
+
+No cambiar MariaDB por PostgreSQL como parte de esta migración.
+
+El propietario confirmó MariaDB.
+Su versión exacta sigue pendiente.
+
+No asumir soporte PostgreSQL completo para ERPNext y todas las apps propias
+porque Frappe Framework lo permita en determinados escenarios.
+
+### Evaluación de despliegue
+
+Comparar principalmente:
+- Pilot.
+- Frappe Docker.
+- Bench tradicional como referencia.
+
+Press solo merece incorporarse si las necesidades de plataforma/fleet
+justifican su complejidad.
+
+Revalidar la versión concreta de Pilot y su compatibilidad con:
+- Ubuntu 26.04 LTS.
+- Frappe/ERPNext instalados.
+- Apps propias.
+- MariaDB.
+- Restore y actualizaciones.
+- Multitenencia.
+- Dominios/TLS.
+- Backups.
+- Acceso privado.
+
+No instalar automáticamente la última rama develop de todas las apps.
+
+### Multitenencia
+
+Organización inicial compatible con lo pedido:
+
+Servidor
+└── Bench principal con versiones compartidas
+    ├── Sitio A / dominio A / base propia
+    ├── Sitio B / dominio B / base propia
+    └── Sitio C / dominio C / base propia
+
+Compartir bench implica compartir:
+- Código y versiones de apps.
+- Dependencias.
+- Assets.
+- Procesos del bench.
+
+Reiniciar/actualizar esos componentes puede afectar a todos los sitios del bench.
+
+No necesitamos benches separados por versión, aunque el aislamiento
+operativo sigue siendo una decisión de infraestructura.
+
+### Operaciones que se quería conservar con Pilot
+
+Se verificaron en su documentación/source actual:
+- pilot -b NOMBRE setup requirements
+- pilot -b NOMBRE setup letsencrypt
+- pilot -b NOMBRE build
+- pilot -b NOMBRE build --force
+- pilot -b NOMBRE restart
+- pilot -b NOMBRE frappe --site SITIO clear-cache
+- pilot -b NOMBRE frappe --site SITIO trim-database --dry-run
+- pilot -b NOMBRE frappe --site SITIO trim-tables --dry-run
+
+Revalidar flags con --help en la versión instalada.
+
+Los trim modifican estructura cuando se ejecutan realmente.
+No ejecutarlos como limpieza automática.
+Empezar por revisión/dry-run y backup dentro del alcance autorizado.
+
+### Réplica y continuidad
+
+El propietario quiere una read replica para que el ecommerce no se caiga
+durante actualizaciones del bench.
+
+Separar esos objetivos:
+- Una réplica descarga lecturas.
+- Una réplica no mantiene disponible una API Frappe cuyos procesos están
+  reiniciándose o en mantenimiento.
+- Las migraciones de esquema también pueden afectar la réplica.
+- Réplica, backup y failover automático no son lo mismo.
+- Checkout debe validar contra la autoridad de escritura, no contra datos
+  retrasados de una réplica.
+
+Diseño a evaluar:
+- Frontend independiente.
+- Backend público independiente.
+- Catálogo/cache de lectura que pueda continuar durante mantenimiento.
+- MariaDB principal.
+- Réplica MariaDB para lecturas seleccionadas si aporta valor.
+- Confirmación de compra con estado explícito cuando ERP no está disponible.
+
+El diseño y las garantías de alta disponibilidad no están aprobados ni
+implementados. No prometer cero downtime por agregar una réplica o Pilot.
+
+Mantener checkout también disponible durante migraciones requiere estudiar
+servicios activos, compatibilidad de esquema y despliegue, no solo la base.
+
+### Correo y Suite
+
+Separar:
+1. Migración del ERP.
+2. Evaluación/migración de correo.
+
+Frappe Suite reúne aplicaciones de productividad.
+No es una herramienta que sustituya a Bench o Pilot.
+
+La arquitectura actual observada:
+- Suite: experiencia de aplicaciones y cliente de correo JMAP.
+- Stalwart: servidor de correo.
+- Suite Cloud: administración/provisioning integrado de correo.
+- Mail/Calendar pueden usar cuentas JMAP existentes sin toda la capa
+  administrativa de Suite Cloud.
+- No asumir que instalar Suite importa Mail-in-a-Box.
+
+Evaluar:
+- Buzones, aliases, dominios y volúmenes.
+- Carpetas, flags y sincronización.
+- Contactos y calendarios.
+- Credenciales y acceso de clientes.
+- SMTP, DNS MX/SPF/DKIM/DMARC.
+- PTR, puertos, IP y reputación.
+- Backups y restauración.
+- Cutover y rollback.
+
+El ecommerce necesita SMTP operativo.
+No necesita esperar a que toda la plataforma de correo sea reemplazada.
+
+No asumir que ERP y correo están hoy en servidores físicamente separados:
+inventariar la topología real.
+
+### Tickets de infraestructura
+
+INF-001: inventario de versiones, servicios, tamaños y topología.
+INF-002: comparación Pilot/Docker frente a Bench.
+INF-003: sizing, proveedor, OS, red, almacenamiento y presupuesto.
+INF-004: ensayo aislado de backup/restore de ERP.
+INF-005: validación de runtime, apps y ruta de actualización.
+INF-006: plan de cutover, routing, backups y rollback.
+INF-007: ejecución de migración únicamente cuando esté autorizada.
+
+INF-010: inventario de correo.
+INF-011: comparación MIAB frente a Suite/Stalwart.
+INF-012: prueba de migración de correo y entrega.
+INF-013: preparación/ejecución de cutover de correo con autorización separada.
+
+Agregar tareas explícitas de:
+- Replicación MariaDB.
+- Routing de lecturas.
+- Continuidad del catálogo.
+- Comportamiento del checkout durante mantenimiento.
+- Pruebas de retraso, recuperación y esquema.
+
+Estas tareas nuevas deben estimarse después del inventario.
+
+## 21. Decisiones todavía pendientes
+
+No inventar:
+- Versión exacta de MariaDB.
+- Commits y apps realmente instalados.
+- Proyecto/región de Supabase.
+- Proveedor SMTP y remitente.
+- Ubicación/origen del backend TypeScript.
+- Topología privada y acceso del personal.
+- Compañía y almacenes.
+- Lista de precios.
+- Moneda de cobro y política de conversión.
+- Publicación de productos.
+- Pasarela y medios de pago iniciales.
+- Reglas de envío/retiro.
+- Asociación con clientes existentes.
+- Momento de crear Customer.
+- Reserva/liberación y expiración.
+- Política de cancelación y reembolso.
+- Metadata final de contactos, settings, canal e idempotencia.
+- Tratamiento de licencia al migrar código.
+- Tecnología/topología definitiva de alta disponibilidad.
+- Migración o permanencia de Mail-in-a-Box.
+
+Resolver el dato que bloquea el siguiente trabajo.
+Continuar las tareas independientes autorizadas.
+
+## 22. Pruebas de aceptación mínimas
+
+Autenticación:
+- Código válido permite entrar.
+- Código incorrecto, vencido o ya usado falla.
+- Límites de solicitudes/intentos funcionan.
+- Renovación y logout respetan la semántica del proveedor.
+- Tokens de otro issuer, vencidos o falsificados son rechazados.
+
+Usuarios:
+- Registro, login y checkout no crean compradores en User del ERP.
+- No se invocan invitaciones de Contact.
+
+Permisos:
+- Comprador A no puede ver, modificar, pagar o descargar documentos de B.
+- Cambiar IDs, correo, Customer o metadata del navegador no altera ownership.
+- Contactos compartidos/múltiples vínculos no conceden acceso implícito.
+
+Catálogo:
+- Variantes, filtros, tallas, colores y paginación conservan el comportamiento
+  comercial aprobado.
+- Ítems deshabilitados/no publicados no se filtran accidentalmente al público.
+- No se crean Website Item como requisito.
+
+Precios:
+- Manipular el navegador no modifica precios, impuestos, descuentos, moneda
+  ni envío.
+- Cotización cambiada requiere confirmación nueva.
+
+Pedidos:
+- Reintentos con la misma clave no duplican.
+- Claves diferentes para el mismo checkout tampoco duplican.
+- Replays después de vencimiento recuperan pedidos ya creados.
+- Competencia por última unidad respeta la política aprobada.
+
+Pagos:
+- Eventos repetidos no duplican cobros/asientos.
+- Eventos diferentes de la misma captura tampoco duplican.
+- Parciales, fallos y abandonos se representan correctamente.
+- El navegador no puede marcar pagado.
+
+Privacidad ERP:
+- El navegador no depende de endpoints ERP.
+- Imágenes, PDFs, enlaces y callbacks siguen la arquitectura pública aprobada.
+- El acceso no autorizado al origen ERP está restringido.
+- El acceso del personal continúa funcionando.
+
+Comunicaciones:
+- Destinatario correcto.
+- Eventos de tienda, sin ventas internas ajenas.
+- Sin duplicados por reglas superpuestas.
+- Sin enlaces al ERP para compradores.
+
+Infraestructura:
+- Restore real probado con alcance autorizado.
+- Jobs/integraciones aislados en staging.
+- Backups y claves necesarios preservados.
+- Replicación medida, no asumida.
+- Mantenimiento del bench probado contra el comportamiento acordado de tienda.
+- Rollback y operaciones en vuelo contemplados.
+
+## 23. Documentación que debes crear o actualizar
+
+Buscar primero si ya existen estos documentos y preservar trabajo válido.
+
+Propuesta de estructura:
+
+docs/
+├── ecommerce/
+│   ├── README.md
+│   ├── module.md
+│   ├── decisions.md
+│   ├── architecture.md
+│   ├── contracts.md
+│   ├── operations.md
+│   ├── implementation.md
+│   └── backlog.md
+└── infrastructure/
+    └── backlog.md
+
+Mantener:
+- README como punto de entrada.
+- Decisiones aceptadas separadas de propuestas.
+- Un único lugar canónico para cada regla.
+- Backlog enlazado a contratos y pruebas.
+- Infraestructura y correo separados del alcance comercial.
+- Proveniencia del source inspeccionado.
+- Estado real de implementación.
+
+Si las reglas locales exigen otra ubicación, respetarlas y dejar enlaces.
+No duplicar backlogs completos en varios repositorios.
+
+La documentación anterior se escribió en inglés.
+Conversá con el propietario en español.
+
+## 24. Entrega inicial esperada
+
+Al terminar esta primera tarea entregá:
+
+1. Repos encontrados, ramas, commits y cambios ajenos preservados.
+2. Diferencias entre esta memoria y el código actual.
+3. Archivos documentales creados/actualizados.
+4. Backlogs con tickets, prioridades, dependencias y criterios de aceptación.
+5. Decisiones pendientes agrupadas por quién debe resolverlas.
+6. Primer bloque de trabajo que puede comenzar sin inventar reglas.
+7. Verificaciones realizadas sobre los documentos.
+8. Limitaciones y próximos pasos concretos.
+
+No declares implementado o desplegado algo que solo está especificado.
+No marques tickets como Done sin evidencia.
+
+## 25. Referencias iniciales
+
+Revisar documentación actual y source instalado; no depender únicamente
+de ejemplos de versiones anteriores.
+
+Repos del proyecto:
+- https://github.com/AgileShift/erpnext-headless-ecommerce
+- https://github.com/AgileShift/grupo_real_tools
+- https://github.com/AgileShift/gr_tools
+
+Autenticación:
+- https://supabase.com/docs/guides/auth/auth-email-passwordless
+- https://supabase.com/docs/guides/auth/auth-smtp
+- https://supabase.com/docs/guides/auth/jwts
+
+Frappe/ERPNext:
+- https://github.com/frappe/frappe/tree/version-16
+- https://github.com/frappe/erpnext/tree/version-16
+- https://docs.frappe.io/framework/notifications
+
+Infraestructura:
+- https://github.com/frappe/pilot
+- https://github.com/frappe/frappe_docker
+- https://github.com/frappe/suite
+- https://github.com/frappe/suite_cloud
+- https://mailinabox.email/
+- https://stalw.art/docs/migration/
