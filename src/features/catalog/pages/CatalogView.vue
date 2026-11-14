@@ -32,7 +32,7 @@
       </div>
       <p v-if="isInitialLoading" role="status" class="mb-4 text-neutral-700">Cargando productos…</p>
       <div
-        class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+        class="catalog-product-grid grid gap-6"
         :aria-busy="loading"
       >
         <template v-if="isInitialLoading">
@@ -308,6 +308,16 @@ onUnmounted(() => observer?.disconnect())
 </script>
 
 <style>
+.catalog-product-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 640px) {
+  .catalog-product-grid {
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  }
+}
+
 @media (min-width: 1024px) {
   .catalog-layout--clothing {
     display: grid;

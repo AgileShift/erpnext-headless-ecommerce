@@ -57,6 +57,13 @@ Availability of these methods on the configured production origins remains unver
 The store API and the production routing and origin checks remain separate work in EC-012, EC-031 and EC-032.
 See [the migration notes](architecture.md#legacy-catalog-migration).
 
+## EC-031 pending details
+
+- [ ] Add product galleries after confirming the ERPNext image source. The catalog detail API must return an ordered
+  collection of real product and variant media, preserving their association without duplicating or merging images
+  across variants. The storefront must show the collection through the existing accessible zoom, with thumbnails or
+  equivalent mobile navigation, keyboard controls, image-failure fallback and desktop/mobile verification.
+
 ## Storefront pages
 
 - [x] Catalog and product detail already support browsing and selecting a variant.

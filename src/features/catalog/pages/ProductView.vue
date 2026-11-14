@@ -8,29 +8,62 @@
     class="mx-auto grid w-full max-w-7xl grid-cols-1 gap-y-4 px-4 md:grid-cols-2 md:items-start md:gap-x-[60px] md:px-8"
   >
     <section class="w-full min-w-0">
-      <div class="overflow-hidden rounded-md border border-neutral-200 bg-neutral-50 shadow-sm">
+      <div class="relative overflow-hidden rounded-md border border-neutral-200 bg-neutral-50 shadow-sm">
+        <SaleBadge
+          v-if="displayedPrice?.discount_percent"
+          class="absolute top-3 left-3 z-10"
+        />
+        <button
+          type="button"
+          class="group relative block w-full cursor-zoom-in"
+          :aria-label="`Ampliar imagen de ${displayedItemName}`"
+          @click="openImageZoom"
+        >
+          <ProductImage
+            class="h-auto w-full"
+            :src="displayedImage"
+            :alt="displayedItemName"
+            width="176"
+            height="176"
+            loading="eager"
+            decoding="async"
+            fetchpriority="high"
+          />
+          <span
+            class="absolute right-3 bottom-3 inline-flex items-center rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-neutral-800 shadow-sm transition group-hover:bg-white group-focus-visible:ring-2 group-focus-visible:ring-primary-700"
+          >
+            <SfIconSearch size="sm" class="mr-1.5" aria-hidden="true" /> Ampliar
+          </span>
+        </button>
+      </div>
+
+      <div v-if="isImageZoomOpen" class="fixed inset-0 z-50 bg-neutral-950/70" aria-hidden="true" />
+      <SfModal
+        ref="imageZoomModal"
+        v-model="isImageZoomOpen"
+        tag="section"
+        role="dialog"
+        :aria-label="`Imagen ampliada de ${displayedItemName}`"
+        class="z-50 flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-6xl items-center justify-center overflow-auto rounded-lg p-3 pt-3 md:p-5 lg:p-5"
+      >
+        <SfButton
+          square
+          variant="tertiary"
+          class="absolute top-2 right-2 z-10 bg-white shadow-sm"
+          aria-label="Cerrar imagen ampliada"
+          @click="closeImageZoom"
+        >
+          <SfIconClose />
+        </SfButton>
         <ProductImage
-          class="h-auto w-full"
+          class="max-h-[calc(100dvh-4rem)] max-w-full object-contain"
           :src="displayedImage"
           :alt="displayedItemName"
-          width="176"
-          height="176"
-          loading="eager"
-          decoding="async"
-          fetchpriority="high"
         />
-      </div>
+      </SfModal>
     </section>
 
     <section class="w-full min-w-0 md:max-w-xl">
-      <div v-if="displayedPrice?.discount_percent">
-        <div
-          class="mb-2 inline-flex items-center justify-center bg-(--site-sale-text) px-3 py-1.5 text-xs font-semibold text-white"
-        >
-          <SfIconSell size="sm" class="mr-1.5" aria-hidden="true" /> SALE
-        </div>
-      </div>
-
       <SfLink
         tag="router-link"
         :to="`/category/${product.item_group}`"
@@ -158,7 +191,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useProductStore } from '@/features/catalog/stores/productStore'
 import {
@@ -168,13 +201,17 @@ import {
   SfLoaderCircular,
   SfIconPackage,
   SfIconSafetyCheck,
-  SfIconSell,
+  SfIconSearch,
+  SfIconClose,
   SfIconArrowBack,
   SfIconShoppingCart,
+  SfModal,
   SfThumbnail,
+  useDisclosure,
 } from '@storefront-ui/vue'
 import ContactButton from '@/shared/components/ContactButton.vue'
 import ProductImage from '@/shared/components/ProductImage.vue'
+import SaleBadge from '@/shared/components/SaleBadge.vue'
 import { getAttributeGroups, variantMatchesSelection } from '@/features/catalog/utils/variantSelection'
 import { useSelectionStore } from '@/features/cart/stores/selectionStore'
 import { getColorSwatch } from '@/features/catalog/utils/colorSwatches'
@@ -184,6 +221,22 @@ import { getProductMetaDescription, setPageMeta } from '@/shared/utils/pageMeta'
 const route = useRoute()
 const productStore = useProductStore()
 const selectionStore = useSelectionStore()
+const imageZoomModal = ref<InstanceType<typeof SfModal> | null>(null)
+const {
+  isOpen: isImageZoomOpen,
+  open: openImageZoom,
+  close: closeImageZoom,
+} = useDisclosure()
+
+watch(isImageZoomOpen, async (isOpen) => {
+  if (!isOpen) {
+    return
+  }
+
+  await nextTick()
+  const modalElement = imageZoomModal.value?.$el as HTMLElement | undefined
+  modalElement?.focus()
+})
 
 const product = computed(() => productStore.currentProduct)
 const loading = computed(() => productStore.loading)

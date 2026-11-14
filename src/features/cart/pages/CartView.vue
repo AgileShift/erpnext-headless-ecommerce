@@ -1,5 +1,5 @@
 <template>
-  <section class="mx-auto max-w-4xl">
+  <section class="mx-auto max-w-6xl">
     <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
       <div>
         <h1 class="text-2xl font-bold text-neutral-950">Carrito</h1>
@@ -19,47 +19,62 @@
 
     <div v-else class="grid items-start gap-4 md:grid-cols-[minmax(0,1fr)_18rem]">
       <div class="space-y-4">
-        <article v-for="group in cartGroups" :key="group.key" class="rounded-xl border border-neutral-200 bg-white">
-          <header class="flex items-center gap-4 p-4">
-            <router-link :to="getProductLink(group.item)" class="shrink-0">
-              <ProductImage :src="group.item.image" :alt="group.name" class="h-20 w-16 rounded-md object-cover" />
+        <article v-for="group in cartGroups" :key="group.key" class="cart-product rounded-xl border border-neutral-200 bg-white p-4">
+            <router-link :to="getProductLink(group.item)" class="cart-product-image relative">
+              <ProductImage :src="group.item.image" :alt="group.name" class="aspect-square w-full rounded-lg object-cover" />
+              <SaleBadge v-if="group.items.every((item) => (item.price.discount_percent || 0) > 0)" class="absolute left-1 top-1" />
             </router-link>
-            <div class="min-w-0">
-              <h2 class="font-semibold leading-snug text-neutral-950">
+            <div class="cart-product-heading min-w-0">
+              <h2 class="text-lg font-semibold leading-snug text-neutral-950">
                 <router-link :to="getProductLink(group.item)" class="hover:underline">{{ group.name }}</router-link>
               </h2>
               <p v-if="group.color" class="mt-1 text-sm text-neutral-600">Color: {{ group.color }}</p>
             </div>
-          </header>
-          <ul class="divide-y divide-neutral-200 border-t border-neutral-200">
+          <ul class="cart-product-variants divide-y divide-neutral-200 border-t border-neutral-200">
             <li
               v-for="item in group.items" :key="item.item_code"
-              class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3"
+              class="cart-variant-row py-3"
             >
-              <div class="min-w-0 basis-full sm:basis-auto">
+              <div class="cart-variant-label min-w-0">
                 <p v-if="variantLabel(item)" class="text-sm font-semibold">{{ variantLabel(item) }}</p>
-                <p class="text-xs text-neutral-600">{{ formatCartAmount(item.price.price_list_rate) }} por unidad</p>
               </div>
-              <div role="group" :aria-label="variantLabel(item) || group.name" class="inline-flex items-center rounded-full border border-neutral-300">
+              <div class="cart-variant-controls flex items-center gap-1">
+              <div class="flex flex-col items-center">
+              <div role="group" :aria-label="variantLabel(item) || group.name" class="relative isolate inline-flex items-center before:pointer-events-none before:absolute before:inset-x-0 before:inset-y-1.5 before:-z-10 before:rounded-full before:border before:border-neutral-300">
                 <SfButton
-                  variant="tertiary" size="sm" square class="!h-10 !w-10 !rounded-l-full !text-neutral-900 disabled:!text-neutral-400"
+                  variant="tertiary" size="sm" square class="!h-10 !w-7 !rounded-l-full !text-neutral-900 disabled:!text-neutral-400"
                   aria-label="Reducir cantidad" :disabled="item.qty <= 1"
                   @click="selection.setQuantity(item.item_code, item.qty - 1)"
                 ><SfIconRemove size="sm" /></SfButton>
-                <output class="min-w-7 text-center text-sm tabular-nums" aria-label="Cantidad">{{ item.qty }}</output>
+                <output class="min-w-5 text-center text-sm tabular-nums" aria-label="Cantidad">{{ item.qty }}</output>
                 <SfButton
-                  variant="tertiary" size="sm" square class="!h-10 !w-10 !rounded-r-full !text-neutral-900 disabled:!text-neutral-400"
+                  variant="tertiary" size="sm" square class="!h-10 !w-7 !rounded-r-full !text-neutral-900 disabled:!text-neutral-400"
                   aria-label="Aumentar cantidad" :disabled="item.maxQty === undefined || item.qty >= item.maxQty"
                   @click="selection.setQuantity(item.item_code, item.qty + 1)"
                 ><SfIconAdd size="sm" /></SfButton>
               </div>
-              <div class="text-right">
-                <p class="text-sm font-semibold tabular-nums">
-                  {{ formatCartAmount(item.price.price_list_rate * item.qty) }}
+              <p v-if="item.maxQty !== undefined" class="text-center text-xs text-neutral-600" title="Disponibilidad guardada al agregar el producto">
+                <strong class="text-neutral-900">{{ item.maxQty }}</strong> {{ item.maxQty === 1 ? 'disponible' : 'disponibles' }}
+              </p>
+              </div>
+                <SfButton
+                  variant="tertiary"
+                  size="sm"
+                  square
+                  class="!h-10 !w-10 !text-neutral-600"
+                  :aria-label="`Quitar ${variantLabel(item) || group.name} del carrito`"
+                  @click="selection.removeItem(item.item_code)"
+                >
+                  <SfIconDelete size="sm" aria-hidden="true" />
+                </SfButton>
+              </div>
+              <div class="cart-variant-price min-w-0 text-right">
+                <p class="text-base font-bold leading-tight tabular-nums text-neutral-950"><span class="sr-only">Subtotal de la variante: </span>{{ formatCartAmount(item.price.price_list_rate * item.qty) }}</p>
+                <p v-if="item.qty > 1" class="mt-1 text-xs text-neutral-600">{{ formatCartAmount(item.price.price_list_rate) }} por unidad</p>
+                <p v-if="item.price.discount_percent && item.price.formatted_mrp" class="mt-1 text-xs">
+                  <span class="sr-only">Precio anterior por unidad: </span><s class="text-neutral-600">{{ item.price.formatted_mrp }}</s>
+                  <span class="ml-1 font-semibold text-(--site-sale-text)">{{ item.price.formatted_discount_percent || `${item.price.discount_percent}%` }} OFF</span>
                 </p>
-                <button type="button" class="min-h-8 text-xs text-neutral-700 underline" @click="selection.removeItem(item.item_code)">
-                  Quitar
-                </button>
               </div>
             </li>
           </ul>
@@ -89,9 +104,10 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 const showCheckoutPreview = import.meta.env.DEV
-import { SfButton, SfIconAdd, SfIconRemove } from '@storefront-ui/vue'
+import { SfButton, SfIconAdd, SfIconDelete, SfIconRemove } from '@storefront-ui/vue'
 import siteConfig from '@/config'
 import ProductImage from '@/shared/components/ProductImage.vue'
+import SaleBadge from '@/shared/components/SaleBadge.vue'
 import { type SelectionItem, useSelectionStore } from '@/features/cart/stores/selectionStore'
 import type { ProductVariantAttributes } from '@/features/catalog/types/Product'
 
@@ -238,3 +254,62 @@ const whatsappHref = computed(
     `https://wa.me/${siteConfig.contact.whatsApp}?text=${encodeURIComponent(whatsappMessage.value)}`,
 )
 </script>
+
+<style scoped>
+.cart-product {
+  display: grid;
+  grid-template-columns: 6rem minmax(0, 1fr);
+  grid-template-areas: 'image heading' 'variants variants';
+  align-items: start;
+  gap: 0.75rem 1rem;
+}
+
+.cart-product-image { grid-area: image; }
+.cart-product-heading { grid-area: heading; }
+.cart-product-variants { grid-area: variants; min-width: 0; }
+
+@media (min-width: 640px) {
+  .cart-product {
+    grid-template-columns: 10rem minmax(0, 1fr);
+    grid-template-areas: 'image heading' 'image variants';
+    grid-template-rows: auto 1fr;
+  }
+
+  .cart-product-variants {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
+.cart-variant-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 8rem 11rem;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cart-variant-controls {
+  grid-column: 2;
+}
+
+.cart-variant-price {
+  grid-column: 3;
+}
+
+@media (max-width: 639px) {
+  .cart-variant-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.25rem 0.5rem;
+  }
+
+  .cart-variant-label { grid-column: 1; grid-row: 1; }
+  .cart-variant-controls { grid-column: 2; grid-row: 1 / 3; }
+  .cart-variant-price {
+    grid-column: 1;
+    grid-row: 2;
+    text-align: left;
+  }
+}
+</style>

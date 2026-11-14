@@ -1,8 +1,9 @@
 <template>
   <div
-    class="flex h-full max-w-[280px] flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white hover:shadow-lg"
+    class="flex h-full max-w-[300px] flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white transition-shadow hover:shadow-lg"
   >
     <div class="relative aspect-square overflow-hidden">
+      <SaleBadge v-if="product.price.discount_percent" class="absolute left-2 top-2" />
       <SfLink tag="router-link" :to="productUrl" class="block h-full">
         <ProductImage
           :src="product.image"
@@ -18,24 +19,24 @@
         />
       </SfLink>
     </div>
-    <div class="flex flex-1 flex-col p-4 pt-2">
+    <div class="flex flex-1 flex-col border-t border-neutral-200 p-3 sm:p-4">
       <SfLink
         tag="router-link"
         :to="productUrl"
         variant="secondary"
-        class="text-sm font-medium no-underline md:text-base"
+        class="text-sm font-semibold leading-snug no-underline md:text-base"
         >{{ product.item_name }}</SfLink
       >
       <SfLink
         tag="router-link"
         :to="`/category/${product.item_group}`"
         variant="secondary"
-        class="hidden pb-1 pt-0.5 font-thin leading-4 text-neutral-700 no-underline md:block"
+        class="pb-1 pt-1 text-xs leading-4 text-neutral-500 no-underline"
       >
         {{ product.item_group }}
       </SfLink>
 
-      <div class="mt-1">
+      <div class="mt-2">
         <span class="block text-sm font-bold leading-tight md:text-base">
           <span>{{ product.price_summary.local_formatted_price }}</span>
           <span class="font-thin"> | </span>
@@ -48,7 +49,7 @@
         </span>
       </div>
 
-      <div v-if="visibleAttributes.length" class="mt-2 space-y-1.5">
+      <div v-if="visibleAttributes.length" class="mt-3 space-y-1.5">
         <div
           v-for="attribute in visibleAttributes"
           :key="attribute.name"
@@ -75,9 +76,10 @@
           Agregar al carrito
         </SfButton>
         <ContactButton
-          class="w-full justify-center whitespace-nowrap !px-1 !text-xs"
+          class="w-full justify-center !px-1 !text-xs"
           size="sm"
-          suffix="Consultar por WhatsApp"
+          suffix="WhatsApp"
+          aria-label="Consultar por WhatsApp"
           secondary
           :item_name="product.item_name"
           :message="whatsappMessage"
@@ -95,6 +97,7 @@ import { SfButton, SfLink } from '@storefront-ui/vue'
 import type { Product } from '@/features/catalog/types/Product'
 import ContactButton from '@/shared/components/ContactButton.vue'
 import ProductImage from '@/shared/components/ProductImage.vue'
+import SaleBadge from '@/shared/components/SaleBadge.vue'
 import QuickAddModal from './QuickAddModal.vue'
 import siteConfig from '@/config'
 import { formatCompactAttributeValue, normalizeAttributeName } from '@/features/catalog/utils/attributeFormatting'

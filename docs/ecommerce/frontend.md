@@ -45,10 +45,19 @@ in `StoreLayout.vue` and site-specific UI choices in the site profile.
 
 ## Pages
 
-Clothing Center catalog cards show available attributes as information. “Agregar al carrito” loads product detail and
+Clothing Center catalog cards adapt the Storefront UI ProductCard vertical block and show available attributes as
+information. “Agregar al carrito” loads product detail and
 opens a selector for the required variant options; a unique variant without attributes is added directly. The separate
 WhatsApp action opens a product inquiry; the cart can also be sent as an inquiry. Neither action confirms an order or
-reserves stock.
+reserves stock. Product detail images open in an accessible zoom modal. Additional gallery images remain dependent on
+the catalog detail API exposing an ordered media collection instead of only the product and variant `image` fields.
+The quick-add selector uses Storefront UI chips and color thumbnails while preserving the real variant availability.
+The cart groups variants by product and color in a horizontal card and displays saved discount information when
+available. Cart prices and stock remain display data until confirmed by the backend.
+The quantity limit is the availability saved when the variant was last added, not a live stock check; older cart
+items without a saved limit do not show a count and cannot increase until refreshed by adding the variant again.
+The shared `SaleBadge` marks discounted catalog cards and product details. A cart image shows the badge only when
+every grouped variant has a saved discount; each variant retains its own discount information.
 
 The catalog distinguishes loading, empty results and failed requests. Shoppers can clear category, size and color
 filters after an empty result, or retry a failed request. If a later page fails, existing cards stay visible and the
