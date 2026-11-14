@@ -1,0 +1,5 @@
+:root[data-site='fortech'] {
+  --site-accent: 0 108 247;
+  --site-accent-hover: 43 136 255;
+  --site-on-accent: white;
+}

@@ -32,7 +32,7 @@
         </router-link>
 
         <div
-          v-if="siteConfig.siteName === 'Clothing Center'"
+          v-if="siteConfig.showHeaderTitle"
           class="hidden md:flex flex-col items-stretch"
         >
           <a class="text-3xl font-bold text-white">CLOTHING CENTER</a>

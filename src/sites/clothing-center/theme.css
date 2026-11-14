@@ -1,0 +1,5 @@
+:root[data-site='clothing-center'] {
+  --site-accent: 247 198 200;
+  --site-accent-hover: 223 113 126;
+  --site-on-accent: var(--color-neutral-950);
+}

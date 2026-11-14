@@ -1,0 +1,19 @@
+/* Map each site's accent tokens to the Tailwind and Storefront UI palette. */
+:root[data-site] {
+  --color-primary-100: rgb(var(--site-accent) / 0.18);
+  --color-primary-200: rgb(var(--site-accent) / 0.32);
+  --color-primary-300: rgb(var(--site-accent) / 0.48);
+  --color-primary-500: rgb(var(--site-accent));
+  --color-primary-700: rgb(var(--site-accent));
+  --color-primary-800: rgb(var(--site-accent-hover));
+  --color-primary-900: rgb(var(--site-accent-hover));
+
+  --color-secondary-100: rgb(var(--site-accent-hover) / 0.18);
+  --color-secondary-600: rgb(var(--site-accent-hover));
+  --color-secondary-700: rgb(var(--site-accent-hover));
+
+  --colors-primary-700: var(--site-accent);
+  --colors-primary-800: var(--site-accent-hover);
+  --colors-secondary-600: var(--site-accent-hover);
+  --colors-secondary-700: var(--site-accent-hover);
+}
