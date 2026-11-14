@@ -1,7 +1,8 @@
 # Proposed ERP administration
 
 The local target app lists Payment Settlement, Procurement and Layaway in `grupo_real_tools/modules.txt`.
-Ecommerce is a proposed module under `grupo_real_tools/ecommerce/`. Use native navigation and links where they fit.
+The Python package `grupo_real_tools/ecommerce/` contains the migrated internal catalog service.
+A Frappe Ecommerce Module Def and Workspace remain proposed. Use native navigation and links where they fit.
 
 | Area | Native records |
 | --- | --- |

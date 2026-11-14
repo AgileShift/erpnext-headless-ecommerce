@@ -1,4 +1,3 @@
-
 # Proyecto: ecommerce headless de Clothing Center
 
 ## 1. Tu misión
@@ -1196,26 +1195,3 @@ No marques tickets como Done sin evidencia.
 
 Revisar documentación actual y source instalado; no depender únicamente
 de ejemplos de versiones anteriores.
-
-Repos del proyecto:
-- https://github.com/AgileShift/erpnext-headless-ecommerce
-- https://github.com/AgileShift/grupo_real_tools
-- https://github.com/AgileShift/gr_tools
-
-Autenticación:
-- https://supabase.com/docs/guides/auth/auth-email-passwordless
-- https://supabase.com/docs/guides/auth/auth-smtp
-- https://supabase.com/docs/guides/auth/jwts
-
-Frappe/ERPNext:
-- https://github.com/frappe/frappe/tree/version-16
-- https://github.com/frappe/erpnext/tree/version-16
-- https://docs.frappe.io/framework/notifications
-
-Infraestructura:
-- https://github.com/frappe/pilot
-- https://github.com/frappe/frappe_docker
-- https://github.com/frappe/suite
-- https://github.com/frappe/suite_cloud
-- https://mailinabox.email/
-- https://stalw.art/docs/migration/

@@ -2,25 +2,25 @@
 
 ## Current local behavior
 
-| Browser dependency | Observed source |
-| --- | --- |
-| Host-based Clothing Center and ForTech configuration, with Clothing Center fallback | [config.ts](../../src/config.ts) |
-| Product listing and detail, Frappe response envelope, client grouping/merging by color, relative ERP images and fixed display conversion | [productStore.ts](../../src/stores/productStore.ts) |
-| Categories and attribute values via separate guest methods | [categoryStore.ts](../../src/stores/categoryStore.ts), [itemAttributeStore.ts](../../src/stores/itemAttributeStore.ts) |
-| Local selection and WhatsApp handoff | [selectionStore.ts](../../src/stores/selectionStore.ts), [SelectionView.vue](../../src/views/SelectionView.vue) |
-| Legal content fetched directly from Frappe Wiki at a separate ERP origin | [LegalDocumentView.vue](../../src/views/LegalDocumentView.vue), [config.ts](../../src/config.ts) |
-| Azure Static Web Apps workflow has empty API location. Vite has no proxy. The checked-in CSP permits direct ERP connections | [workflow](../../.github/workflows/azure-static-web-apps-purple-desert-006cfe10f.yml), [Vite](../../vite.config.ts), [CSP](../../staticwebapp.config.json) |
+| Browser dependency                                                                                                                       | Observed source                                                                                                                                            |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Host-based Clothing Center and ForTech configuration, with Clothing Center fallback                                                      | [config.ts](../../src/config.ts)                                                                                                                           |
+| Product listing and detail, Frappe response envelope, client grouping/merging by color, relative ERP images and fixed display conversion | [productStore.ts](../../src/features/catalog/stores/productStore.ts)                                                                                       |
+| Categories and attribute values via separate guest methods                                                                               | [categoryStore.ts](../../src/features/catalog/stores/categoryStore.ts), [itemAttributeStore.ts](../../src/features/catalog/stores/itemAttributeStore.ts)   |
+| Local selection and WhatsApp handoff                                                                                                     | [selectionStore.ts](../../src/features/cart/stores/selectionStore.ts), [SelectionView.vue](../../src/features/cart/pages/CartView.vue)                     |
+| Legal content fetched directly from Frappe Wiki at a separate ERP origin                                                                 | [LegalDocumentView.vue](../../src/features/content/pages/LegalDocumentView.vue), [config.ts](../../src/config.ts)                                          |
+| Azure Static Web Apps workflow has empty API location. Vite has no proxy. The checked-in CSP permits direct ERP connections              | [workflow](../../.github/workflows/azure-static-web-apps-purple-desert-006cfe10f.yml), [Vite](../../vite.config.ts), [CSP](../../staticwebapp.config.json) |
 
 Local routes and dependencies show a catalog application. The Playwright test still targets the Vue starter greeting.
 The workflow establishes repository configuration only. The currently deployed topology remains open.
 
 ## Repository ownership
 
-| Checkout | Project responsibility |
-| --- | --- |
-| Frontend | Catalog, authentication UI, cart and checkout, buyer history/documents and project documentation. Hosting the TypeScript backend here remains an option. |
-| Grupo Real Tools | Native administration, store configuration, minimal ERPNext extensions, buyer mapping and commercial operations. |
-| Legacy gr_tools | Source to inspect for catalog, categories, attributes, variants, prices and availability. Limit migration to approved ecommerce behavior. |
+| Checkout         | Project responsibility                                                                                                                                   |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend         | Catalog, authentication UI, cart and checkout, buyer history/documents and project documentation. Hosting the TypeScript backend here remains an option. |
+| Grupo Real Tools | Native administration, store configuration, minimal ERPNext extensions, buyer mapping and commercial operations.                                         |
+| Legacy gr_tools  | Source to inspect for catalog, categories, attributes, variants, prices and availability. Limit migration to approved ecommerce behavior.                |
 
 ## Proposed boundary
 
@@ -55,8 +55,9 @@ ERP maintenance. Checkout reads and writes through the authoritative ERP path.
 
 ## Legacy catalog migration
 
-The inspected `gr_tools/www/products.py` uses the default stock warehouse and positive `Bin.actual_qty -
-Bin.reserved_stock`. Its list and detail queries lack an explicit item-disabled or publication check. Category tree
+The legacy `gr_tools/www/products.py` uses positive `Bin.actual_qty - Bin.reserved_stock`. Its listing now reads the
+default company's warehouse and its local detail still has a Clothing Center warehouse literal.
+The legacy list and detail queries lack an explicit item-disabled or publication check. Category tree
 visibility comes from `Item Group.show_in_website` in `categories.py`, while descendant lookup traverses item groups
 without that predicate. Category visibility therefore does not establish a product publication rule.
 
@@ -68,8 +69,12 @@ selling price list, an empty customer group and short Redis caching. Public HTTP
 categories and attributes with different lifetimes. Treat legacy stock and prices as catalog display behavior.
 
 Before replacing this path, freeze synthetic examples for standalone SKU, variants split across pages, category
-descendants, mixed sizes, color grouping, sale and detail. Add explicit expectations for disabled/unpublished items,
-stable pagination under ties, bounded inputs and empty results. Choose a publication policy with the owner.
-Record license clearance or an independent implementation plan before copying any AGPL implementation into the MIT app.
-Keep the legacy route available until both the new storefront and every affected consumer have a tested cutover path.
-Evaluate temporary compatibility wrappers only where a consumer needs one and give each wrapper a retirement condition.
+descendants, mixed sizes, color grouping, sale and detail. Cover stock in the configured warehouse, stock only in
+other warehouses, stable pagination under ties, bounded inputs and empty results.
+The owner confirmed ownership and authorized reuse of the catalog code in the MIT target app.
+The first migration adds four internal Python operations in `grupo_real_tools/ecommerce/catalog.py`.
+Both product queries read the default company's warehouse. Product pagination still operates on item rows.
+Both frontend profiles now use the four GET methods under `grupo_real_tools.ecommerce.catalog_api`
+for listing, detail, categories and attributes. The configured production origins have not been verified against the
+new methods.
+Private routing and the public store API remain separate work.

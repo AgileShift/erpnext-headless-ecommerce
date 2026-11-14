@@ -19,7 +19,8 @@ ERP messages and credentials. Use bounded pagination and default private respons
 | Buyer | GET /me, PATCH /me | Read or edit permitted profile fields. External identity, email verification and Customer mapping remain server controlled. |
 | Buyer | GET /me/addresses, POST /me/addresses, PATCH /me/addresses/{id} | List or edit owned addresses with approved fields. |
 | Buyer | POST /checkout/quote | Validate lines, owned address and allowed choices. Return an authoritative quote. |
-| Buyer | POST /checkout/confirm | Confirm the accepted quote and create at most one complete order. |
+| Buyer | POST /checkout/request-quotation | Submit an assisted purchase request and return one Quotation reference. First pilot: pickup only. |
+| Buyer | POST /checkout/confirm | Confirm the accepted quote and create at most one complete sales order. Not part of the first pilot. |
 | Buyer | GET /me/orders, GET /me/orders/{id} | List or retrieve orders scoped to buyer ownership. |
 | Buyer | GET /me/orders/{id}/documents/{document_id} | Check order ownership, document type and relationship before streaming. |
 | Buyer | POST /me/orders/{id}/payment | Start or resume the approved payment option for the owned order. |
@@ -35,6 +36,16 @@ Accept actual variant SKUs and quantities, an owned address ID or approved new a
 option IDs. Derive Customer, Company, Warehouse, Price List, currency/conversion, rates, discounts, taxes, shipping
 and totals in ERP. Return `quote_id`, `version`, `expires_at`, `currency`, line prices and quantities, subtotal,
 discounts, taxes, shipping, total and availability/options. Capture the actual authority and precision used.
+
+For Clothing Center, the authoritative quote and sales order use NIO. ERPNext converts the USD selling price list
+using the applicable rate and document precision. USD display amounts and any future buyer display preference do not
+change the transaction currency or authorize a client-supplied conversion rate.
+
+## Assisted quotation pilot
+
+Accept an owned quote, its version, accepted total and currency, and an idempotency key. Validate pickup eligibility
+and current availability, and persist the quotation outcome for safe replay. Return a quotation reference, not an
+order or payment confirmation. Do not create a Sales Order, initiate payment or hold stock in this pilot.
 
 ## Confirmation and recovery
 
@@ -54,7 +65,8 @@ Accept `quote_id`, `version`, accepted currency and total as comparison guards, 
 
 The idempotency and ownership metadata remain proposals. Test same-key replay, payload conflict, new-key replay,
 concurrent attempts, failure before commit and a lost response followed by replay after quote expiry. Test the last
-unit across distinct checkouts and prove the agreed reservation and release behavior.
+unit across distinct checkouts. Do not hold stock for carts or unconfirmed quotes. Preserve native ERPNext stock
+commitments for confirmed orders and verify cancellation behavior.
 
 ## Payments
 
