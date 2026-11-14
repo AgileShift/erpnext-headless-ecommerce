@@ -14,7 +14,7 @@
       <p class="font-medium text-neutral-900">
         Tu carrito está vacío
       </p>
-      <SfButton tag="router-link" to="/" class="mt-4">Ver catálogo</SfButton>
+      <SfButton tag="router-link" to="/" class="mt-4 site-primary-label">Ver catálogo</SfButton>
     </div>
 
     <div v-else class="grid items-start gap-4 md:grid-cols-[minmax(0,1fr)_18rem]">
@@ -76,7 +76,7 @@
           Confirmamos disponibilidad, entrega y pago por WhatsApp.
         </p>
         <SfButton
-          tag="a" :href="whatsappHref" class="mt-3 w-full justify-center !text-(--site-on-accent)" size="lg"
+          tag="a" :href="whatsappHref" class="mt-3 w-full justify-center site-primary-label" size="lg"
         >
           Consultar por WhatsApp
         </SfButton>

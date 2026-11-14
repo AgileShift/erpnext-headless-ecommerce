@@ -100,8 +100,7 @@
       </div>
 
       <SfButton
-        class="mt-5 w-full justify-center border border-neutral-900 bg-neutral-50 !text-neutral-950 hover:bg-neutral-100 hover:!text-neutral-950 disabled:border-neutral-200 disabled:bg-neutral-50 disabled:!text-neutral-400"
-        variant="tertiary"
+        class="mt-5 w-full justify-center site-primary-label"
         :disabled="!canAddSelection"
         @click="addSelectedVariant"
       >
@@ -116,7 +115,8 @@
           <ContactButton
             class="w-full"
             size="lg"
-            suffix="Enviar a WhatsApp"
+            suffix="Consultar por WhatsApp"
+            secondary
             :item_name="displayedItemName"
             :message="whatsappMessage"
           />

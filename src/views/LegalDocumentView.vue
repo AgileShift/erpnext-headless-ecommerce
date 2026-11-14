@@ -164,7 +164,7 @@ watchEffect(() => {
 }
 
 .wiki-content :deep(a) {
-  color: rgb(var(--colors-secondary-700));
+  color: var(--color-secondary-700);
   font-weight: 600;
   text-decoration: underline;
 }

@@ -3,10 +3,13 @@
     tag="a"
     :size="size"
     :href="whatsappHref"
-    class="border border-primary-300 !bg-primary-700 !text-neutral-950 hover:!bg-primary-800 active:!bg-primary-900"
+    :variant="secondary ? 'secondary' : 'primary'"
+    :class="secondary ? '!text-neutral-950' : 'site-primary-label'"
   >
     <template #prefix>
-      <SfIconShoppingCart size="sm" />
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 8.6 8.6 0 0 1-3.7-.8L3 21l1.8-5.8a8.5 8.5 0 1 1 16.2-3.7Z" />
+      </svg>
     </template>
     <template #suffix>
       {{ suffix }}
@@ -16,7 +19,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { SfButton, SfIconShoppingCart } from '@storefront-ui/vue'
+import { SfButton } from '@storefront-ui/vue'
 import siteConfig from '@/config'
 
 const whatsappNumber = siteConfig.contact.whatsApp
@@ -26,6 +29,7 @@ const props = defineProps<{
   suffix: string
   item_name: string
   message?: string
+  secondary?: boolean
 }>()
 
 const whatsappMessage = computed(
