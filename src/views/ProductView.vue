@@ -9,7 +9,7 @@
   >
     <section class="w-full min-w-0">
       <div class="overflow-hidden rounded-md border border-neutral-200 bg-neutral-50 shadow-sm">
-        <img
+        <ProductImage
           class="h-auto w-full"
           :src="displayedImage"
           :alt="displayedItemName"
@@ -174,6 +174,7 @@ import {
   SfThumbnail,
 } from '@storefront-ui/vue'
 import ContactButton from '@/components/ContactButton.vue'
+import ProductImage from '@/components/ProductImage.vue'
 import type { ProductVariant } from '@/types/Product'
 import { useSelectionStore } from '@/stores/selectionStore'
 import { getColorSwatch } from '@/utils/colorSwatches'

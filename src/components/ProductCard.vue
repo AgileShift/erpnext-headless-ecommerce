@@ -4,18 +4,17 @@
   >
     <div class="relative aspect-square overflow-hidden">
       <SfLink tag="router-link" :to="productUrl" class="block h-full">
-        <img
-          :src="catalogImage"
-          :srcset="catalogImageSrcset"
+        <ProductImage
+          :src="product.image"
           sizes="(min-width: 1280px) 280px, (min-width: 768px) 33vw, 50vw"
           :alt="product.item_name"
+          responsive
           width="300"
           height="300"
           :loading="eager ? 'eager' : 'lazy'"
           decoding="async"
           :fetchpriority="eager ? 'high' : 'low'"
           class="block h-full w-full object-cover"
-          @error="useOriginalImage"
         />
       </SfLink>
     </div>
@@ -88,9 +87,9 @@ import { computed } from 'vue'
 import { SfChip, SfLink } from '@storefront-ui/vue'
 import type { Product } from '@/types/Product'
 import ContactButton from '@/components/ContactButton.vue'
+import ProductImage from '@/components/ProductImage.vue'
 import siteConfig from '@/config'
 import { formatCompactAttributeValue, normalizeAttributeName } from '@/utils/attributeFormatting'
-import { getImgurCatalogImageSrcset, getImgurCatalogImageUrl } from '@/utils/imgurImages'
 
 const props = defineProps<{
   product: Product
@@ -100,15 +99,6 @@ const props = defineProps<{
 const visibleAttributeNames = computed(() =>
   (siteConfig.catalog?.productCardVisibleAttributes || ['Talla']).map(normalizeAttributeName),
 )
-
-const catalogImage = computed(() => getImgurCatalogImageUrl(props.product.image))
-const catalogImageSrcset = computed(() => getImgurCatalogImageSrcset(props.product.image))
-
-const useOriginalImage = (event: Event) => {
-  const image = event.target as HTMLImageElement
-  image.srcset = ''
-  image.src = props.product.image
-}
 
 const attributes = computed(() =>
   Object.entries(props.product.available_attributes)

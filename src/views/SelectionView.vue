@@ -22,7 +22,7 @@
         <article v-for="group in cartGroups" :key="group.key" class="rounded-xl border border-neutral-200 bg-white">
           <header class="flex items-center gap-4 p-4">
             <router-link :to="getProductLink(group.item)" class="shrink-0">
-              <img :src="group.item.image" :alt="group.name" class="h-20 w-16 rounded-md object-cover" />
+              <ProductImage :src="group.item.image" :alt="group.name" class="h-20 w-16 rounded-md object-cover" />
             </router-link>
             <div class="min-w-0">
               <h2 class="font-semibold leading-snug text-neutral-950">
@@ -89,6 +89,7 @@
 import { computed, onMounted } from 'vue'
 import { SfButton, SfIconAdd, SfIconRemove } from '@storefront-ui/vue'
 import siteConfig from '@/config'
+import ProductImage from '@/components/ProductImage.vue'
 import { type SelectionItem, useSelectionStore } from '@/stores/selectionStore'
 import type { ProductVariantAttributes } from '@/types/Product'
 
