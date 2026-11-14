@@ -30,7 +30,7 @@ export const useCategoryStore = defineStore('category', {
       this.error = null
 
       try {
-        const response = await fetch(BASE_URL + '/api/method/gr_tools.www.categories.get_item_groups')
+        const response = await fetch(BASE_URL + '/api/method/grupo_real_tools.ecommerce.catalog_api.get_item_groups')
         const data = await response.json()
 
         if (!Array.isArray(data.message)) {

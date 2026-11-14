@@ -385,7 +385,7 @@ export const useProductStore = defineStore('product', {
 
       const responses = await Promise.all(
         combinations.map(async (combination) => {
-          let url = `${BASE_URL}/api/method/gr_tools.www.products.get_items?start=${start}&limit=${this.limit}`
+          let url = `${BASE_URL}/api/method/grupo_real_tools.ecommerce.catalog_api.get_items?start=${start}&limit=${this.limit}`
           url += sale ? `&sale=1` : ''
           url += combination.category ? `&category=${encodeURIComponent(combination.category)}` : ''
           url += combination.size ? `&size=${encodeURIComponent(combination.size)}` : ''
@@ -432,7 +432,7 @@ export const useProductStore = defineStore('product', {
       try {
         const encodedItemCode = encodeURIComponent(itemCode)
         const response = await fetch(
-          `${BASE_URL}/api/method/gr_tools.www.products.get_items_from_template?item_code=${encodedItemCode}`,
+          `${BASE_URL}/api/method/grupo_real_tools.ecommerce.catalog_api.get_items_from_template?item_code=${encodedItemCode}`,
         )
         const data = await response.json()
 
