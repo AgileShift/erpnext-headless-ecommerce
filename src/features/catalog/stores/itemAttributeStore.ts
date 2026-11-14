@@ -4,7 +4,7 @@ import type {
   ItemAttributeGroups,
   ItemAttributeKey,
   ItemAttributeOption,
-} from '@/types/ItemAttribute'
+} from '@/features/catalog/types/ItemAttribute'
 
 const BASE_URL = siteConfig.apiBaseUrl
 
@@ -149,7 +149,7 @@ export const useItemAttributeStore = defineStore('itemAttribute', {
           return attributes
         }
 
-        const endpoint = BASE_URL + '/api/method/grupo_real_tools.ecommerce.catalog_api.get_item_attributes'
+        const endpoint = `${BASE_URL}/api/method/grupo_real_tools.ecommerce.catalog_api.get_item_attributes`
         const responses = await Promise.all(
           requestedAttributes.map(async (attribute) => {
             const url = `${endpoint}?attribute=${encodeURIComponent(attribute)}`

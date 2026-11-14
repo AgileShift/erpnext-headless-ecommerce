@@ -56,40 +56,48 @@
           :title="attribute.title"
         >
           <span class="mr-0.5 font-medium text-neutral-500">{{ attribute.name }}:</span>
-          <SfChip
+            <span
             v-for="value in attribute.formattedValues"
             :key="value"
-            :model-value="true"
-            square
-            size="sm"
-            class="pointer-events-none min-w-6"
+              class="rounded bg-neutral-100 px-1.5 py-0.5 text-neutral-700"
           >
             {{ value }}
-          </SfChip>
+            </span>
         </div>
       </div>
 
-      <div class="mt-auto pt-3">
-        <ContactButton
-          class="w-full justify-center"
+      <div class="mt-auto space-y-2 pt-3">
+        <SfButton
           size="sm"
-          suffix="WhatsApp"
+          class="w-full justify-center site-primary-label"
+          @click="added = false; showQuickAdd = true"
+        >
+          Agregar al carrito
+        </SfButton>
+        <ContactButton
+          class="w-full justify-center whitespace-nowrap !px-1 !text-xs"
+          size="sm"
+          suffix="Consultar por WhatsApp"
+          secondary
           :item_name="product.item_name"
           :message="whatsappMessage"
         />
       </div>
+      <p v-if="added" role="status" class="mt-2 text-center text-xs text-neutral-700">Agregado al carrito</p>
     </div>
+    <QuickAddModal v-model="showQuickAdd" :card="product" :color="cardColor" :product-url="productUrl" @added="added = true" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
-import { SfChip, SfLink } from '@storefront-ui/vue'
-import type { Product } from '@/types/Product'
-import ContactButton from '@/components/ContactButton.vue'
-import ProductImage from '@/components/ProductImage.vue'
+import { computed, ref } from 'vue'
+import { SfButton, SfLink } from '@storefront-ui/vue'
+import type { Product } from '@/features/catalog/types/Product'
+import ContactButton from '@/shared/components/ContactButton.vue'
+import ProductImage from '@/shared/components/ProductImage.vue'
+import QuickAddModal from './QuickAddModal.vue'
 import siteConfig from '@/config'
-import { formatCompactAttributeValue, normalizeAttributeName } from '@/utils/attributeFormatting'
+import { formatCompactAttributeValue, normalizeAttributeName } from '@/features/catalog/utils/attributeFormatting'
 
 const props = defineProps<{
   product: Product
@@ -114,6 +122,8 @@ const attributes = computed(() =>
 )
 
 const visibleAttributes = computed(() => attributes.value)
+const showQuickAdd = ref(false)
+const added = ref(false)
 
 const cardColor = computed(() => {
   const colorAttribute = Object.entries(props.product.available_attributes).find(

@@ -205,9 +205,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import type { Category } from '@/types/Category'
-import { useCategoryStore } from '@/stores/categoryStore'
-import { useItemAttributeStore } from '@/stores/itemAttributeStore'
+import type { Category } from '@/features/catalog/types/Category'
+import { useCategoryStore } from '@/features/catalog/stores/categoryStore'
+import { useItemAttributeStore } from '@/features/catalog/stores/itemAttributeStore'
 
 type CategoryOption = {
   id: string

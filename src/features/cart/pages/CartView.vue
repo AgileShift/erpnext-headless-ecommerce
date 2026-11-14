@@ -80,6 +80,7 @@
         >
           Consultar por WhatsApp
         </SfButton>
+        <SfButton v-if="showCheckoutPreview" tag="router-link" to="/checkout" variant="secondary" class="mt-3 w-full">Probar proceso de compra</SfButton>
       </div>
     </div>
   </section>
@@ -87,11 +88,12 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
+const showCheckoutPreview = import.meta.env.DEV
 import { SfButton, SfIconAdd, SfIconRemove } from '@storefront-ui/vue'
 import siteConfig from '@/config'
-import ProductImage from '@/components/ProductImage.vue'
-import { type SelectionItem, useSelectionStore } from '@/stores/selectionStore'
-import type { ProductVariantAttributes } from '@/types/Product'
+import ProductImage from '@/shared/components/ProductImage.vue'
+import { type SelectionItem, useSelectionStore } from '@/features/cart/stores/selectionStore'
+import type { ProductVariantAttributes } from '@/features/catalog/types/Product'
 
 const selection = useSelectionStore()
 

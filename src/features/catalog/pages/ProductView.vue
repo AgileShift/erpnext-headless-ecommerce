@@ -160,7 +160,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { useProductStore } from '@/stores/productStore'
+import { useProductStore } from '@/features/catalog/stores/productStore'
 import {
   SfButton,
   SfChip,
@@ -173,13 +173,13 @@ import {
   SfIconShoppingCart,
   SfThumbnail,
 } from '@storefront-ui/vue'
-import ContactButton from '@/components/ContactButton.vue'
-import ProductImage from '@/components/ProductImage.vue'
-import type { ProductVariant } from '@/types/Product'
-import { useSelectionStore } from '@/stores/selectionStore'
-import { getColorSwatch } from '@/utils/colorSwatches'
-import { formatAttributeValue, normalizeAttributeName } from '@/utils/attributeFormatting'
-import { getProductMetaDescription, setPageMeta } from '@/utils/pageMeta'
+import ContactButton from '@/shared/components/ContactButton.vue'
+import ProductImage from '@/shared/components/ProductImage.vue'
+import { getAttributeGroups, variantMatchesSelection } from '@/features/catalog/utils/variantSelection'
+import { useSelectionStore } from '@/features/cart/stores/selectionStore'
+import { getColorSwatch } from '@/features/catalog/utils/colorSwatches'
+import { formatAttributeValue, normalizeAttributeName } from '@/features/catalog/utils/attributeFormatting'
+import { getProductMetaDescription, setPageMeta } from '@/shared/utils/pageMeta'
 
 const route = useRoute()
 const productStore = useProductStore()
@@ -214,41 +214,13 @@ const getQueryValue = (value: unknown) => {
   return typeof value === 'string' ? value : null
 }
 
-const getVariantAttribute = (variant: ProductVariant, attributeName: string) => {
-  const attribute = Object.entries(variant.attributes).find(
-    ([name]) => normalizeAttributeName(name) === normalizeAttributeName(attributeName),
-  )
-
-  return attribute?.[1] || null
-}
-
 const baseAttributeGroups = computed(() => {
   if (!product.value) {
     return []
   }
 
-  return Object.entries(product.value.available_attributes)
-    .filter(([, values]) => values.length > 0)
-    .map(([name, values]) => ({ name, values }))
-    .sort((firstGroup, secondGroup) => {
-      const priority = (attributeName: string) => {
-        if (isColorAttribute(attributeName)) return 0
-        if (isSizeAttribute(attributeName)) return 1
-        return 2
-      }
-
-      return priority(firstGroup.name) - priority(secondGroup.name)
-    })
+  return getAttributeGroups(product.value)
 })
-
-const variantMatchesSelection = (variant: ProductVariant, selection: Record<string, string>) =>
-  Object.entries(selection).every(([attributeName, selectedValue]) => {
-    if (!selectedValue) {
-      return true
-    }
-
-    return getVariantAttribute(variant, attributeName) === selectedValue
-  })
 
 const getVariantsForSelection = (selection: Record<string, string>) =>
   product.value?.variants.filter((variant) => variantMatchesSelection(variant, selection)) || []
@@ -413,6 +385,7 @@ const addSelectedVariant = () => {
   selectionStore.addItem({
     item_code: selectedVariant.value.item_code,
     product_item_code: product.value?.item_code,
+    product_name: product.value?.item_name,
     item_name: selectedVariant.value.item_name,
     image: selectedVariant.value.image,
     attributes: selectedVariant.value.attributes,

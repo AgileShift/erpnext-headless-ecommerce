@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import ProductImage from '@/components/ProductImage.vue'
-import { PRODUCT_IMAGE_PLACEHOLDER } from '@/utils/productImages'
+import ProductImage from '@/shared/components/ProductImage.vue'
+import { PRODUCT_IMAGE_PLACEHOLDER } from '@/shared/utils/productImages'
 
 describe('ProductImage', () => {
   it('uses responsive Imgur variants and settles on the local fallback after one error', async () => {

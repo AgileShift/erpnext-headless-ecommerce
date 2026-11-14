@@ -34,6 +34,7 @@ export const fortechConfig: SiteConfig = {
     },
   },
   catalog: {
+    filters: { initiallyOpen: ['size', 'category', 'color'] },
     productCardVisibleAttributes: [],
     exchangeRate: 36.6243,
   },

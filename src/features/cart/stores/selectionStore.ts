@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { ProductPrice, ProductVariantAttributes } from '@/types/Product'
+import type { ProductPrice, ProductVariantAttributes } from '@/features/catalog/types/Product'
 
 const STORAGE_KEY = 'local-selection'
 

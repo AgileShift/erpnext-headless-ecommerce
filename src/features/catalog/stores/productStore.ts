@@ -5,9 +5,9 @@ import type {
   ProductPriceSummary,
   ProductVariant,
   ProductVariantAttributes,
-} from '@/types/Product'
+} from '@/features/catalog/types/Product'
 import siteConfig from '@/config'
-import { normalizeComparableText, sortSizeValues } from '@/utils/sizeOrdering'
+import { normalizeComparableText, sortSizeValues } from '@/features/catalog/utils/sizeOrdering'
 
 const BASE_URL = siteConfig.apiBaseUrl
 const SIZE_ATTRIBUTE_NAMES = new Set(['talla', 'size'])
@@ -55,7 +55,8 @@ const formatImage = (image: unknown, itemName: unknown) => {
 const formatProductPrice = (price: unknown, fallbackRate?: number): ProductPrice => {
   const priceRecord = (price ?? {}) as Record<string, unknown>
   const priceListRate = (priceRecord.price_list_rate as number | undefined) ?? fallbackRate ?? 0
-  const hasPrice = typeof priceRecord.price_list_rate === 'number' || typeof fallbackRate === 'number'
+  const hasPrice =
+    typeof priceRecord.price_list_rate === 'number' || typeof fallbackRate === 'number'
   const discountPercent = (priceRecord.discount_percent as number | undefined) ?? null
 
   return {
@@ -66,7 +67,9 @@ const formatProductPrice = (price: unknown, fallbackRate?: number): ProductPrice
     formatted_price: hasPrice ? formatUsd(priceListRate) : 'No price available',
     formatted_price_sales_uom: priceRecord.formatted_price_sales_uom as string | undefined,
     local_price_list_rate: priceListRate * EXCHANGE_RATE,
-    local_formatted_price: hasPrice ? formatNio(priceListRate * EXCHANGE_RATE) : 'No price available',
+    local_formatted_price: hasPrice
+      ? formatNio(priceListRate * EXCHANGE_RATE)
+      : 'No price available',
     formatted_mrp: (priceRecord.formatted_mrp as string | null) ?? null,
     discount_percent: discountPercent,
     formatted_discount_percent: discountPercent ? `${Math.round(discountPercent)}%` : null,
@@ -182,15 +185,13 @@ const getProductSingleColor = (product: Product): string | null => {
       normalizeComparableText(attributeName) === 'color' && values.length === 1,
   )
 
-  return colorAttribute?.[1][0] || getVariantColor(product.variants[0]) || null
+  return colorAttribute?.[1][0] || (product.variants[0] ? getVariantColor(product.variants[0]) : null)
 }
 
 const getCatalogMergeKey = (product: Product) => {
   const color = getProductSingleColor(product)
 
-  return color
-    ? `${product.item_code}:color:${normalizeComparableText(color)}`
-    : product.item_code
+  return color ? `${product.item_code}:color:${normalizeComparableText(color)}` : product.item_code
 }
 
 const buildProductFromVariants = (product: Product, variants: ProductVariant[]): Product => {
@@ -328,6 +329,8 @@ export const useProductStore = defineStore('product', {
     loading: false,
     hasMoreProducts: true,
     catalogRequestKey: '',
+    catalogErrorPage: null as number | null,
+    catalogRequestId: 0,
   }),
 
   actions: {
@@ -379,72 +382,85 @@ export const useProductStore = defineStore('product', {
         return
       }
 
+      const requestId = ++this.catalogRequestId
       this.loading = true
+      this.catalogErrorPage = null
+      if (page === 1) {
+        this.products = []
+        this.catalogRequestKey = ''
+        this.hasMoreProducts = true
+        this.currentPage = 1
+      }
       const start = (page - 1) * this.limit
       const combinations = getFilterCombinations(category, size, color)
 
-      const responses = await Promise.all(
-        combinations.map(async (combination) => {
-          let url = `${BASE_URL}/api/method/grupo_real_tools.ecommerce.catalog_api.get_items?start=${start}&limit=${this.limit}`
-          url += sale ? `&sale=1` : ''
-          url += combination.category ? `&category=${encodeURIComponent(combination.category)}` : ''
-          url += combination.size ? `&size=${encodeURIComponent(combination.size)}` : ''
-          url += combination.color ? `&color=${encodeURIComponent(combination.color)}` : ''
+      try {
+        const responses = await Promise.all(
+          combinations.map(async (combination) => {
+            let url = `${BASE_URL}/api/method/grupo_real_tools.ecommerce.catalog_api.get_items?start=${start}&limit=${this.limit}`
+            url += sale ? `&sale=1` : ''
+            url += combination.category
+              ? `&category=${encodeURIComponent(combination.category)}`
+              : ''
+            url += combination.size ? `&size=${encodeURIComponent(combination.size)}` : ''
+            url += combination.color ? `&color=${encodeURIComponent(combination.color)}` : ''
 
-          const response = await fetch(url)
-          const data = await response.json()
+            const response = await fetch(url)
+            if (!response.ok) throw new Error('Catalog request failed')
+            const data = await response.json()
+            if (!Array.isArray(data?.message)) throw new Error('Invalid catalog response')
+            return data.message
+          }),
+        )
+        if (requestId !== this.catalogRequestId) return
+        const message = responses.flat()
 
-          return Array.isArray(data.message) ? data.message : []
-        }),
-      )
-      const message = responses.flat()
-
-      if (message.length === 0) {
-        console.warn('No products found!')
-        this.hasMoreProducts = false
-        this.catalogRequestKey = requestKey
-        if (page === 1) {
-          this.products = []
+        if (message.length === 0) {
+          this.hasMoreProducts = false
+          this.catalogRequestKey = requestKey
+          if (page === 1) {
+            this.products = []
+          }
+          this.currentPage = Math.max(1, page - 1)
+          return
         }
-        this.currentPage = Math.max(1, page - 1)
-        this.loading = false
-        return
-      }
 
-      const products = message.flatMap((item: unknown) =>
-        splitProductByColor(this.formatProduct(item)),
+        const products = message.flatMap((item: unknown) =>
+          splitProductByColor(this.formatProduct(item)),
+        )
+        if (page === 1) {
+          this.products = mergeCatalogProducts([], products)
+        } else {
+          this.products = mergeCatalogProducts(this.products, products)
+        }
+
+        this.hasMoreProducts = true
+        this.currentPage = page
+        this.catalogRequestKey = requestKey
+      } catch {
+        if (requestId === this.catalogRequestId) this.catalogErrorPage = page
+      } finally {
+        if (requestId === this.catalogRequestId) this.loading = false
+      }
+    },
+
+    async fetchProduct(itemCode: string): Promise<Product> {
+      const encodedItemCode = encodeURIComponent(itemCode)
+      const response = await fetch(
+        `${BASE_URL}/api/method/grupo_real_tools.ecommerce.catalog_api.get_items_from_template?item_code=${encodedItemCode}`,
       )
-      if (page === 1) {
-        this.products = mergeCatalogProducts([], products)
-      } else {
-        this.products = mergeCatalogProducts(this.products, products)
-      }
-
-      this.hasMoreProducts = true
-      this.currentPage = page
-      this.catalogRequestKey = requestKey
-      this.loading = false
+      if (!response.ok) throw new Error('Product request failed')
+      const data = await response.json()
+      const item = Array.isArray(data?.message) ? data.message[0] : data?.message
+      if (!item) throw new Error('Product not found')
+      return this.formatProduct(item)
     },
 
     async loadProduct(itemCode: string) {
       this.loading = true
 
       try {
-        const encodedItemCode = encodeURIComponent(itemCode)
-        const response = await fetch(
-          `${BASE_URL}/api/method/grupo_real_tools.ecommerce.catalog_api.get_items_from_template?item_code=${encodedItemCode}`,
-        )
-        const data = await response.json()
-
-        const productItem = Array.isArray(data?.message) ? data.message[0] : data?.message
-
-        if (!productItem) {
-          console.error(`Product with item_code ${itemCode} not found!`)
-          this.currentProduct = null
-          return
-        }
-
-        this.currentProduct = this.formatProduct(productItem)
+        this.currentProduct = await this.fetchProduct(itemCode)
       } catch (error) {
         console.error(`Product with item_code ${itemCode} could not be loaded!`, error)
         this.currentProduct = null

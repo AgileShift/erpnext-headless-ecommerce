@@ -11,8 +11,8 @@ import App from './App.vue'
 import router from './router'
 
 import siteConfig from '@/config'
-import { applyStoredConsentPreference } from '@/utils/consentMode'
-import { ensurePreconnectTag } from '@/utils/preconnectTag'
+import { applyStoredConsentPreference } from '@/shared/utils/consentMode'
+import { ensurePreconnectTag } from '@/shared/utils/preconnectTag'
 
 document.documentElement.dataset.site = siteConfig.id
 document.querySelector('link[rel~="icon"]')?.setAttribute('href', siteConfig.siteFavicon)

@@ -14,7 +14,7 @@ import {
   getProductImageSrcset,
   getProductImageUrl,
   PRODUCT_IMAGE_PLACEHOLDER,
-} from '@/utils/productImages'
+} from '@/shared/utils/productImages'
 
 const props = withDefaults(
   defineProps<{

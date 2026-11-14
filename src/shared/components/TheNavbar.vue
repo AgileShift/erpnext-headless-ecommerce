@@ -8,10 +8,10 @@
           variant="tertiary"
           square
           aria-label="Abrir menú"
-          class="block md:hidden mr-10 bg-transparent hover:bg-primary-800 hover:text-white active:bg-primary-900 active:text-white"
+          class="block md:hidden mr-10 bg-transparent hover:bg-primary-800 active:bg-primary-900 !text-(--site-on-accent)"
           @click="openMenu([])"
         >
-          <SfIconMenu class="text-white" />
+          <SfIconMenu aria-hidden="true" />
         </SfButton>
 
         <router-link
@@ -35,21 +35,35 @@
           v-if="siteConfig.showHeaderTitle"
           class="hidden md:flex flex-col items-stretch"
         >
-          <span class="text-3xl font-bold text-(--site-on-accent)">CLOTHING CENTER</span>
+          <span class="text-3xl font-bold text-(--site-on-accent)">{{ siteConfig.siteName.toUpperCase() }}</span>
         </div>
 
         <nav class="flex flex-nowrap justify-end items-center md:ml-10 gap-x-1 px-6">
           <SfButton
+            v-if="showAccountPreview"
             tag="router-link"
-            to="/cart"
-            aria-label="Carrito"
-            class="relative bg-transparent text-white hover:bg-primary-800 hover:text-white active:bg-primary-900 active:text-white"
+            :to="{ name: 'AccountAccess', query: route.path === '/cart' ? { from: 'cart' } : {} }"
+            aria-label="Mi cuenta"
+            title="Mi cuenta"
+            class="bg-transparent !text-(--site-on-accent) hover:bg-primary-800 active:bg-primary-900"
             variant="tertiary"
             square
           >
-            <SfIconShoppingCart />
+            <SfIconPerson aria-hidden="true" />
+          </SfButton>
+          <SfButton
+            tag="router-link"
+            to="/cart"
+            :aria-label="selection.count ? `Carrito, ${selection.count} ${selection.count === 1 ? 'unidad' : 'unidades'}` : 'Carrito'"
+            title="Carrito"
+            class="relative bg-transparent !text-(--site-on-accent) hover:bg-primary-800 active:bg-primary-900"
+            variant="tertiary"
+            square
+          >
+            <SfIconShoppingCart aria-hidden="true" />
             <span
               v-if="selection.count"
+              aria-hidden="true"
               class="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-neutral-950 px-1 text-xs font-bold text-white"
             >
               {{ selection.count }}
@@ -275,19 +289,23 @@ import {
   SfIconChevronRight,
   SfIconMenu,
   SfIconArrowBack,
+  SfIconPerson,
   SfIconShoppingCart,
   useDisclosure,
   useTrapFocus,
   useDropdown,
 } from '@storefront-ui/vue'
 import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { unrefElement } from '@vueuse/core'
-import type { Category } from '@/types/Category'
+import type { Category } from '@/features/catalog/types/Category'
 import siteConfig from '@/config'
-import { ROOT_CATEGORY_NAME, useCategoryStore } from '@/stores/categoryStore'
-import { useSelectionStore } from '@/stores/selectionStore'
+import { ROOT_CATEGORY_NAME, useCategoryStore } from '@/features/catalog/stores/categoryStore'
+import { useSelectionStore } from '@/features/cart/stores/selectionStore'
 
 const siteLogo = `/${siteConfig.siteLogo}`
+const route = useRoute()
+const showAccountPreview = import.meta.env.DEV
 const categoryStore = useCategoryStore()
 const selection = useSelectionStore()
 const content = computed<Category>(() => categoryStore.categoryTree)

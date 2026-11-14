@@ -3,7 +3,7 @@ import type { SiteConfig } from '../types'
 export const clothingCenterConfig: SiteConfig = {
   id: 'clothing-center',
   showHeaderTitle: true,
-  apiBaseUrl: 'https://erp.clothingcenterni.com',
+  apiBaseUrl: 'http://localhost:8000',
   siteName: 'Clothing Center',
   siteLogo: 'LogoClothing.svg',
   siteFavicon: 'clothing.ico',
@@ -38,6 +38,7 @@ export const clothingCenterConfig: SiteConfig = {
     },
   },
   catalog: {
+    filters: { initiallyOpen: ['size'] },
     productCardVisibleAttributes: ['Talla', 'Talla - Largo'],
     exchangeRate: 36.6243,
   },

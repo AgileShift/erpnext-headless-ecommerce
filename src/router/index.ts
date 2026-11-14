@@ -1,11 +1,11 @@
 import { createRouter, createWebHistory, type RouteLocationNormalizedLoaded } from 'vue-router'
 
-import CatalogView from '@/views/CatalogView.vue'
-import ContactView from '@/views/ContactView.vue'
-import LegalDocumentView from '@/views/LegalDocumentView.vue'
-import ProductView from '@/views/ProductView.vue'
-import SelectionView from '@/views/SelectionView.vue'
-import URLBuilderView from '@/views/URLBuilderView.vue'
+import CatalogView from '@/features/catalog/pages/CatalogView.vue'
+import ContactView from '@/features/content/pages/ContactView.vue'
+import LegalDocumentView from '@/features/content/pages/LegalDocumentView.vue'
+import ProductView from '@/features/catalog/pages/ProductView.vue'
+import SelectionView from '@/features/cart/pages/CartView.vue'
+import URLBuilderView from '@/features/tools/pages/URLBuilderView.vue'
 import { getEnabledLegalDocumentRoutes } from '@/router/legalRoutes'
 
 const getQueryValues = (value: RouteLocationNormalizedLoaded['query'][string]) => {
@@ -42,7 +42,12 @@ const router = createRouter({
       meta: { legalDocument: true },
     })),
     { path: '/product/:id(.*)', name: 'Product', component: ProductView, props: false },
-    { path: '/cart', alias: '/selection', name: 'Selection', component: SelectionView },
+    {
+      path: '/cart',
+      alias: '/selection',
+      name: 'Selection',
+      component: SelectionView,
+    },
     { path: '/url-builder', name: 'URLBuilder', component: URLBuilderView },
   ],
 })

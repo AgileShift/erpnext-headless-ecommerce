@@ -36,7 +36,7 @@ import { computed, ref, watch, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import siteConfig from '@/config'
 import { getLegalDocumentLabel, type LegalDocumentKey } from '@/router/legalRoutes'
-import { getLegalDocumentMetaDescription, setPageMeta } from '@/utils/pageMeta'
+import { getLegalDocumentMetaDescription, setPageMeta } from '@/shared/utils/pageMeta'
 
 type WikiPageMessage = {
   title?: string

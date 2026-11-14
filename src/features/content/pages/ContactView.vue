@@ -115,8 +115,8 @@ import {
 } from '@storefront-ui/vue'
 import { onMounted } from 'vue'
 import siteConfig from '@/config'
-import { contactLinks, socialLinks } from '@/utils/contactLinks'
-import { setPageMeta } from '@/utils/pageMeta'
+import { contactLinks, socialLinks } from '@/shared/utils/contactLinks'
+import { setPageMeta } from '@/shared/utils/pageMeta'
 
 const addressLink = contactLinks.find((link) => link.key === 'address')!
 const contactChannels = contactLinks.filter((link) => ['email', 'website'].includes(link.key))

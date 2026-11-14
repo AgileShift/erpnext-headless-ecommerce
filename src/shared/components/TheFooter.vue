@@ -82,7 +82,7 @@
 
 <script setup lang="ts">
 import { getEnabledLegalDocumentRoutes } from '@/router/legalRoutes'
-import { contactLinks, socialLinks } from '@/utils/contactLinks'
+import { contactLinks, socialLinks } from '@/shared/utils/contactLinks'
 
 const legalLinks = getEnabledLegalDocumentRoutes()
 const footerContactLinks = contactLinks.filter((link) =>

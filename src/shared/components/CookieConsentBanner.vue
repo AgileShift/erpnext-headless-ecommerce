@@ -34,7 +34,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { SfButton } from '@storefront-ui/vue'
-import { acceptAnalyticsConsent, getConsentPreference, rejectAnalyticsConsent } from '@/utils/consentMode'
+import { acceptAnalyticsConsent, getConsentPreference, rejectAnalyticsConsent } from '@/shared/utils/consentMode'
 
 const visible = ref(false)
 

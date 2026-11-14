@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Category } from '@/types/Category'
+import type { Category } from '@/features/catalog/types/Category'
 import siteConfig from '@/config'
 
 const BASE_URL = siteConfig.apiBaseUrl
@@ -30,7 +30,7 @@ export const useCategoryStore = defineStore('category', {
       this.error = null
 
       try {
-        const response = await fetch(BASE_URL + '/api/method/grupo_real_tools.ecommerce.catalog_api.get_item_groups')
+        const response = await fetch(`${BASE_URL}/api/method/grupo_real_tools.ecommerce.catalog_api.get_item_groups`)
         const data = await response.json()
 
         if (!Array.isArray(data.message)) {

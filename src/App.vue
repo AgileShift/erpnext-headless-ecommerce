@@ -9,7 +9,7 @@ import { watchEffect } from 'vue'
 import StoreLayout from '@/app/layouts/StoreLayout.vue'
 import { RouterView, useRoute } from 'vue-router'
 import siteConfig from '@/config'
-import { DEFAULT_META_DESCRIPTION, setPageMeta } from '@/utils/pageMeta'
+import { DEFAULT_META_DESCRIPTION, setPageMeta } from '@/shared/utils/pageMeta'
 
 const route = useRoute()
 

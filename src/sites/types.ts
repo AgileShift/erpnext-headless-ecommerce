@@ -1,6 +1,7 @@
 import type { LegalDocumentKey } from '@/router/legalRoutes'
 
 export type SiteId = 'clothing-center' | 'fortech'
+export type CatalogFilterSection = 'size' | 'category' | 'color'
 
 export type SiteConfig = {
   apiBaseUrl: string
@@ -30,5 +31,8 @@ export type SiteConfig = {
   catalog: {
     productCardVisibleAttributes: string[]
     exchangeRate: number
+    filters: {
+      initiallyOpen: CatalogFilterSection[]
+    }
   }
 }
