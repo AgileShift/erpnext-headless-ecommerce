@@ -55,11 +55,13 @@ filters after an empty result, or retry a failed request. If a later page fails,
 retry requests that page again. A load-more button also supports navigation without automatic scrolling.
 
 Clothing Center presents size, category and color filters through the shared `CatalogFilters.vue` component, with
-selected values summarized in expandable sections. The same component opens as a mobile panel and stays beside the
-catalog on wider screens. Category and color searches filter visible options locally without changing selected values
-or catalog requests. Filter values and application remain unchanged; filter-option loading feedback is still pending.
-Each site configures the initially expanded sections with `catalog.filters.initiallyOpen`, using `size`, `category`
-and `color`. Clothing Center opens size initially; ForTech opens all three. Shoppers can change the expanded sections.
+selected values summarized in Storefront UI `SfAccordionItem` sections. Sizes and colors use `SfChip`; categories use
+`SfListItem` with `SfCheckbox` so longer names remain readable and the complete row is selectable. On mobile,
+`SfDrawer` provides close, clear and show-products actions; the semantic `aside` stays beside the catalog on wider
+screens. Category and color searches filter visible options locally without changing selected values or catalog
+requests. Filter values and application remain unchanged; filter-option loading feedback is still pending. Each site
+configures the initially expanded sections with `catalog.filters.initiallyOpen`, using `size`, `category` and `color`.
+Clothing Center opens size initially; ForTech opens all three. Shoppers can change the expanded sections.
 
 | Route | Status | Backlog |
 | --- | --- | --- |

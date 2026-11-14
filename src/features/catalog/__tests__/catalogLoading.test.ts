@@ -115,6 +115,12 @@ describe('catalog loading', () => {
       .trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.fullPath).toBe('/')
+    expect(
+      wrapper
+        .findAll('button')
+        .find((button) => button.text() === 'Limpiar filtros')!
+        .attributes('disabled'),
+    ).toBeDefined()
     const store = useProductStore()
     store.catalogErrorPage = 1
     await wrapper.vm.$nextTick()
@@ -133,6 +139,7 @@ describe('catalog loading', () => {
     await router.isReady()
     const wrapper = mount(CatalogView, {
       props: { size: ['M'], color: ['Azul'] },
+      attachTo: document.body,
       global: {
         plugins: [router],
         stubs: { ProductCard: true, ProductCardSkeleton: true, SfChip: true, SfThumbnail: true },
@@ -146,7 +153,25 @@ describe('catalog loading', () => {
     ).toEqual([true, false, false])
     expect(fortechConfig.catalog.filters.initiallyOpen).toEqual(['size', 'category', 'color'])
     await wrapper.find('summary').trigger('click')
+    expect(wrapper.findAll('details')[0]?.attributes('open')).toBeUndefined()
+    await wrapper.findAll('summary')[1]?.trigger('click')
+    expect(wrapper.findAll('details')[1]?.attributes('open')).toBe('')
     expect(router.currentRoute.value.fullPath).toBe('/?size=M&color=Azul')
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text().startsWith('Filtros'))!
+      .trigger('click')
+    await flushPromises()
+    const drawer = wrapper.get('[data-testid="drawer"]')
+    expect(drawer.attributes('role')).toBe('dialog')
+    expect(drawer.attributes('aria-modal')).toBe('true')
+    expect(document.body.style.overflow).toBe('hidden')
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'Ver productos')!
+      .trigger('click')
+    expect(wrapper.find('[data-testid="drawer"]').exists()).toBe(false)
+    expect(document.body.style.overflow).not.toBe('hidden')
     wrapper.unmount()
   })
 
@@ -225,6 +250,14 @@ describe('catalog loading', () => {
     expect(wrapper.findAll('summary')[1]?.text()).toContain('Blusas')
     expect(fetchMock).toHaveBeenCalledTimes(calls)
     expect(router.currentRoute.value.fullPath).toBe('/category/Blusas')
+    await wrapper
+      .get('input[value="Jumpsuits - Largos"]')
+      .element.closest('label')!
+      .click()
+    await wrapper.vm.$nextTick()
+    expect(
+      (wrapper.get('input[value="Jumpsuits - Largos"]').element as HTMLInputElement).checked,
+    ).toBe(true)
     await search.setValue('inexistente')
     expect(wrapper.text()).toContain('No encontramos categorías con ese nombre.')
     wrapper.unmount()
