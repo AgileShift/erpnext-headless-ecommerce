@@ -1,3 +1,4 @@
+import { previewRoutes } from './previewRoutes'
 import { createRouter, createWebHistory, type RouteLocationNormalizedLoaded } from 'vue-router'
 
 import CatalogView from '@/features/catalog/pages/CatalogView.vue'
@@ -49,6 +50,8 @@ const router = createRouter({
       component: SelectionView,
     },
     { path: '/url-builder', name: 'URLBuilder', component: URLBuilderView },
+    ...previewRoutes,
+    { path: '/:pathMatch(.*)*', name: 'NotFound', component: () => import('@/shared/pages/NotFoundView.vue') },
   ],
 })
 
