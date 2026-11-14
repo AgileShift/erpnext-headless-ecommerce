@@ -12,6 +12,7 @@
   --color-secondary-600: color-mix(in srgb, var(--site-accent) 56%, black);
   --color-secondary-700: var(--color-secondary-600);
 
+  --site-sale-text: #c43d55;
 }
 
 /* SfButton's primary variant defaults to white text. Keep its disabled color. */

@@ -35,7 +35,7 @@
           v-if="siteConfig.showHeaderTitle"
           class="hidden md:flex flex-col items-stretch"
         >
-          <a class="text-3xl font-bold text-white">CLOTHING CENTER</a>
+          <span class="text-3xl font-bold text-(--site-on-accent)">CLOTHING CENTER</span>
         </div>
 
         <nav class="flex flex-nowrap justify-end items-center md:ml-10 gap-x-1 px-6">

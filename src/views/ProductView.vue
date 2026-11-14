@@ -25,9 +25,9 @@
     <section class="w-full min-w-0 md:max-w-xl">
       <div v-if="displayedPrice?.discount_percent">
         <div
-          class="mb-2 inline-flex items-center justify-center bg-secondary-700 px-3 py-1.5 text-xs font-semibold text-white"
+          class="mb-2 inline-flex items-center justify-center bg-(--site-sale-text) px-3 py-1.5 text-xs font-semibold text-white"
         >
-          <SfIconSell size="sm" class="mr-1.5" /> SALE
+          <SfIconSell size="sm" class="mr-1.5" aria-hidden="true" /> SALE
         </div>
       </div>
 
@@ -40,21 +40,19 @@
         {{ product.item_group }}
       </SfLink>
 
-      <p class="mb-2 text-lg font-bold leading-snug text-neutral-950 md:text-xl">
+      <h1 class="mb-2 text-lg font-bold leading-snug text-neutral-950 md:text-xl">
         {{ displayedItemName }}
-      </p>
+      </h1>
 
       <span class="block font-bold text-xl text-neutral-950">
-        <a>{{ displayedLocalPrice }}</a>
-        <a class="font-thin"> | </a>
-        <a>{{ displayedUsdPrice }}</a>
+        <span>{{ displayedLocalPrice }}</span>
+        <span class="font-thin"> | </span>
+        <span>{{ displayedUsdPrice }}</span>
       </span>
 
-      <span v-if="displayedPrice?.discount_percent" class="max-sm:block block font-bold">
-        <del class="text-sm text-neutral-400 md:text-base">{{ displayedPrice?.formatted_mrp }}</del>
-        <a class="pl-2 text-sm md:text-base text-secondary-700"
-          >{{ displayedPrice?.formatted_discount_percent }} OFF</a
-        >
+      <span v-if="displayedPrice?.discount_percent" class="block font-bold">
+        <s class="text-sm text-neutral-400 md:text-base">{{ displayedPrice?.formatted_mrp }}</s>
+        <span class="pl-2 text-sm md:text-base text-(--site-sale-text)">{{ displayedPrice?.formatted_discount_percent }} OFF</span>
       </span>
 
       <span
@@ -150,7 +148,7 @@
   </div>
 
   <div class="mx-auto mt-8 flex w-full max-w-7xl justify-end px-4 md:mt-12 md:px-8">
-    <SfButton size="lg" class="text-center" tag="a" @click="$router.go(-1)">
+    <SfButton size="lg" class="text-center site-primary-label" tag="router-link" to="/">
       <template #prefix>
         <SfIconArrowBack size="sm" />
       </template>

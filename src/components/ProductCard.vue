@@ -38,16 +38,14 @@
 
       <div class="mt-1">
         <span class="block text-sm font-bold leading-tight md:text-base">
-          <a>{{ product.price_summary.local_formatted_price }}</a>
-          <a class="font-thin"> | </a>
-          <a>{{ product.price_summary.formatted_price }}</a>
+          <span>{{ product.price_summary.local_formatted_price }}</span>
+          <span class="font-thin"> | </span>
+          <span>{{ product.price_summary.formatted_price }}</span>
         </span>
 
-        <span v-if="product.price.discount_percent" class="max-sm:block block font-bold">
-          <del class="text-sm md:text-base text-neutral-400">{{ product.price.formatted_mrp }}</del>
-          <a class="pl-1 text-sm md:text-base text-secondary-700"
-            >{{ product.price.formatted_discount_percent }} OFF</a
-          >
+        <span v-if="product.price.discount_percent" class="block font-bold">
+          <s class="text-sm md:text-base text-neutral-400">{{ product.price.formatted_mrp }}</s>
+          <span class="pl-1 text-sm md:text-base text-(--site-sale-text)">{{ product.price.formatted_discount_percent }} OFF</span>
         </span>
       </div>
 
