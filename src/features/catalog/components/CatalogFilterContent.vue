@@ -3,13 +3,14 @@
     <div>
       <h2 class="text-lg font-bold text-neutral-950">Filtros</h2>
     </div>
-    <button
+    <SfButton
       v-if="mobileActions"
-      type="button"
-      class="rounded-md p-2 text-neutral-500 hover:bg-neutral-100"
+      variant="tertiary"
+      square
+      class="!text-neutral-500"
       aria-label="Cerrar filtros"
       @click="emit('close')"
-    ><SfIconClose /></button>
+    ><SfIconClose aria-hidden="true" /></SfButton>
   </div>
 
   <ul class="divide-y divide-neutral-200 border-y border-neutral-200">

@@ -8,7 +8,9 @@
         <h2 :id="titleId" class="text-lg font-bold text-neutral-950">Elegí tus opciones</h2>
         <p class="mt-1 text-sm text-neutral-600">{{ card.item_name }}</p>
       </div>
-      <button type="button" aria-label="Cerrar" class="rounded px-2 py-1 text-xl" @click="open = false">×</button>
+      <SfButton variant="tertiary" square aria-label="Cerrar" @click="open = false">
+        <SfIconClose aria-hidden="true" />
+      </SfButton>
     </div>
     <p v-if="loading" role="status" class="mt-5 text-sm">Cargando opciones…</p>
     <div v-else-if="error" class="mt-5 text-sm" role="alert">
@@ -19,11 +21,21 @@
       <fieldset v-for="group in groups" :key="group.name" class="mt-5">
         <legend class="text-sm font-semibold">{{ group.name }}</legend>
         <div class="mt-2 flex flex-wrap gap-2">
-          <label v-for="value in group.values" :key="value" class="cursor-pointer">
-            <input v-model="selection[group.name]" type="radio" :name="`${titleId}-${group.name}`" :value="value"
-              :disabled="!isAvailable(group.name, value)" class="peer sr-only" />
-            <span class="inline-block rounded-md border border-neutral-300 px-3 py-2 text-sm peer-checked:border-neutral-950 peer-checked:bg-neutral-950 peer-checked:text-white peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-disabled:opacity-40">{{ value }}</span>
-          </label>
+          <SfChip
+            v-for="value in group.values"
+            :key="value"
+            :model-value="selection[group.name] === value"
+            :square="normalizeAttributeName(group.name) === 'talla'"
+            class="peer-next-checked:bg-primary-100 peer-next-checked:text-neutral-950 peer-next-checked:shadow-sm"
+            :input-props="{ value, disabled: !isAvailable(group.name, value) }"
+            @click="selection[group.name] === value && $event.preventDefault()"
+            @update:model-value="$event === true && (selection[group.name] = value)"
+          >
+            <template v-if="normalizeAttributeName(group.name) === 'color'" #prefix>
+              <SfThumbnail size="sm" class="border border-neutral-300" :style="{ backgroundColor: getColorSwatch(value) }" />
+            </template>
+            {{ value }}
+          </SfChip>
         </div>
       </fieldset>
       <p v-if="limitReached" class="mt-4 text-sm text-neutral-700" role="status">Ya agregaste la cantidad disponible al carrito.</p>
@@ -35,12 +47,13 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { SfButton, SfModal } from '@storefront-ui/vue'
+import { SfButton, SfChip, SfIconClose, SfModal, SfThumbnail } from '@storefront-ui/vue'
 import type { Product } from '@/features/catalog/types/Product'
 import { useProductStore } from '@/features/catalog/stores/productStore'
 import { useSelectionStore } from '@/features/cart/stores/selectionStore'
 import { getAttributeGroups, variantMatchesSelection } from '@/features/catalog/utils/variantSelection'
 import { normalizeAttributeName } from '@/features/catalog/utils/attributeFormatting'
+import { getColorSwatch } from '@/features/catalog/utils/colorSwatches'
 
 const props = defineProps<{ modelValue: boolean; card: Product; color: string | null; productUrl: { path: string; query: { color?: string } } }>()
 const emit = defineEmits<{ 'update:modelValue': [value: boolean]; added: [] }>()
