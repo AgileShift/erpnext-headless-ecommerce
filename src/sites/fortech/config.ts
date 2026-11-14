@@ -2,7 +2,6 @@ import type { SiteConfig } from '../types'
 
 export const createFortechConfig = (origin: string): SiteConfig => ({
   id: 'fortech',
-  shoppingMode: 'selection',
   showHeaderTitle: false,
   apiBaseUrl: 'https://erp.fortechni.com',
   siteName: 'ForTech Nicaragua',

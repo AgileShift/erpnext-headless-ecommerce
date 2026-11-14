@@ -7,7 +7,7 @@
       <div class="min-w-0 flex-1">
         <p class="text-sm font-semibold text-neutral-950">Privacidad y cookies</p>
         <p class="mt-1 text-sm leading-5 text-neutral-600">
-          Usamos almacenamiento necesario para Mi selección y, con tu permiso, analíticas para
+          Usamos almacenamiento necesario para el carrito y, con tu permiso, analíticas para
           mejorar el catálogo. Podés aceptar o rechazar las analíticas.
         </p>
         <router-link class="mt-2 inline-block text-sm font-semibold text-secondary-700 underline" to="/cookies">

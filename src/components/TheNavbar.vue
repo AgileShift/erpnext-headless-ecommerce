@@ -41,13 +41,13 @@
         <nav class="flex flex-nowrap justify-end items-center md:ml-10 gap-x-1 px-6">
           <SfButton
             tag="router-link"
-            to="/selection"
-            aria-label="Mi selección"
+            to="/cart"
+            aria-label="Carrito"
             class="relative bg-transparent text-white hover:bg-primary-800 hover:text-white active:bg-primary-900 active:text-white"
             variant="tertiary"
             square
           >
-            <SfIconFavorite />
+            <SfIconShoppingCart />
             <span
               v-if="selection.count"
               class="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-neutral-950 px-1 text-xs font-bold text-white"
@@ -229,8 +229,8 @@
               </router-link>
             </li>
             <li v-if="isRootCategory(activeMenu)">
-              <router-link to="/selection" class="block px-4 py-3 text-left" @click="close()">
-                Mi selección
+              <router-link to="/cart" class="block px-4 py-3 text-left" @click="close()">
+                Carrito
                 <span v-if="selection.count" class="font-semibold">({{ selection.count }})</span>
               </router-link>
             </li>
@@ -275,7 +275,7 @@ import {
   SfIconChevronRight,
   SfIconMenu,
   SfIconArrowBack,
-  SfIconFavorite,
+  SfIconShoppingCart,
   useDisclosure,
   useTrapFocus,
   useDropdown,

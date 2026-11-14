@@ -9,7 +9,6 @@ export type SiteConfig = {
   siteFavicon: string
   Gtag: string
   id: SiteId
-  shoppingMode: 'cart' | 'selection'
   showHeaderTitle: boolean
   contact: {
     email: string

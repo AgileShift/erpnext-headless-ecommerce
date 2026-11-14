@@ -6,11 +6,13 @@ const STORAGE_KEY = 'local-selection'
 export interface SelectionItem {
   item_code: string
   product_item_code?: string
+  product_name?: string
   item_name: string
   image: string
   attributes: ProductVariantAttributes
   price: ProductPrice
   qty: number
+  maxQty?: number
 }
 
 const loadItems = (): SelectionItem[] => {
@@ -42,24 +44,40 @@ export const useSelectionStore = defineStore('selection', {
     },
 
     addItem(item: Omit<SelectionItem, 'qty'>, maxQty = Infinity) {
-      if (maxQty <= 0) {
+      if (maxQty < 1) {
         return
       }
 
+      const availableQty = Number.isFinite(maxQty) ? Math.floor(maxQty) : undefined
       const existingItem = this.items.find(
         (selectionItem) => selectionItem.item_code === item.item_code,
       )
 
       if (existingItem) {
-        if (existingItem.qty >= maxQty) {
+        existingItem.maxQty = availableQty
+        if (existingItem.qty + 1 > maxQty) {
+          this.persist()
           return
         }
 
         existingItem.qty += 1
       } else {
-        this.items.push({ ...item, qty: 1 })
+        this.items.push({ ...item, qty: 1, maxQty: availableQty })
       }
 
+      this.persist()
+    },
+
+    setQuantity(itemCode: string, qty: number) {
+      const item = this.items.find((entry) => entry.item_code === itemCode)
+      if (!item || !Number.isSafeInteger(qty) || qty < 0) return
+      if (qty === 0) {
+        this.removeItem(itemCode)
+        return
+      }
+      if (qty > item.qty && (item.maxQty === undefined || qty > item.maxQty)) return
+
+      item.qty = qty
       this.persist()
     },
 

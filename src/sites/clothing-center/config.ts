@@ -2,7 +2,6 @@ import type { SiteConfig } from '../types'
 
 export const clothingCenterConfig: SiteConfig = {
   id: 'clothing-center',
-  shoppingMode: 'cart',
   showHeaderTitle: true,
   apiBaseUrl: 'https://erp.clothingcenterni.com',
   siteName: 'Clothing Center',

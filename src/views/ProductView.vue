@@ -106,7 +106,7 @@
         @click="addSelectedVariant"
       >
         <template #prefix>
-          <SfIconFavorite size="sm" />
+          <SfIconShoppingCart size="sm" />
         </template>
         <template #suffix>{{ selectionButtonLabel }}</template>
       </SfButton>
@@ -172,7 +172,7 @@ import {
   SfIconSafetyCheck,
   SfIconSell,
   SfIconArrowBack,
-  SfIconFavorite,
+  SfIconShoppingCart,
   SfThumbnail,
 } from '@storefront-ui/vue'
 import ContactButton from '@/components/ContactButton.vue'
@@ -402,8 +402,8 @@ const selectionButtonLabel = computed(() => {
   }
 
   return selectionItemQty.value
-    ? `Agregar otra (${selectionItemQty.value} en selección)`
-    : 'Agregar a mi selección'
+    ? `Agregar otra (${selectionItemQty.value} en el carrito)`
+    : 'Agregar al carrito'
 })
 
 const addSelectedVariant = () => {

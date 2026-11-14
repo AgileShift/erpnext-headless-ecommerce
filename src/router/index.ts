@@ -42,7 +42,7 @@ const router = createRouter({
       meta: { legalDocument: true },
     })),
     { path: '/product/:id(.*)', name: 'Product', component: ProductView, props: false },
-    { path: '/selection', name: 'Selection', component: SelectionView },
+    { path: '/cart', alias: '/selection', name: 'Selection', component: SelectionView },
     { path: '/url-builder', name: 'URLBuilder', component: URLBuilderView },
   ],
 })

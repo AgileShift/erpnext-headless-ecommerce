@@ -21,9 +21,9 @@
           <nav class="grid grid-cols-2 gap-x-4 gap-y-2 md:flex md:flex-col">
             <router-link
               class="text-sm text-neutral-700 hover:text-neutral-950"
-              to="/selection"
+              to="/cart"
             >
-              Mi selección
+              Carrito
             </router-link>
             <router-link
               class="text-sm text-neutral-700 hover:text-neutral-950"
