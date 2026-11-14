@@ -11,7 +11,7 @@ export const clothingCenterConfig: SiteConfig = {
   contact: {
     email: 'contacto@clothingcenterni.com',
     whatsApp: '50577020233',
-    website: 'clothingcenterni.com',
+    website: 'https://clothingcenterni.com',
     address: 'DDF La Vicky 1c Norte, 1/2c Este. Altamira, Managua, Nicaragua',
     googleMaps: 'https://maps.app.goo.gl/S952rpBWWEfCTtYM6',
     businessHours: [

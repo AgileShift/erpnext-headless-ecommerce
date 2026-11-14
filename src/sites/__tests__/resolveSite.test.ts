@@ -5,19 +5,18 @@ describe('site selection', () => {
   it.each(['fortechni.com', 'www.fortechni.com', 'WWW.FORTECHNI.COM'])(
     'resolves ForTech for %s',
     (hostname) => {
-      const origin = `https://${hostname}`
-      const site = resolveSite({ hostname, origin })
+      const site = resolveSite(hostname)
 
       expect(site.id).toBe('fortech')
       expect(site.apiBaseUrl).toBe('https://erp.fortechni.com')
-      expect(site.contact.website).toBe(origin)
+      expect(site.contact.website).toBe('https://fortechni.com')
     },
   )
 
   it.each(['clothingcenterni.com', 'www.clothingcenterni.com', 'localhost', 'unknown.test'])(
     'resolves Clothing Center for %s',
     (hostname) => {
-      const site = resolveSite({ hostname, origin: `https://${hostname}` })
+      const site = resolveSite(hostname)
 
       expect(site.id).toBe('clothing-center')
     },

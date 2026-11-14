@@ -1,10 +1,11 @@
 import { clothingCenterConfig } from './sites/clothing-center/config'
-import { createFortechConfig } from './sites/fortech/config'
+import { fortechConfig } from './sites/fortech/config'
 
-export function resolveSite({ hostname, origin }: Pick<Location, 'hostname' | 'origin'>) {
-  return hostname.toLowerCase().replace(/^www\./, '') === 'fortechni.com'
-    ? createFortechConfig(origin)
-    : clothingCenterConfig
+const sites = [clothingCenterConfig, fortechConfig]
+
+export function resolveSite(hostname: string) {
+  const domain = hostname.toLowerCase().replace(/^www\./, '')
+  return sites.find((site) => new URL(site.contact.website).hostname === domain) ?? clothingCenterConfig
 }
 
-export default resolveSite(window.location)
+export default resolveSite(window.location.hostname)

@@ -1,6 +1,6 @@
 import type { SiteConfig } from '../types'
 
-export const createFortechConfig = (origin: string): SiteConfig => ({
+export const fortechConfig: SiteConfig = {
   id: 'fortech',
   showHeaderTitle: false,
   apiBaseUrl: 'https://erp.fortechni.com',
@@ -11,7 +11,7 @@ export const createFortechConfig = (origin: string): SiteConfig => ({
   contact: {
     email: 'contacto@fortechni.com',
     whatsApp: '50583968452',
-    website: origin,
+    website: 'https://fortechni.com',
     address: 'DDF La Vicky 1c Norte, 1/2c Este. Altamira, Managua, Nicaragua',
     googleMaps: 'https://maps.app.goo.gl/4uSrJupNKJ8ZW75W6',
     businessHours: [],
@@ -37,4 +37,4 @@ export const createFortechConfig = (origin: string): SiteConfig => ({
     productCardVisibleAttributes: [],
     exchangeRate: 36.6243,
   },
-})
+}
