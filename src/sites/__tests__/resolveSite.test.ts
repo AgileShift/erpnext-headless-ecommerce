@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { resolveSite } from '../resolveSite'
+import { resolveSite } from '../../config'
 
 describe('site selection', () => {
   it.each(['fortechni.com', 'www.fortechni.com', 'WWW.FORTECHNI.COM'])(

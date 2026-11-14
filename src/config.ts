@@ -1,5 +1,10 @@
-import { resolveSite } from '@/sites/resolveSite'
+import { clothingCenterConfig } from './sites/clothing-center/config'
+import { createFortechConfig } from './sites/fortech/config'
 
-const siteConfig = resolveSite(window.location)
+export function resolveSite({ hostname, origin }: Pick<Location, 'hostname' | 'origin'>) {
+  return hostname.toLowerCase().replace(/^www\./, '') === 'fortechni.com'
+    ? createFortechConfig(origin)
+    : clothingCenterConfig
+}
 
-export default siteConfig
+export default resolveSite(window.location)
