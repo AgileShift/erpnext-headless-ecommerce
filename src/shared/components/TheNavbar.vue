@@ -1,14 +1,14 @@
 <template>
   <div class="w-full h-full">
-    <header ref="referenceRef" class="relative">
+    <header ref="referenceRef" class="relative bg-primary-700">
       <div
-        class="flex justify-between items-center flex-wrap md:flex-nowrap px-4 md:px-36 py-2 md:py-5 w-full h-full border-0 bg-primary-700 border-neutral-200 md:h-20"
+        class="relative mx-auto grid h-16 w-full max-w-7xl grid-cols-[1fr_auto_1fr] items-center px-4 md:flex md:h-[4.75rem] md:px-8"
       >
         <SfButton
           variant="tertiary"
           square
           aria-label="Abrir menú"
-          class="block md:hidden mr-10 bg-transparent hover:bg-primary-800 active:bg-primary-900 !text-(--site-on-accent)"
+          class="justify-self-start bg-transparent !text-white hover:bg-primary-800 active:bg-primary-900 md:hidden"
           @click="openMenu([])"
         >
           <SfIconMenu aria-hidden="true" />
@@ -16,36 +16,38 @@
 
         <router-link
           to="/"
-          aria-label="Home"
-          class="inline-block focus-visible:outline focus-visible:outline-offset focus-visible:rounded-sm shrink-0 mx-10"
+          :aria-label="`Ir al inicio de ${siteConfig.siteName}`"
+          class="inline-block shrink-0 justify-self-center rounded-sm focus-visible:outline focus-visible:outline-offset"
         >
           <picture>
             <source :srcset="siteLogo" media="(min-width: 1024px)" />
             <img
               :src="siteLogo"
-              alt="Logo"
+              alt=""
               width="57"
               height="57"
-              class="h-14 w-14 md:h-[70px] md:w-[70px]"
+              class="h-12 w-12 object-contain md:h-16 md:w-16"
             />
           </picture>
         </router-link>
 
         <div
           v-if="siteConfig.showHeaderTitle"
-          class="hidden md:flex flex-col items-stretch"
+          class="absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 md:block"
         >
-          <span class="text-3xl font-bold text-(--site-on-accent)">{{ siteConfig.siteName.toUpperCase() }}</span>
+          <span class="whitespace-nowrap text-2xl font-bold tracking-tight text-white lg:text-3xl">
+            {{ siteConfig.siteName.toUpperCase() }}
+          </span>
         </div>
 
-        <nav class="flex flex-nowrap justify-end items-center md:ml-10 gap-x-1 px-6">
+        <nav class="flex flex-nowrap items-center justify-self-end gap-1 md:ml-auto">
           <SfButton
             v-if="showAccountPreview"
             tag="router-link"
             :to="{ name: 'AccountAccess', query: route.path === '/cart' ? { from: 'cart' } : {} }"
             aria-label="Mi cuenta"
             title="Mi cuenta"
-            class="bg-transparent !text-(--site-on-accent) hover:bg-primary-800 active:bg-primary-900"
+            class="bg-transparent !text-white hover:bg-primary-800 active:bg-primary-900"
             variant="tertiary"
             square
           >
@@ -56,7 +58,7 @@
             to="/cart"
             :aria-label="selection.count ? `Carrito, ${selection.count} ${selection.count === 1 ? 'unidad' : 'unidades'}` : 'Carrito'"
             title="Carrito"
-            class="relative bg-transparent !text-(--site-on-accent) hover:bg-primary-800 active:bg-primary-900"
+            class="relative bg-transparent !text-white hover:bg-primary-800 active:bg-primary-900"
             variant="tertiary"
             square
           >
@@ -74,9 +76,9 @@
       </div>
 
       <!-- Desktop dropdown -->
-      <nav ref="floatingRef">
+      <nav ref="floatingRef" class="border-b border-(--site-border) bg-(--site-surface)">
         <ul
-          class="hidden md:flex place-content-center px-6 py-2 bg-white border-b border-b-neutral-200 border-b-solid"
+          class="mx-auto hidden max-w-7xl items-center justify-center gap-1 overflow-x-auto px-6 py-2 md:flex"
           @blur="
             (event) => {
               if (!(event.currentTarget as Element).contains(event.relatedTarget as Element)) {
@@ -90,7 +92,10 @@
               v-if="hasCategoryChildren(menuNode)"
               ref="triggerRefs"
               variant="tertiary"
-              class="group mr-2 !text-neutral-900 hover:!bg-neutral-200 hover:!text-neutral-700 active:!bg-neutral-300 active:!text-neutral-900"
+              size="sm"
+              :aria-expanded="isOpen && activeNode[0] === menuNode.name"
+              aria-haspopup="true"
+              class="group !text-(--site-ink) hover:!bg-(--site-surface-soft) hover:!text-(--site-ink) active:!bg-primary-200"
               @mouseenter="openMenu([menuNode.name])"
               @click="openMenu([menuNode.name])"
             >
@@ -106,7 +111,8 @@
               tag="router-link"
               :to="getCategoryLink(menuNode)"
               variant="tertiary"
-              class="group mr-2 !text-neutral-900 hover:!bg-neutral-200 hover:!text-neutral-700 active:!bg-neutral-300 active:!text-neutral-900"
+              size="sm"
+              class="group !text-(--site-ink) hover:!bg-(--site-surface-soft) hover:!text-(--site-ink) active:!bg-primary-200"
             >
               <span>{{ menuNode.name }}</span>
             </SfButton>
@@ -115,62 +121,94 @@
               v-if="isOpen && activeNode.length === 1 && activeNode[0] === menuNode.name"
               :key="activeMenu.name"
               ref="megaMenuRef"
-              :style="style"
+              :style="[
+                style,
+                {
+                  left: '50%',
+                  right: 'auto',
+                  width: getMegaMenuWidth(activeMenu),
+                  transform: 'translateX(-50%)',
+                },
+              ]"
               tabindex="0"
-              class="hidden md:grid gap-x-6 bg-white shadow-lg p-6 left-0 right-0 outline-none place-items-center z-10"
+              class="z-10 hidden overflow-hidden rounded-b-xl border border-t-0 border-(--site-border) bg-(--site-surface) shadow-lg outline-none md:block"
               @mouseleave="close()"
               @keydown.esc="focusTrigger(index)"
             >
-              <SfListItem
-                v-if="!isRootCategory(activeMenu)"
-                tag="router-link"
-                :to="getCategoryLink(activeMenu)"
-                size="sm"
-                class="typography-text-sm mb-2 text-center"
-              >
-                Todo en {{ activeMenu.name }}
-              </SfListItem>
-              <template v-for="node in activeMenu.children" :key="node.name">
-                <template v-if="!hasCategoryChildren(node)">
+              <div class="mx-auto max-w-7xl px-8 py-4">
+                <div class="mb-3 flex items-center justify-between border-b border-(--site-border) pb-3">
+                  <p class="typography-headline-5 font-semibold text-(--site-ink)">
+                    {{ activeMenu.name }}
+                  </p>
                   <SfListItem
                     tag="router-link"
-                    :to="getCategoryLink(node)"
+                    :to="getCategoryLink(activeMenu)"
                     size="sm"
-                    class="typography-text-sm mb-2 text-center"
+                    class="font-medium !text-(--site-accent-strong)"
+                    @click="close()"
                   >
-                    {{ node.name }}
+                    Ver todo
                   </SfListItem>
-                </template>
-                <div v-else>
-                  <p
-                    class="typography-text-base font-medium text-neutral-900 whitespace-nowrap px-4 py-1.5 border-b border-b-neutral-200 border-b-solid"
-                  >
-                    {{ node.name }}
-                  </p>
-                  <ul class="mt-2">
-                    <li>
-                      <SfListItem
-                        tag="router-link"
-                        :to="getCategoryLink(node)"
-                        size="sm"
-                        class="typography-text-sm py-1.5"
-                      >
-                        Todo en {{ node.name }}
-                      </SfListItem>
-                    </li>
-                    <li v-for="child in node.children" :key="child.name">
-                      <SfListItem
-                        tag="router-link"
-                        :to="getCategoryLink(child)"
-                        size="sm"
-                        class="typography-text-sm py-1.5"
-                      >
-                        {{ child.name }}
-                      </SfListItem>
-                    </li>
-                  </ul>
                 </div>
-              </template>
+
+                <div
+                  class="grid gap-x-8 gap-y-4"
+                  :style="{
+                    gridTemplateColumns: `repeat(${getMenuSectionCount(activeMenu)}, minmax(0, 1fr))`,
+                  }"
+                >
+                  <div v-if="getLeafChildren(activeMenu).length">
+                    <p class="typography-text-sm mb-1 font-semibold text-(--site-muted)">
+                      Explorar
+                    </p>
+                    <ul
+                      class="grid gap-x-6"
+                      :class="
+                        getMenuSectionCount(activeMenu) >= 3
+                          ? 'grid-cols-1'
+                          : 'grid-cols-2 lg:grid-cols-3'
+                      "
+                    >
+                      <li v-for="node in getLeafChildren(activeMenu)" :key="node.name">
+                        <SfListItem
+                          tag="router-link"
+                          :to="getCategoryLink(node)"
+                          size="sm"
+                          class="typography-text-sm rounded-md py-1.5 !text-(--site-ink) hover:!bg-(--site-surface-soft)"
+                          @click="close()"
+                        >
+                          {{ node.name }}
+                        </SfListItem>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div v-for="node in getGroupChildren(activeMenu)" :key="node.name">
+                    <SfListItem
+                      tag="router-link"
+                      :to="getCategoryLink(node)"
+                      size="sm"
+                      class="typography-text-sm mb-2 rounded-md py-2 font-semibold !text-(--site-ink) hover:!bg-(--site-surface-soft)"
+                      @click="close()"
+                    >
+                      {{ node.name }}
+                    </SfListItem>
+                    <ul class="border-l border-(--site-border) pl-3">
+                      <li v-for="child in node.children" :key="child.name">
+                        <SfListItem
+                          tag="router-link"
+                          :to="getCategoryLink(child)"
+                          size="sm"
+                          class="typography-text-sm rounded-md py-1.5 !text-(--site-ink) hover:!bg-(--site-surface-soft)"
+                          @click="close()"
+                        >
+                          {{ child.name }}
+                        </SfListItem>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
             </div>
           </li>
           <li>
@@ -178,7 +216,9 @@
               @mouseenter="close()"
               tag="router-link"
               to="/sale"
-              class="group mr-2 !text-neutral-900 hover:!text-neutral-700 active:!bg-neutral-300 active:!text-neutral-900"
+              variant="tertiary"
+              size="sm"
+              class="group font-semibold !text-(--site-accent-strong) hover:!bg-(--site-surface-soft) active:!bg-primary-200"
             >
               <span>SALE</span>
             </SfButton>
@@ -198,7 +238,12 @@
           <div
             class="flex items-center justify-between p-4 border-b border-b-neutral-200 border-b-solid"
           >
-            <p class="typography-text-base font-medium">Ver por Categorias</p>
+            <div>
+              <p class="typography-text-xs font-medium text-(--site-muted)">Categorías</p>
+              <p class="typography-text-base font-semibold text-(--site-ink)">
+                {{ isRootCategory(activeMenu) ? 'Explorar productos' : activeMenu.name }}
+              </p>
+            </div>
             <SfButton
               variant="tertiary"
               square
@@ -220,7 +265,7 @@
               >
                 <div class="flex items-center">
                   <SfIconArrowBack class="text-neutral-500" />
-                  <p class="ml-5 font-medium">{{ activeMenu.name }}</p>
+                  <p class="ml-3 font-medium">Volver</p>
                 </div>
               </SfListItem>
             </li>
@@ -233,7 +278,7 @@
                 @click="close()"
               >
                 <div class="flex items-center">
-                  <p class="text-left">Todo en {{ activeMenu.name }}</p>
+                  <p class="text-left font-medium">Ver todo en {{ activeMenu.name }}</p>
                 </div>
               </SfListItem>
             </li>
@@ -316,6 +361,16 @@ onMounted(() => {
 
 const getCategoryLink = (category: Category) => `/category/${encodeURIComponent(category.name)}`
 const hasCategoryChildren = (category: Category) => category.children.length > 0
+const getLeafChildren = (category: Category) =>
+  category.children.filter((child) => !hasCategoryChildren(child))
+const getGroupChildren = (category: Category) =>
+  category.children.filter((child) => hasCategoryChildren(child))
+const getMenuSectionCount = (category: Category) =>
+  Math.max(1, getGroupChildren(category).length + (getLeafChildren(category).length ? 1 : 0))
+const getMegaMenuWidth = (category: Category) =>
+  getMenuSectionCount(category) >= 3
+    ? 'min(64rem, calc(100vw - 2rem))'
+    : 'min(48rem, calc(100vw - 2rem))'
 const isRootCategory = (category: Category) => category.name === ROOT_CATEGORY_NAME
 
 const findNode = (names: string[], node: Category): Category => {

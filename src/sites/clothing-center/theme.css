@@ -1,4 +1,10 @@
 :root[data-site='clothing-center'] {
   --site-accent: #f7c6c8;
+  --site-accent-strong: #c94f65;
   --site-on-accent: var(--color-neutral-950);
+  --site-surface: #fffdfd;
+  --site-surface-soft: #fff3f5;
+  --site-ink: #211a1c;
+  --site-muted: #74676a;
+  --site-border: #eadfe1;
 }

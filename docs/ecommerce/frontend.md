@@ -37,10 +37,10 @@ Site profiles live under `src/sites/clothing-center` and `src/sites/fortech`. Ea
 visual tokens. Catalog routes are defined in the catalog stores and shared by both sites. `src/config.ts` matches the hostname against the public website URL in each profile. Unrecognized hosts and localhost
 continue to use Clothing Center. Both sites use the same cart flow.
 
-The app sets `data-site` on the document before mounting Vue. The shared theme maps site tokens to
-Tailwind and Storefront UI colors. Set the accent and its text color in the brand theme. The shared
-theme derives lighter shades and the hover and pressed backgrounds. Keep page structure
-in `StoreLayout.vue` and site-specific UI choices in the site profile.
+The app sets `data-site` on the document before mounting Vue. The shared theme maps each brand accent to
+Tailwind and Storefront UI colors. Brand themes also define semantic surface, ink, border and strong-accent tokens so
+the header and supporting UI do not overuse the primary color. Keep page structure in `StoreLayout.vue` and
+site-specific visual values in the brand theme.
 
 ## Pages
 
