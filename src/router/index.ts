@@ -6,7 +6,6 @@ import ContactView from '@/features/content/pages/ContactView.vue'
 import LegalDocumentView from '@/features/content/pages/LegalDocumentView.vue'
 import ProductView from '@/features/catalog/pages/ProductView.vue'
 import SelectionView from '@/features/cart/pages/CartView.vue'
-import URLBuilderView from '@/features/tools/pages/URLBuilderView.vue'
 import { getEnabledLegalDocumentRoutes } from '@/router/legalRoutes'
 
 const getQueryValues = (value: RouteLocationNormalizedLoaded['query'][string]) => {
@@ -49,7 +48,6 @@ const router = createRouter({
       name: 'Selection',
       component: SelectionView,
     },
-    { path: '/url-builder', name: 'URLBuilder', component: URLBuilderView },
     ...previewRoutes,
     { path: '/:pathMatch(.*)*', name: 'NotFound', component: () => import('@/shared/pages/NotFoundView.vue') },
   ],

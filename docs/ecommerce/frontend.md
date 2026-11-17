@@ -12,7 +12,6 @@ src/
     checkout/      delivery, review and simulated result
     orders/        history, detail and explicitly named example data
     content/       contact and legal document pages
-    tools/         URL builder
   shared/
     components/    navigation, footer, consent, help and preview notice
     pages/         not found
