@@ -8,6 +8,7 @@ import type {
 } from '@/features/catalog/types/Product'
 import siteConfig from '@/config'
 import { normalizeComparableText, sortSizeValues } from '@/features/catalog/utils/sizeOrdering'
+import { callFrappeMethod } from '@/shared/api/frappe'
 
 const BASE_URL = siteConfig.apiBaseUrl
 const SIZE_ATTRIBUTE_NAMES = new Set(['talla', 'size'])
@@ -407,19 +408,19 @@ export const useProductStore = defineStore('product', {
       try {
         const responses = await Promise.all(
           combinations.map(async (combination) => {
-            let url = `${BASE_URL}/api/method/grupo_real_tools.ecommerce.catalog_api.get_items?start=${start}&limit=${this.limit}`
-            url += sale ? `&sale=1` : ''
-            url += combination.category
-              ? `&category=${encodeURIComponent(combination.category)}`
-              : ''
-            url += combination.size ? `&size=${encodeURIComponent(combination.size)}` : ''
-            url += combination.color ? `&color=${encodeURIComponent(combination.color)}` : ''
-
-            const response = await fetch(url)
-            if (!response.ok) throw new Error('Catalog request failed')
-            const data = await response.json()
-            if (!Array.isArray(data?.message)) throw new Error('Invalid catalog response')
-            return data.message
+            const products = await callFrappeMethod<unknown>(
+              'grupo_real_tools.ecommerce.api.item.get_items',
+              {
+                start,
+                limit: this.limit,
+                sale: sale ? 1 : undefined,
+                category: combination.category,
+                size: combination.size,
+                color: combination.color,
+              },
+            )
+            if (!Array.isArray(products)) throw new Error('Invalid catalog response')
+            return products
           }),
         )
         if (requestId !== this.catalogRequestId) return
@@ -455,13 +456,11 @@ export const useProductStore = defineStore('product', {
     },
 
     async fetchProduct(itemCode: string): Promise<Product> {
-      const encodedItemCode = encodeURIComponent(itemCode)
-      const response = await fetch(
-        `${BASE_URL}/api/method/grupo_real_tools.ecommerce.catalog_api.get_items_from_template?item_code=${encodedItemCode}`,
+      const product = await callFrappeMethod<unknown>(
+        'grupo_real_tools.ecommerce.api.item.get_items_from_template',
+        { item_code: itemCode },
       )
-      if (!response.ok) throw new Error('Product request failed')
-      const data = await response.json()
-      const item = Array.isArray(data?.message) ? data.message[0] : data?.message
+      const item = Array.isArray(product) ? product[0] : product
       if (!item) throw new Error('Product not found')
       return this.formatProduct(item)
     },

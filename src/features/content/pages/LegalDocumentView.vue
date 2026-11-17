@@ -36,6 +36,7 @@ import { computed, ref, watch, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import siteConfig from '@/config'
 import { getLegalDocumentLabel, type LegalDocumentKey } from '@/router/legalRoutes'
+import { callFrappeMethod } from '@/shared/api/frappe'
 import { getLegalDocumentMetaDescription, setPageMeta } from '@/shared/utils/pageMeta'
 
 type WikiPageMessage = {
@@ -48,10 +49,6 @@ type WikiPageMessage = {
     is_published?: number
     is_private?: number
   }
-}
-
-type WikiPageResponse = {
-  message?: WikiPageMessage
 }
 
 const props = defineProps<{
@@ -86,17 +83,11 @@ const loadWikiDocument = async () => {
   loading.value = true
 
   try {
-    const endpoint =
-      `${siteConfig.wiki.baseUrl}/api/method/wiki.frappe_wiki.doctype.wiki_document.wiki_document.get_page_data` +
-      `?route=${encodeURIComponent(wikiRoute.value)}`
-    const response = await fetch(endpoint)
-
-    if (!response.ok) {
-      throw new Error('No se pudo cargar el documento.')
-    }
-
-    const data = (await response.json()) as WikiPageResponse
-    const page = data.message
+    const page = await callFrappeMethod<WikiPageMessage | null>(
+      'wiki.frappe_wiki.doctype.wiki_document.wiki_document.get_page_data',
+      { route: wikiRoute.value },
+      { baseUrl: siteConfig.wiki.baseUrl },
+    )
 
     if (!page || page.doc?.is_published !== 1 || page.doc?.is_private === 1) {
       throw new Error('El documento no está publicado.')

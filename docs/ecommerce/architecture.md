@@ -74,7 +74,7 @@ other warehouses, stable pagination under ties, bounded inputs and empty results
 The owner confirmed ownership and authorized reuse of the catalog code in the MIT target app.
 The first migration adds four internal Python operations in `grupo_real_tools/ecommerce/catalog.py`.
 Both product queries read the default company's warehouse. Product pagination still operates on item rows.
-Both frontend profiles now use the four GET methods under `grupo_real_tools.ecommerce.catalog_api`
-for listing, detail, categories and attributes. The configured production origins have not been verified against the
-new methods.
+Both frontend profiles use Frappe API v2 and the resource methods under `grupo_real_tools.ecommerce.api` for listing,
+detail, categories and attributes. The shared client reads method results from the v2 `data` response property. The
+configured production origins have not been verified against the new methods.
 Private routing and the public store API remain separate work.

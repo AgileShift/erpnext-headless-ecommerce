@@ -20,8 +20,8 @@ import { fortechConfig } from '@/sites/fortech/config'
 import { useItemAttributeStore } from '../stores/itemAttributeStore'
 import { useCategoryStore } from '../stores/categoryStore'
 
-const response = (message: unknown, ok = true) =>
-  ({ ok, json: async () => ({ message }) }) as Response
+const response = (data: unknown, ok = true) =>
+  ({ ok, status: ok ? 200 : 500, json: async () => ({ data }) }) as Response
 const item = { item_code: 'shirt', item_name: 'Camisa', variants: [] }
 
 beforeEach(() => {
@@ -58,6 +58,9 @@ describe('catalog loading', () => {
     await store.loadProducts()
     expect(store.catalogErrorPage).toBeNull()
     expect(store.hasMoreProducts).toBe(false)
+    expect(fetchMock.mock.calls[0]?.[0]).toContain(
+      '/api/v2/method/grupo_real_tools.ecommerce.api.item.get_items',
+    )
     await store.loadProducts()
     expect(store.catalogErrorPage).toBe(1)
     expect(store.loading).toBe(false)

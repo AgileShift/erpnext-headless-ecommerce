@@ -1,8 +1,6 @@
 import { defineStore } from 'pinia'
 import type { Category } from '@/features/catalog/types/Category'
-import siteConfig from '@/config'
-
-const BASE_URL = siteConfig.apiBaseUrl
+import { callFrappeMethod } from '@/shared/api/frappe'
 
 export const ROOT_CATEGORY_NAME = 'All Item Groups'
 
@@ -30,16 +28,17 @@ export const useCategoryStore = defineStore('category', {
       this.error = null
 
       try {
-        const response = await fetch(`${BASE_URL}/api/method/grupo_real_tools.ecommerce.catalog_api.get_item_groups`)
-        const data = await response.json()
+        const categories = await callFrappeMethod<unknown>(
+          'grupo_real_tools.ecommerce.api.item_group.get_item_groups',
+        )
 
-        if (!Array.isArray(data.message)) {
+        if (!Array.isArray(categories)) {
           this.error = 'No se pudieron cargar las categorías'
-          console.warn(this.error, data)
+          console.warn(this.error, categories)
           return
         }
 
-        this.categoryTree = createRootCategory(data.message as Category[])
+        this.categoryTree = createRootCategory(categories as Category[])
         this.loaded = true
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'No se pudieron cargar las categorías'

@@ -1,12 +1,10 @@
 import { defineStore } from 'pinia'
-import siteConfig from '@/config'
+import { callFrappeMethod } from '@/shared/api/frappe'
 import type {
   ItemAttributeGroups,
   ItemAttributeKey,
   ItemAttributeOption,
 } from '@/features/catalog/types/ItemAttribute'
-
-const BASE_URL = siteConfig.apiBaseUrl
 
 const ATTRIBUTE_ALIASES: Record<string, ItemAttributeKey> = {
   talla: 'Talla',
@@ -149,13 +147,13 @@ export const useItemAttributeStore = defineStore('itemAttribute', {
           return attributes
         }
 
-        const endpoint = `${BASE_URL}/api/method/grupo_real_tools.ecommerce.catalog_api.get_item_attributes`
         const responses = await Promise.all(
           requestedAttributes.map(async (attribute) => {
-            const url = `${endpoint}?attribute=${encodeURIComponent(attribute)}`
-            const response = await fetch(url)
-            const data = await response.json()
-            return normalizeOptions(data.message)
+            const options = await callFrappeMethod<unknown>(
+              'grupo_real_tools.ecommerce.api.item_attribute.get_item_attributes',
+              { attribute },
+            )
+            return normalizeOptions(options)
           }),
         )
 

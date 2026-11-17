@@ -52,7 +52,7 @@ available. Those fields are pending for all rows. EC-001 has partial source evid
 - [x] The owner confirmed local verification that listing and detail exclude items with stock only in another
   warehouse or with no available stock.
 
-Both frontend profiles now use the catalog methods from `grupo_real_tools.ecommerce.catalog_api`.
+Both frontend profiles now use Frappe API v2 and the resource methods from `grupo_real_tools.ecommerce.api`.
 Availability of these methods on the configured production origins remains unverified.
 The store API and the production routing and origin checks remain separate work in EC-012, EC-031 and EC-032.
 See [the migration notes](architecture.md#legacy-catalog-migration).
