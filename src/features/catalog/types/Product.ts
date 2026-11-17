@@ -30,6 +30,7 @@ export interface ProductVariant {
   item_name: string
   item_group: string
   image: string
+  images?: string[]
   variant_of: string
   actual_qty: number
   attributes: ProductVariantAttributes
@@ -42,6 +43,7 @@ export interface Product {
   item_name: string
   item_group: string
   image: string
+  images?: string[]
   price_summary: ProductPriceSummary
   variants: ProductVariant[]
   available_attributes: ProductAvailableAttributes

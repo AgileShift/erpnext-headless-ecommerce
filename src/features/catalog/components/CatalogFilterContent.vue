@@ -19,11 +19,16 @@
         <template #summary>
           <FilterSectionSummary label="Tallas" :selected-values="selectedSizes" :open="openSections.size" />
         </template>
-        <ul class="grid grid-cols-5 gap-2 px-2 pb-4">
-          <li v-for="size in sizes" :key="size.value">
-            <SfChip v-model="selectedSizes" square size="sm" class="w-full" :input-props="{ value: size.value }">
-              {{ getSizeLabel(size) }}
-            </SfChip>
+        <ul :class="['grid gap-2 px-2 pb-4', mobileActions ? 'grid-cols-5' : 'grid-cols-4']">
+          <li v-for="size in sizes" :key="size.value" class="flex justify-center">
+            <ProductAttributeChip
+              attribute-name="Talla"
+              :value="size.value"
+              :label="getSizeLabel(size)"
+              :model-value="selectedSizes.includes(size.value)"
+              allow-deselect
+              @update:model-value="updateSelectedSize(size.value, $event)"
+            />
           </li>
         </ul>
       </SfAccordionItem>
@@ -144,6 +149,7 @@ import {
   SfThumbnail,
 } from '@storefront-ui/vue'
 import FilterSectionSummary from '@/features/catalog/components/FilterSectionSummary.vue'
+import ProductAttributeChip from '@/features/catalog/components/ProductAttributeChip.vue'
 import type { ItemAttributeOption } from '@/features/catalog/types/ItemAttribute'
 import type { CatalogFilterSection } from '@/sites/types'
 import { getColorSwatch } from '@/features/catalog/utils/colorSwatches'
@@ -190,4 +196,9 @@ const visibleColors = computed(() => {
 })
 const getSizeLabel = (size: ItemAttributeOption) =>
   isNumericAttributeValue(size.label) ? size.label : size.abbr || size.label
+const updateSelectedSize = (value: string, selected: boolean) => {
+  selectedSizes.value = selected
+    ? [...new Set([...selectedSizes.value, value])]
+    : selectedSizes.value.filter((selectedValue) => selectedValue !== value)
+}
 </script>

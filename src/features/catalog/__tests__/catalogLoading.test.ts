@@ -30,6 +30,23 @@ beforeEach(() => {
 })
 
 describe('catalog loading', () => {
+  it('keeps approved image attachments separate for the product and each variant', () => {
+    const store = useProductStore()
+    const product = store.formatProduct({
+      item_code: 'shirt', item_name: 'Camisa', image: '/files/main.jpg',
+      images: [{ url: '/files/front.jpg' }, { url: 'https://example.com/outside.jpg' }, { url: '/private/files/hidden.jpg' }],
+      variants: [
+        { item_code: 'red', attributes: { Color: 'Rojo' }, images: [{ url: '/files/red.jpg' }] },
+        { item_code: 'blue', attributes: { Color: 'Azul' } },
+      ],
+    })
+    expect(product.images).toHaveLength(1)
+    expect(product.images?.[0]).toContain('/files/front.jpg')
+    expect(product.variants[0]?.images?.[0]).toContain('/files/red.jpg')
+    expect(product.variants[1]?.images).toEqual([])
+    expect(store.formatProduct({ item_code: 'old', variants: [] }).images).toEqual([])
+  })
+
   it('distinguishes an empty response from HTTP and invalid response errors', async () => {
     const fetchMock = vi
       .spyOn(globalThis, 'fetch')

@@ -19,7 +19,7 @@
         />
       </SfLink>
     </div>
-    <div class="flex flex-1 flex-col border-t border-neutral-200 p-3 sm:p-4">
+    <div class="flex flex-1 flex-col border-t border-neutral-200 p-3 pb-2 sm:p-4 sm:pb-2">
       <SfLink
         tag="router-link"
         :to="productUrl"
@@ -49,25 +49,19 @@
         </span>
       </div>
 
-      <div v-if="visibleAttributes.length" class="mt-3 space-y-1.5">
+      <div v-if="cardColor || visibleAttributes.length" class="mt-auto space-y-0.5 pt-3 text-xs leading-5 text-neutral-700">
+        <div v-if="cardColor"><span class="font-medium text-neutral-500">Color:</span> {{ cardColor }}</div>
         <div
           v-for="attribute in visibleAttributes"
           :key="attribute.name"
-          class="flex min-w-0 flex-wrap items-center gap-1 text-xs text-neutral-700"
-          :title="attribute.title"
+          class="min-w-0"
         >
-          <span class="mr-0.5 font-medium text-neutral-500">{{ attribute.name }}:</span>
-            <span
-            v-for="value in attribute.formattedValues"
-            :key="value"
-              class="rounded bg-neutral-100 px-1.5 py-0.5 text-neutral-700"
-          >
-            {{ value }}
-            </span>
+          <span class="font-medium text-neutral-500">{{ attribute.name }}:</span>
+          {{ attribute.values.join(' · ') }}
         </div>
       </div>
 
-      <div class="mt-auto space-y-2 pt-3">
+      <div class="space-y-2 pt-3" :class="{ 'mt-auto': !cardColor && !visibleAttributes.length }">
         <SfButton
           size="sm"
           class="w-full justify-center site-primary-label"
@@ -80,7 +74,7 @@
           size="sm"
           suffix="WhatsApp"
           aria-label="Consultar por WhatsApp"
-          secondary
+          tertiary
           :item_name="product.item_name"
           :message="whatsappMessage"
         />
@@ -100,7 +94,7 @@ import ProductImage from '@/shared/components/ProductImage.vue'
 import SaleBadge from '@/shared/components/SaleBadge.vue'
 import QuickAddModal from './QuickAddModal.vue'
 import siteConfig from '@/config'
-import { formatCompactAttributeValue, normalizeAttributeName } from '@/features/catalog/utils/attributeFormatting'
+import { formatAttributeValue, normalizeAttributeName } from '@/features/catalog/utils/attributeFormatting'
 
 const props = defineProps<{
   product: Product
@@ -115,12 +109,12 @@ const attributes = computed(() =>
   Object.entries(props.product.available_attributes)
     .filter(
       ([name, values]) =>
-        values.length > 0 && visibleAttributeNames.value.includes(normalizeAttributeName(name)),
+        values.length > 0 && visibleAttributeNames.value.includes(normalizeAttributeName(name)) &&
+        !(normalizeAttributeName(name) === 'color' && values.length === 1),
     )
     .map(([name, values]) => ({
       name,
-      formattedValues: values.map(formatCompactAttributeValue),
-      title: `${name}: ${values.join(', ')}`,
+      values: normalizeAttributeName(name) === 'talla' ? values.map(formatAttributeValue) : values,
     })),
 )
 

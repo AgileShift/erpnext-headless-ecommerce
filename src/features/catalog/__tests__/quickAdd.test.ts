@@ -29,6 +29,22 @@ const create = () => mount(QuickAddModal, {
 })
 
 describe('quick add', () => {
+  it('shows a compact size label while selecting the real variant and its image and price', async () => {
+    const red = { ...variant('red-small', 'Rojo', 'Small'), image: '/red.jpg', price: { ...price, formatted_price: '$12', local_formatted_price: 'C$439' } }
+    const blue = { ...variant('blue-small', 'Azul', 'Small'), image: '/blue.jpg' }
+    vi.spyOn(useProductStore(), 'fetchProduct').mockResolvedValue({ ...product, variants: [red, blue], available_attributes: { Color: ['Rojo', 'Azul'], Talla: ['Small'] } })
+    const wrapper = create()
+    await wrapper.setProps({ modelValue: true }); await flushPromises()
+    expect(wrapper.find('input[value="Small"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('S')
+    expect(wrapper.text()).not.toContain('Small')
+    await wrapper.find('input[value="Small"]').setValue()
+    expect(wrapper.find('img').attributes('src')).toBe('/red.jpg')
+    expect(wrapper.text()).toContain('C$439 | $12')
+    await wrapper.findAll('button').find((button) => button.text() === 'Agregar al carrito')!.trigger('click')
+    expect(useSelectionStore().items[0]).toMatchObject({ item_code: 'red-small' })
+  })
+
   it('loads full variants, preserves the card color and adds the selected size once', async () => {
     vi.spyOn(useProductStore(), 'fetchProduct').mockResolvedValue(product)
     const wrapper = create()

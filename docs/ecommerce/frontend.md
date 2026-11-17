@@ -44,13 +44,22 @@ in `StoreLayout.vue` and site-specific UI choices in the site profile.
 
 ## Pages
 
-Clothing Center catalog cards adapt the Storefront UI ProductCard vertical block and show available attributes as
-information. “Agregar al carrito” loads product detail and
+Catalog cards adapt the Storefront UI ProductCard vertical block and show available attributes as text. When a card
+has exactly one color, it displays the original color name alongside the other attributes. Recognized size names use
+their short labels without changing their underlying values. “Agregar al carrito” loads product detail and
 opens a selector for the required variant options; a unique variant without attributes is added directly. The separate
 WhatsApp action opens a product inquiry; the cart can also be sent as an inquiry. Neither action confirms an order or
-reserves stock. Product detail images open in an accessible zoom modal. Additional gallery images remain dependent on
-the catalog detail API exposing an ordered media collection instead of only the product and variant `image` fields.
-The quick-add selector uses Storefront UI chips and color thumbnails while preserving the real variant availability.
+reserves stock. Product detail displays the main image and ordered public image attachments as thumbnails, with
+vertical thumbnails on desktop and a pointer-operated magnified view on large screens. Touch and keyboard users can
+open the zoom modal, which supports thumbnails, arrow keys, zoom controls, mouse-wheel zoom toward the pointer, and dragging or scrolling
+the enlarged image. Touch devices retain native scrolling. Zoom resets
+when changing images or reopening the modal. Magnification depends on the source image
+resolution. Before a single variant is identified, attachments belong to
+the requested Item; once identified, its own attachments are shown. Missing lists fall back to the main image.
+The quick-add preview uses Storefront UI chips and color thumbnails while preserving real variant availability. It
+shows the card image initially, a matching image when unambiguous, and the selected variant's price and discount when
+available. Otherwise it shows the product price summary. Size labels are abbreviated without changing their values;
+the details link carries the selected color to the product page.
 The cart groups variants by product and color in a horizontal card and displays saved discount information when
 available. Cart prices and stock remain display data until confirmed by the backend.
 The quantity limit is the availability saved when the variant was last added, not a live stock check; older cart

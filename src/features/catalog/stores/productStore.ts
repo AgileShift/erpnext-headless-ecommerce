@@ -52,6 +52,14 @@ const formatImage = (image: unknown, itemName: unknown) => {
   return imagePath.startsWith('/') ? BASE_URL + imagePath : imagePath
 }
 
+const formatImages = (images: unknown): string[] => {
+  if (!Array.isArray(images)) return []
+  return images.flatMap((entry) => {
+    const url = typeof entry === 'object' && entry !== null ? toText((entry as Record<string, unknown>).url) : ''
+    return url.startsWith('/files/') ? [BASE_URL + url] : []
+  })
+}
+
 const formatProductPrice = (price: unknown, fallbackRate?: number): ProductPrice => {
   const priceRecord = (price ?? {}) as Record<string, unknown>
   const priceListRate = (priceRecord.price_list_rate as number | undefined) ?? fallbackRate ?? 0
@@ -164,6 +172,7 @@ const formatVariant = (
     item_name: itemName,
     item_group: toText(variantItem.item_group, toText(parentItem.item_group)),
     image: formatImage(variantItem.image || parentImage, itemName),
+    images: formatImages(variantItem.images),
     variant_of: toText(variantItem.variant_of, toText(parentItem.item_code)),
     actual_qty: (variantItem.actual_qty as number | undefined) ?? 0,
     attributes: formatVariantAttributes(variantItem.attributes),
@@ -359,6 +368,7 @@ export const useProductStore = defineStore('product', {
         item_name: itemName,
         item_group: toText(productItem.item_group),
         image: itemImage,
+        images: formatImages(productItem.images),
         price_summary: priceSummary,
         variants,
         available_attributes: getAvailableAttributes(variants),

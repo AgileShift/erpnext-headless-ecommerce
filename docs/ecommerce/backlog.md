@@ -59,10 +59,10 @@ See [the migration notes](architecture.md#legacy-catalog-migration).
 
 ## EC-031 pending details
 
-- [ ] Add product galleries after confirming the ERPNext image source. The catalog detail API must return an ordered
-  collection of real product and variant media, preserving their association without duplicating or merging images
-  across variants. The storefront must show the collection through the existing accessible zoom, with thumbnails or
-  equivalent mobile navigation, keyboard controls, image-failure fallback and desktop/mobile verification.
+- [x] Add public local JPG, JPEG and PNG Item attachments to the development detail API, separated by requested
+  Item and available variant. This does not implement the public media boundary or gallery.
+- [ ] Verify the development gallery end to end with controlled Item attachments and desktop/mobile browsers. The
+  public media boundary, approved mappings and production routing remain part of EC-031 and EC-032.
 
 ## Storefront pages
 

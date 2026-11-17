@@ -8,6 +8,8 @@
     class="mx-auto grid w-full max-w-7xl grid-cols-1 gap-y-4 px-4 md:grid-cols-2 md:items-start md:gap-x-[60px] md:px-8"
   >
     <section class="w-full min-w-0">
+      <div class="flex flex-col gap-3 md:flex-row-reverse md:items-start">
+      <div class="relative min-w-0 flex-1">
       <div class="relative overflow-hidden rounded-md border border-neutral-200 bg-neutral-50 shadow-sm">
         <SaleBadge
           v-if="displayedPrice?.discount_percent"
@@ -18,10 +20,12 @@
           class="group relative block w-full cursor-zoom-in"
           :aria-label="`Ampliar imagen de ${displayedItemName}`"
           @click="openImageZoom"
+          @pointermove="moveImageZoom"
+          @pointerleave="isHoverZoomOpen = false"
         >
           <ProductImage
             class="h-auto w-full"
-            :src="displayedImage"
+            :src="galleryImage"
             :alt="displayedItemName"
             width="176"
             height="176"
@@ -30,11 +34,39 @@
             fetchpriority="high"
           />
           <span
+            v-if="isHoverZoomOpen"
+            class="pointer-events-none absolute h-1/2 w-1/2 border border-neutral-400 bg-white/25"
+            :style="lensStyle"
+            aria-hidden="true"
+          />
+          <span
             class="absolute right-3 bottom-3 inline-flex items-center rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-neutral-800 shadow-sm transition group-hover:bg-white group-focus-visible:ring-2 group-focus-visible:ring-primary-700"
           >
             <SfIconSearch size="sm" class="mr-1.5" aria-hidden="true" /> Ampliar
           </span>
         </button>
+      </div>
+      <div
+        v-if="isHoverZoomOpen && galleryImage"
+        class="pointer-events-none absolute top-0 left-[calc(100%+1rem)] z-20 hidden h-full w-full rounded-md border border-neutral-200 bg-white bg-no-repeat shadow-lg lg:block"
+        :style="hoverZoomStyle"
+        aria-hidden="true"
+      />
+      </div>
+
+      <div v-if="galleryImages.length > 1" class="flex gap-2 overflow-x-auto pb-1 md:max-h-[32rem] md:flex-col md:overflow-y-auto md:pb-0" role="group" aria-label="Imágenes del producto">
+        <button
+          v-for="(image, index) in galleryImages"
+          :key="image"
+          type="button"
+          :aria-label="`Ver imagen ${index + 1} de ${galleryImages.length}`"
+          :aria-pressed="galleryIndex === index"
+          :class="['h-16 w-16 shrink-0 overflow-hidden rounded-md border-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2', galleryIndex === index ? 'border-primary-700' : 'border-neutral-200']"
+          @click="galleryIndex = index; isHoverZoomOpen = false"
+        >
+          <ProductImage :src="image" alt="" class="h-full w-full object-cover" />
+        </button>
+      </div>
       </div>
 
       <div v-if="isImageZoomOpen" class="fixed inset-0 z-50 bg-neutral-950/70" aria-hidden="true" />
@@ -44,7 +76,10 @@
         tag="section"
         role="dialog"
         :aria-label="`Imagen ampliada de ${displayedItemName}`"
-        class="z-50 flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-6xl items-center justify-center overflow-auto rounded-lg p-3 pt-3 md:p-5 lg:p-5"
+        aria-modal="true"
+        class="z-50 flex h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-6xl flex-col overflow-hidden rounded-lg p-4 md:p-6"
+        @keydown.left="handleGalleryArrow($event, -1)"
+        @keydown.right="handleGalleryArrow($event, 1)"
       >
         <SfButton
           square
@@ -55,11 +90,32 @@
         >
           <SfIconClose />
         </SfButton>
-        <ProductImage
-          class="max-h-[calc(100dvh-4rem)] max-w-full object-contain"
-          :src="displayedImage"
-          :alt="displayedItemName"
-        />
+        <h2 class="border-b border-neutral-200 pb-3 pr-12 text-base font-semibold">Imágenes del producto</h2>
+        <div class="flex min-h-0 flex-1 flex-col gap-4 pt-4 md:flex-row">
+          <div class="relative min-h-0 min-w-0 flex-1">
+            <div tabindex="0" role="region" aria-label="Imagen del producto; desplazar para ver los detalles" class="flex h-full overflow-auto rounded-md bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-700" :class="imageZoomLevel > 1 ? (isDraggingImage ? 'cursor-grabbing select-none' : 'cursor-grab') : ''" @wheel.prevent="zoomWithWheel" @pointerdown="startImageDrag" @pointermove="moveImageDrag" @pointerup="endImageDrag" @pointercancel="endImageDrag" @lostpointercapture="endImageDrag">
+              <ProductImage
+                class="m-auto shrink-0 object-contain"
+                :style="{ height: `${imageZoomLevel * 100}%`, maxWidth: `${imageZoomLevel * 100}%` }"
+                :src="galleryImage"
+                :alt="displayedItemName"
+                draggable="false"
+              />
+            </div>
+            <div class="absolute top-2 right-2 flex flex-col gap-1 rounded-full bg-white p-1 shadow-sm">
+              <SfButton square size="sm" variant="tertiary" aria-label="Acercar imagen" :disabled="imageZoomLevel >= 3" @click="changeImageZoom(0.5)"><SfIconAdd aria-hidden="true" /></SfButton>
+              <SfButton square size="sm" variant="tertiary" aria-label="Alejar imagen" :disabled="imageZoomLevel <= 1" @click="changeImageZoom(-0.5)"><SfIconRemove aria-hidden="true" /></SfButton>
+            </div>
+          </div>
+          <div class="shrink-0 md:w-52 lg:w-64">
+            <p class="mb-2 hidden font-semibold md:block">{{ displayedItemName }}</p>
+            <div v-if="galleryImages.length > 1" class="flex max-h-32 gap-2 overflow-auto md:max-h-full md:flex-wrap" role="group" aria-label="Seleccionar imagen">
+              <button v-for="(image, index) in galleryImages" :key="image" type="button" :aria-label="`Ver imagen ${index + 1} de ${galleryImages.length}`" :aria-pressed="galleryIndex === index" :class="['h-16 w-16 shrink-0 overflow-hidden rounded-md border-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2', galleryIndex === index ? 'border-primary-700' : 'border-neutral-200']" @click="galleryIndex = index">
+                <ProductImage :src="image" alt="" class="h-full w-full object-cover" />
+              </button>
+            </div>
+          </div>
+        </div>
       </SfModal>
     </section>
 
@@ -103,29 +159,16 @@
           </div>
 
           <div class="flex min-w-0 flex-wrap gap-2">
-            <SfChip
+            <ProductAttributeChip
               v-for="option in group.options"
               :key="option.value"
+              :attribute-name="group.name"
+              :value="option.value"
+              :label="option.label"
               :model-value="option.selected"
-              :square="isSizeAttribute(group.name)"
-              :class="getAttributeOptionClass(group.name)"
-              :input-props="{ value: option.value, disabled: !option.available }"
-              @click="option.selected && $event.preventDefault()"
+              :available="option.available"
               @update:model-value="$event === true && selectAttribute(group.name, option.value)"
-            >
-              <template v-if="isColorAttribute(group.name)" #prefix>
-                <SfThumbnail
-                  size="sm"
-                  class="border border-neutral-300"
-                  :style="{ backgroundColor: getColorSwatch(option.value) }"
-                />
-              </template>
-              <span>{{ option.label }}</span>
-              <span
-                v-if="!option.available"
-                class="pointer-events-none absolute inset-x-1 top-1/2 h-px -rotate-12 bg-neutral-500"
-              />
-            </SfChip>
+            />
           </div>
         </div>
       </div>
@@ -196,25 +239,25 @@ import { useRoute } from 'vue-router'
 import { useProductStore } from '@/features/catalog/stores/productStore'
 import {
   SfButton,
-  SfChip,
   SfLink,
   SfLoaderCircular,
   SfIconPackage,
   SfIconSafetyCheck,
   SfIconSearch,
+  SfIconAdd,
+  SfIconRemove,
   SfIconClose,
   SfIconArrowBack,
   SfIconShoppingCart,
   SfModal,
-  SfThumbnail,
   useDisclosure,
 } from '@storefront-ui/vue'
 import ContactButton from '@/shared/components/ContactButton.vue'
 import ProductImage from '@/shared/components/ProductImage.vue'
 import SaleBadge from '@/shared/components/SaleBadge.vue'
+import ProductAttributeChip from '@/features/catalog/components/ProductAttributeChip.vue'
 import { getAttributeGroups, variantMatchesSelection } from '@/features/catalog/utils/variantSelection'
 import { useSelectionStore } from '@/features/cart/stores/selectionStore'
-import { getColorSwatch } from '@/features/catalog/utils/colorSwatches'
 import { formatAttributeValue, normalizeAttributeName } from '@/features/catalog/utils/attributeFormatting'
 import { getProductMetaDescription, setPageMeta } from '@/shared/utils/pageMeta'
 
@@ -222,6 +265,52 @@ const route = useRoute()
 const productStore = useProductStore()
 const selectionStore = useSelectionStore()
 const imageZoomModal = ref<InstanceType<typeof SfModal> | null>(null)
+const imageZoomLevel = ref(1)
+const isDraggingImage = ref(false)
+let imageDrag: { pointerId: number; x: number; y: number; left: number; top: number } | null = null
+const changeImageZoom = (step: number) => {
+  imageZoomLevel.value = Math.max(1, Math.min(3, imageZoomLevel.value + step))
+}
+const zoomWithWheel = async (event: WheelEvent) => {
+  if (!event.deltaY) return
+  const area = event.currentTarget as HTMLElement
+  const image = area.querySelector('img')
+  if (!image) return
+
+  const before = image.getBoundingClientRect()
+  if (!before.width || !before.height) return
+  const x = Math.max(0, Math.min(1, (event.clientX - before.left) / before.width))
+  const y = Math.max(0, Math.min(1, (event.clientY - before.top) / before.height))
+  const anchorX = before.left + x * before.width
+  const anchorY = before.top + y * before.height
+  const previousZoom = imageZoomLevel.value
+  changeImageZoom(event.deltaY < 0 ? 0.5 : -0.5)
+  if (imageZoomLevel.value === previousZoom) return
+
+  await nextTick()
+  const after = image.getBoundingClientRect()
+  area.scrollLeft += after.left + x * after.width - anchorX
+  area.scrollTop += after.top + y * after.height - anchorY
+}
+const startImageDrag = (event: PointerEvent) => {
+  if (event.pointerType !== 'mouse' || event.button !== 0 || imageZoomLevel.value <= 1) return
+  const area = event.currentTarget as HTMLElement
+  imageDrag = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, left: area.scrollLeft, top: area.scrollTop }
+  isDraggingImage.value = true
+  area.setPointerCapture(event.pointerId)
+  event.preventDefault()
+}
+const moveImageDrag = (event: PointerEvent) => {
+  if (!imageDrag || imageDrag.pointerId !== event.pointerId) return
+  const area = event.currentTarget as HTMLElement
+  area.scrollLeft = imageDrag.left - (event.clientX - imageDrag.x)
+  area.scrollTop = imageDrag.top - (event.clientY - imageDrag.y)
+}
+const endImageDrag = (event: PointerEvent) => {
+  if (imageDrag?.pointerId !== event.pointerId) return
+  imageDrag = null
+  isDraggingImage.value = false
+}
 const {
   isOpen: isImageZoomOpen,
   open: openImageZoom,
@@ -229,10 +318,12 @@ const {
 } = useDisclosure()
 
 watch(isImageZoomOpen, async (isOpen) => {
+  imageZoomLevel.value = 1
   if (!isOpen) {
     return
   }
 
+  isHoverZoomOpen.value = false
   await nextTick()
   const modalElement = imageZoomModal.value?.$el as HTMLElement | undefined
   modalElement?.focus()
@@ -245,19 +336,6 @@ const selectedAttributes = ref<Record<string, string>>({})
 const isColorAttribute = (attributeName: string) =>
   normalizeAttributeName(attributeName) === 'color'
 const isSizeAttribute = (attributeName: string) => normalizeAttributeName(attributeName) === 'talla'
-
-const getAttributeOptionClass = (attributeName: string) => {
-  const selectedStateClass =
-    'peer-next-checked:bg-primary-100 peer-next-checked:text-neutral-950 peer-next-checked:shadow-sm'
-  const unavailableStateClass =
-    'relative overflow-hidden peer-next-disabled:bg-neutral-200 peer-next-disabled:text-neutral-600 peer-next-disabled:opacity-100 peer-next-disabled:ring-neutral-400'
-
-  if (isSizeAttribute(attributeName)) {
-    return `min-w-10 ${selectedStateClass} ${unavailableStateClass}`
-  }
-
-  return `${selectedStateClass} ${unavailableStateClass}`
-}
 
 const getQueryValue = (value: unknown) => {
   if (Array.isArray(value)) {
@@ -358,6 +436,48 @@ const displayedUsdPrice = computed(() => {
 const displayedImage = computed(
   () => selectedVariant.value?.image || activeVariants.value[0]?.image || product.value?.image,
 )
+const galleryIndex = ref(0)
+watch(galleryIndex, () => { imageZoomLevel.value = 1 })
+const isHoverZoomOpen = ref(false)
+const zoomPosition = ref({ x: 0.5, y: 0.5 })
+const moveImageZoom = (event: PointerEvent) => {
+  if (event.pointerType !== 'mouse' || !window.matchMedia('(min-width: 1024px) and (hover: hover)').matches) return
+  const bounds = (event.currentTarget as HTMLElement).getBoundingClientRect()
+  if (!bounds.width || !bounds.height) return
+  zoomPosition.value = {
+    x: Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width)),
+    y: Math.max(0, Math.min(1, (event.clientY - bounds.top) / bounds.height)),
+  }
+  isHoverZoomOpen.value = true
+}
+const lensStyle = computed(() => ({
+  left: `${Math.max(0, Math.min(50, zoomPosition.value.x * 100 - 25))}%`,
+  top: `${Math.max(0, Math.min(50, zoomPosition.value.y * 100 - 25))}%`,
+}))
+const hoverZoomStyle = computed(() => ({
+  backgroundImage: `url(${JSON.stringify(galleryImage.value)})`,
+  backgroundSize: '200% 200%',
+  backgroundPosition: `${Math.max(0, Math.min(100, zoomPosition.value.x * 200 - 50))}% ${Math.max(0, Math.min(100, zoomPosition.value.y * 200 - 50))}%`,
+}))
+const galleryImages = computed(() => {
+  const attachments = selectedVariant.value ? selectedVariant.value.images : product.value?.images
+  return [...new Set([displayedImage.value, ...(attachments || [])].filter((image): image is string => !!image))]
+})
+const galleryImage = computed(() => galleryImages.value[galleryIndex.value] || galleryImages.value[0])
+const moveGallery = (direction: number) => {
+  if (galleryImages.value.length > 1) {
+    galleryIndex.value = (galleryIndex.value + direction + galleryImages.value.length) % galleryImages.value.length
+  }
+}
+const handleGalleryArrow = (event: KeyboardEvent, direction: number) => {
+  if (imageZoomLevel.value > 1 && (event.target as HTMLElement).getAttribute('role') === 'region') return
+  event.preventDefault()
+  moveGallery(direction)
+}
+watch([() => product.value?.item_code, () => selectedVariant.value?.item_code, displayedImage], () => {
+  galleryIndex.value = 0
+  isHoverZoomOpen.value = false
+})
 
 const displayedItemName = computed(
   () =>

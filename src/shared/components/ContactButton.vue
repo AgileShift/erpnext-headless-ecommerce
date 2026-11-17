@@ -3,8 +3,8 @@
     tag="a"
     :size="size"
     :href="whatsappHref"
-    :variant="secondary ? 'secondary' : 'primary'"
-    :class="secondary ? '!text-neutral-950' : 'site-primary-label'"
+    :variant="tertiary ? 'tertiary' : secondary ? 'secondary' : 'primary'"
+    :class="secondary || tertiary ? '!text-neutral-950' : 'site-primary-label'"
   >
     <template #prefix>
       <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -30,6 +30,7 @@ const props = defineProps<{
   item_name: string
   message?: string
   secondary?: boolean
+  tertiary?: boolean
 }>()
 
 const whatsappMessage = computed(
