@@ -52,29 +52,3 @@ Confirm production hosting, same-origin routing or a narrowly configured cross-o
 timeouts and secret handling. The staff path must continue to work. Include a brand-scoped build/configuration and
 test ForTech separately. A public cache can serve published catalog data within its approved freshness window during
 ERP maintenance. Checkout reads and writes through the authoritative ERP path.
-
-## Legacy catalog migration
-
-The legacy `gr_tools/www/products.py` uses positive `Bin.actual_qty - Bin.reserved_stock`. Its listing now reads the
-default company's warehouse and its local detail still has a Clothing Center warehouse literal.
-The legacy list and detail queries lack an explicit item-disabled or publication check. Category tree
-visibility comes from `Item Group.show_in_website` in `categories.py`, while descendant lookup traverses item groups
-without that predicate. Category visibility therefore does not establish a product publication rule.
-
-List filters include descendants, exact sizes, colors with a name fallback and an item-code sale filter based on rule
-dates. Pagination limits item rows before grouping by template. The browser fans out filter combinations and merges
-and splits results by color, so the API page size and displayed card count differ. Detail resolves by item code or
-template code and has a different result shape. Price uses ERPNext's product helper with the default company and
-selling price list, an empty customer group and short Redis caching. Public HTTP and Redis caching also cover list,
-categories and attributes with different lifetimes. Treat legacy stock and prices as catalog display behavior.
-
-Before replacing this path, freeze synthetic examples for standalone SKU, variants split across pages, category
-descendants, mixed sizes, color grouping, sale and detail. Cover stock in the configured warehouse, stock only in
-other warehouses, stable pagination under ties, bounded inputs and empty results.
-The owner confirmed ownership and authorized reuse of the catalog code in the MIT target app.
-The first migration adds four internal Python operations in `grupo_real_tools/ecommerce/catalog.py`.
-Both product queries read the default company's warehouse. Product pagination still operates on item rows.
-Both frontend profiles use Frappe API v2 and the resource methods under `grupo_real_tools.ecommerce.api` for listing,
-detail, categories and attributes. The shared client reads method results from the v2 `data` response property. The
-configured production origins have not been verified against the new methods.
-Private routing and the public store API remain separate work.
