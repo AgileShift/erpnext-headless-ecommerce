@@ -15,20 +15,29 @@
       @clear="clearFilters"
     />
     <div class="catalog-content">
-      <div v-if="activeFilters.length" class="mb-4 flex flex-wrap gap-2">
-        <SfChip
-          v-for="filter in activeFilters"
-          :key="`${filter.type}-${filter.value}`"
-          :model-value="true"
-          size="sm"
-          class="border border-primary-200 bg-primary-100 text-neutral-950 shadow-sm"
-          @update:model-value="removeFilter(filter.type, filter.value)"
-        >
-          {{ filter.label }}
-          <template #suffix>
-            <SfIconCloseSm class="text-neutral-500" size="sm" />
-          </template>
-        </SfChip>
+      <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <div v-if="activeFilters.length" class="flex flex-wrap gap-2">
+          <SfChip
+            v-for="filter in activeFilters"
+            :key="`${filter.type}-${filter.value}`"
+            :model-value="true"
+            size="sm"
+            class="border border-primary-200 bg-primary-100 text-neutral-950 shadow-sm"
+            @update:model-value="removeFilter(filter.type, filter.value)"
+          >
+            {{ filter.label }}
+            <template #suffix>
+              <SfIconCloseSm class="text-neutral-500" size="sm" />
+            </template>
+          </SfChip>
+        </div>
+        <label class="ml-auto flex items-center gap-2 text-sm font-medium text-neutral-700">
+          <span>Ordenar por</span>
+          <SfSelect v-model="selectedSort" size="sm" class="min-w-40" aria-label="Ordenar productos">
+            <option value="asc">Orden del catálogo</option>
+            <option value="desc">Más recientes</option>
+          </SfSelect>
+        </label>
       </div>
       <p v-if="isInitialLoading" role="status" class="mb-4 text-neutral-700">Cargando productos…</p>
       <div
@@ -97,7 +106,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { SfButton, SfChip, SfIconCloseSm, SfLoaderCircular } from '@storefront-ui/vue'
+import { SfButton, SfChip, SfIconCloseSm, SfLoaderCircular, SfSelect } from '@storefront-ui/vue'
 import ProductCard from '@/features/catalog/components/ProductCard.vue'
 import ProductCardSkeleton from '@/features/catalog/components/ProductCardSkeleton.vue'
 import CatalogFilters from '@/features/catalog/components/CatalogFilters.vue'
@@ -107,6 +116,7 @@ import { useItemAttributeStore } from '@/features/catalog/stores/itemAttributeSt
 import type { Category } from '@/features/catalog/types/Category'
 import { compareSizeValues } from '@/features/catalog/utils/sizeOrdering'
 import siteConfig from '@/config'
+import type { CatalogSort } from '@/sites/types'
 
 const props = defineProps<{
   sale?: boolean
@@ -135,6 +145,7 @@ const filtersOpen = ref(false)
 const selectedCategories = ref<string[]>([...(props.category || [])])
 const selectedSizes = ref<string[]>([...(props.size || [])])
 const selectedColors = ref<string[]>([...(props.color || [])])
+const selectedSort = ref<CatalogSort>(siteConfig.catalog.defaultSort)
 
 const getLeafCategoryNames = (node: Category): string[] => {
   if (!node.children.length) {
@@ -246,6 +257,7 @@ const loadMoreProducts = async () => {
     props.size,
     props.color,
     nextPage,
+    selectedSort.value,
   )
 }
 
@@ -256,6 +268,7 @@ const retryProducts = () =>
     props.size,
     props.color,
     catalogErrorPage.value || 1,
+    selectedSort.value,
   )
 
 let observer: IntersectionObserver | undefined
@@ -281,12 +294,13 @@ watch(
     newCategory: props.category,
     newSize: props.size,
     newColor: props.color,
+    newSort: selectedSort.value,
   }),
-  ({ newSale, newCategory, newSize, newColor }) => {
+  ({ newSale, newCategory, newSize, newColor, newSort }) => {
     selectedCategories.value = [...(newCategory || [])]
     selectedSizes.value = [...(newSize || [])]
     selectedColors.value = [...(newColor || [])]
-    productStore.loadProducts(Boolean(newSale), newCategory, newSize, newColor, 1)
+    productStore.loadProducts(Boolean(newSale), newCategory, newSize, newColor, 1, newSort)
   },
   { immediate: true },
 )

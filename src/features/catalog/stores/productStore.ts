@@ -7,6 +7,7 @@ import type {
   ProductVariantAttributes,
 } from '@/features/catalog/types/Product'
 import siteConfig from '@/config'
+import type { CatalogSort } from '@/sites/types'
 import { normalizeComparableText, sortSizeValues } from '@/features/catalog/utils/sizeOrdering'
 import { callFrappeMethod } from '@/shared/api/frappe'
 
@@ -320,12 +321,14 @@ const getCatalogRequestKey = (
   category: CatalogFilterValue,
   size: CatalogFilterValue,
   color: CatalogFilterValue,
+  sort: CatalogSort,
 ) =>
   JSON.stringify({
     sale,
     category: normalizeFilterValues(category),
     size: normalizeFilterValues(size),
     color: normalizeFilterValues(color),
+    sort,
   })
 
 export const useProductStore = defineStore('product', {
@@ -386,8 +389,9 @@ export const useProductStore = defineStore('product', {
       size: CatalogFilterValue = null,
       color: CatalogFilterValue = null,
       page: number = 1,
+      sort: CatalogSort = siteConfig.catalog.defaultSort,
     ) {
-      const requestKey = getCatalogRequestKey(sale, category, size, color)
+      const requestKey = getCatalogRequestKey(sale, category, size, color, sort)
 
       if (page === 1 && this.catalogRequestKey === requestKey && this.products.length > 0) {
         return
@@ -417,6 +421,7 @@ export const useProductStore = defineStore('product', {
                 category: combination.category,
                 size: combination.size,
                 color: combination.color,
+                sort,
               },
             )
             if (!Array.isArray(products)) throw new Error('Invalid catalog response')

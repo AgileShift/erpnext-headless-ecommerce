@@ -38,6 +38,7 @@ export const clothingCenterConfig: SiteConfig = {
     },
   },
   catalog: {
+    defaultSort: 'asc',
     filters: { initiallyOpen: ['size'] },
     productCardVisibleAttributes: ['Talla', 'Talla - Largo'],
     exchangeRate: 36.6243,

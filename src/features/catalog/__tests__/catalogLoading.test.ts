@@ -87,6 +87,32 @@ describe('catalog loading', () => {
     expect(store.catalogErrorPage).toBeNull()
   })
 
+  it('uses the site default sort and reloads the first page when the sort changes', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(response([]))
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [{ path: '/:pathMatch(.*)*', component: CatalogView }],
+    })
+    await router.push('/')
+    await router.isReady()
+    const wrapper = mount(CatalogView, {
+      global: {
+        plugins: [router],
+        stubs: { ProductCard: true, ProductCardSkeleton: true, SfThumbnail: true },
+      },
+    })
+    await flushPromises()
+    expect(fetchMock.mock.calls[0]?.[0]).toContain('sort=asc')
+    await wrapper.get('select[aria-label="Ordenar productos"]').setValue('desc')
+    await flushPromises()
+    expect(fetchMock.mock.calls.at(-1)?.[0]).toContain('sort=desc')
+    expect(wrapper.get('select[aria-label="Ordenar productos"]').element).toHaveProperty(
+      'value',
+      'desc',
+    )
+    wrapper.unmount()
+  })
+
   it('ignores an older response after filters change', async () => {
     let resolveOld!: (value: Response) => void
     vi.spyOn(globalThis, 'fetch')
