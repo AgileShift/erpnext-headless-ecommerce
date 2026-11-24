@@ -30,6 +30,23 @@ beforeEach(() => {
 })
 
 describe('catalog loading', () => {
+  it('sends all selected filters in one request using the new catalog parameters', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(response([]))
+    await useProductStore().loadProducts(true, ['Ropa', 'Calzado'], ['S', 'M'], ['Negro'])
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    const url = new URL(String(fetchMock.mock.calls[0]?.[0]))
+    expect(url.origin).toBe('http://clothing.localhost:8000')
+    expect(Object.fromEntries(url.searchParams)).toEqual({
+      item_group: 'Ropa,Calzado',
+      attributes: JSON.stringify({ Talla: ['S', 'M'], Color: ['Negro'] }),
+      sale: '1',
+      sort: 'asc',
+      start: '0',
+      limit: '33',
+    })
+  })
+
   it('reads expanded API attributes without changing their names or values', () => {
     const product = useProductStore().formatProduct({
       ...item,

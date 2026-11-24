@@ -74,6 +74,9 @@ every grouped variant has a saved discount; each variant retains its own discoun
 Catalog and Wiki method calls use the shared Frappe API v2 client in `src/shared/api/frappe.ts`. Resource stores pass
 method names and parameters to the client instead of constructing `/api` URLs or reading response envelopes directly.
 Frappe API v2 method results are read from the `data` response property.
+The listing sends one request per page with comma-separated `item_group` names and selected variant values in the
+`attributes` JSON object. Clothing Center development uses `http://clothing.localhost:8000` for the catalog.
+Production builds use the configured HTTPS origin.
 
 The catalog distinguishes loading, empty results and failed requests. Shoppers can clear category, size and color
 filters after an empty result, or retry a failed request. If a later page fails, existing cards stay visible and the

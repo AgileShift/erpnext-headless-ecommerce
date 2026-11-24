@@ -3,7 +3,9 @@ import type { SiteConfig } from '../types'
 export const clothingCenterConfig: SiteConfig = {
   id: 'clothing-center',
   showHeaderTitle: true,
-  apiBaseUrl: 'https://erp.clothingcenterni.com',
+  apiBaseUrl: import.meta.env.DEV
+    ? 'http://clothing.localhost:8000'
+    : 'https://erp.clothingcenterni.com',
   siteName: 'Clothing Center',
   siteLogo: 'LogoClothing.svg',
   siteFavicon: 'clothing.ico',

@@ -288,43 +288,6 @@ const normalizeFilterValues = (value: CatalogFilterValue) => {
   return value ? [value] : []
 }
 
-const getFilterCombinations = (
-  category: CatalogFilterValue,
-  size: CatalogFilterValue,
-  color: CatalogFilterValue,
-) => {
-  const categories = normalizeFilterValues(category)
-  const sizes = normalizeFilterValues(size)
-  const colors = normalizeFilterValues(color)
-  const categoryValues = categories.length ? categories : [null]
-  const sizeValues = sizes.length ? sizes : [null]
-  const colorValues = colors.length ? colors : [null]
-
-  return categoryValues.flatMap((categoryValue) =>
-    sizeValues.flatMap((sizeValue) =>
-      colorValues.map((colorValue) => ({
-        category: categoryValue,
-        size: sizeValue,
-        color: colorValue,
-      })),
-    ),
-  )
-}
-
-const getCatalogRequestKey = (
-  sale: boolean,
-  category: CatalogFilterValue,
-  size: CatalogFilterValue,
-  color: CatalogFilterValue,
-  sort: CatalogSort,
-) =>
-  JSON.stringify({
-    sale,
-    category: normalizeFilterValues(category),
-    size: normalizeFilterValues(size),
-    color: normalizeFilterValues(color),
-    sort,
-  })
 
 export const useProductStore = defineStore('product', {
   state: () => ({
@@ -386,7 +349,19 @@ export const useProductStore = defineStore('product', {
       page: number = 1,
       sort: CatalogSort = siteConfig.catalog.defaultSort,
     ) {
-      const requestKey = getCatalogRequestKey(sale, category, size, color, sort)
+      const sizes = normalizeFilterValues(size)
+      const colors = normalizeFilterValues(color)
+      const attributes = {
+        ...(sizes.length ? { Talla: sizes } : {}),
+        ...(colors.length ? { Color: colors } : {}),
+      }
+      const filters = {
+        sale: sale ? 1 : undefined,
+        item_group: normalizeFilterValues(category).join(','),
+        attributes: sizes.length || colors.length ? JSON.stringify(attributes) : undefined,
+        sort,
+      }
+      const requestKey = JSON.stringify(filters)
 
       if (page === 1 && this.catalogRequestKey === requestKey && this.products.length > 0) {
         return
@@ -402,29 +377,14 @@ export const useProductStore = defineStore('product', {
         this.currentPage = 1
       }
       const start = (page - 1) * this.limit
-      const combinations = getFilterCombinations(category, size, color)
 
       try {
-        const responses = await Promise.all(
-          combinations.map(async (combination) => {
-            const products = await callFrappeMethod<unknown>(
-              'grupo_real_tools.ecommerce.api.item.get_items',
-              {
-                start,
-                limit: this.limit,
-                sale: sale ? 1 : undefined,
-                category: combination.category,
-                size: combination.size,
-                color: combination.color,
-                sort,
-              },
-            )
-            if (!Array.isArray(products)) throw new Error('Invalid catalog response')
-            return products
-          }),
+        const message = await callFrappeMethod<unknown>(
+          'grupo_real_tools.ecommerce.api.item.get_items',
+          { ...filters, start, limit: this.limit },
         )
         if (requestId !== this.catalogRequestId) return
-        const message = responses.flat()
+        if (!Array.isArray(message)) throw new Error('Invalid catalog response')
 
         if (message.length === 0) {
           this.hasMoreProducts = false
