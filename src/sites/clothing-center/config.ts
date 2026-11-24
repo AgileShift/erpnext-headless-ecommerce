@@ -38,6 +38,7 @@ export const clothingCenterConfig: SiteConfig = {
     },
   },
   catalog: {
+    attributeDisplay: { Color: 'value', Talla: 'abbr', 'Talla - Largo': 'abbr' },
     defaultSort: 'asc',
     filters: { initiallyOpen: ['size'] },
     productCardVisibleAttributes: ['Talla', 'Talla - Largo'],

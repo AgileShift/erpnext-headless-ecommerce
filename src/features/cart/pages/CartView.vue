@@ -28,7 +28,7 @@
               <h2 class="text-lg font-semibold leading-snug text-neutral-950">
                 <router-link :to="getProductLink(group.item)" class="hover:underline">{{ group.name }}</router-link>
               </h2>
-              <p v-if="group.color" class="mt-1 text-sm text-neutral-600">Color: {{ group.color }}</p>
+              <p v-if="group.color" class="mt-1 text-sm text-neutral-600">Color: {{ formatAttributeDisplayValue('Color', group.color, group.item.attributeAbbreviations?.Color) }}</p>
             </div>
           <ul class="cart-product-variants divide-y divide-neutral-200 border-t border-neutral-200">
             <li
@@ -110,6 +110,7 @@ import ProductImage from '@/shared/components/ProductImage.vue'
 import SaleBadge from '@/shared/components/SaleBadge.vue'
 import { type SelectionItem, useSelectionStore } from '@/features/cart/stores/selectionStore'
 import type { ProductVariantAttributes } from '@/features/catalog/types/Product'
+import { formatAttributeDisplayValue } from '@/features/catalog/utils/attributeFormatting'
 
 const selection = useSelectionStore()
 
@@ -117,16 +118,12 @@ onMounted(() => {
   selection.reloadFromStorage()
 })
 
-const formatAttributes = (attributes: ProductVariantAttributes) =>
-  Object.entries(attributes)
+const formatAttributes = (item: SelectionItem, includeColor = true) =>
+  Object.entries(item.attributes)
+    .filter(([name]) => includeColor || name !== 'Color')
     .sort(([first], [second]) => first.localeCompare(second, 'es'))
-    .map(([name, value]) => `${name}: ${value}`)
+    .map(([name, value]) => `${name}: ${formatAttributeDisplayValue(name, value, item.attributeAbbreviations?.[name])}`)
     .join(' | ')
-
-const getAttributeValue = (attributes: ProductVariantAttributes, attributeName: string) =>
-  Object.entries(attributes).find(
-    ([name]) => name.trim().toLowerCase() === attributeName.toLowerCase(),
-  )?.[1]
 
 const normalizeCodePart = (value: string) =>
   value
@@ -180,7 +177,7 @@ const getProductItemCode = (item: SelectionItem) => {
 }
 
 const getProductLink = (item: SelectionItem) => {
-  const color = getAttributeValue(item.attributes, 'color')
+  const color = item.attributes.Color
 
   return {
     path: `/product/${getProductItemCode(item)}`,
@@ -188,17 +185,14 @@ const getProductLink = (item: SelectionItem) => {
   }
 }
 
-const variantLabel = (item: SelectionItem) =>
-  formatAttributes(Object.fromEntries(
-    Object.entries(item.attributes).filter(([name]) => name.trim().toLowerCase() !== 'color'),
-  ))
+const variantLabel = (item: SelectionItem) => formatAttributes(item, false)
 
 const cartGroups = computed(() => {
   const groups = new Map<string, { key: string; name: string; color?: string; item: SelectionItem; items: SelectionItem[] }>()
 
   for (const item of selection.items) {
-    const color = getAttributeValue(item.attributes, 'color')?.trim()
-    const key = JSON.stringify([getProductItemCode(item), color?.toLowerCase() ?? ''])
+    const color = item.attributes.Color
+    const key = JSON.stringify([getProductItemCode(item), color ?? ''])
     const group = groups.get(key)
     if (group) {
       group.items.push(item)
@@ -239,14 +233,22 @@ const formatCartAmount = (amount: number) =>
 const formattedCartTotal = computed(() => formatCartAmount(selection.total))
 
 const whatsappMessage = computed(() => {
-  const items = selection.items
-    .map(
-      (item) =>
-        `- ${item.item_name} (${formatAttributes(item.attributes)}) x${item.qty} - ${formatCartAmount(item.price.price_list_rate * item.qty)}`,
+  const items = cartGroups.value
+    .flatMap((group) =>
+      group.items.map((item) =>
+        [
+          `• ${group.name}`,
+          formatAttributes(item),
+          `Cantidad: ${item.qty}`,
+          `Total: ${formatCartAmount(item.price.price_list_rate * item.qty)}`,
+        ]
+          .filter(Boolean)
+          .join('\n'),
+      ),
     )
-    .join('\n')
+    .join('\n\n')
 
-  return `Hola, quiero consultar mi carrito:\n${items}\nSubtotal: ${formattedCartTotal.value}`
+  return `Hola, quiero consultar mi carrito:\n\n${items}\n\nSubtotal: ${formattedCartTotal.value}`
 })
 
 const whatsappHref = computed(

@@ -30,7 +30,7 @@ const create = () => mount(QuickAddModal, {
 
 describe('quick add', () => {
   it('shows a compact size label while selecting the real variant and its image and price', async () => {
-    const red = { ...variant('red-small', 'Rojo', 'Small'), image: '/red.jpg', price: { ...price, formatted_price: '$12', local_formatted_price: 'C$439' } }
+    const red = { ...variant('red-small', 'Rojo', 'Small'), attributeAbbreviations: { Talla: 'S' }, image: '/red.jpg', price: { ...price, formatted_price: '$12', local_formatted_price: 'C$439' } }
     const blue = { ...variant('blue-small', 'Azul', 'Small'), image: '/blue.jpg' }
     vi.spyOn(useProductStore(), 'fetchProduct').mockResolvedValue({ ...product, variants: [red, blue], available_attributes: { Color: ['Rojo', 'Azul'], Talla: ['Small'] } })
     const wrapper = create()

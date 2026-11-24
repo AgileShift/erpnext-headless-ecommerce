@@ -4,15 +4,14 @@ import type {
   ProductPrice,
   ProductPriceSummary,
   ProductVariant,
-  ProductVariantAttributes,
 } from '@/features/catalog/types/Product'
 import siteConfig from '@/config'
 import type { CatalogSort } from '@/sites/types'
-import { normalizeComparableText, sortSizeValues } from '@/features/catalog/utils/sizeOrdering'
+import { sortSizeValues } from '@/features/catalog/utils/sizeOrdering'
 import { callFrappeMethod } from '@/shared/api/frappe'
 
 const BASE_URL = siteConfig.apiBaseUrl
-const SIZE_ATTRIBUTE_NAMES = new Set(['talla', 'size'])
+const SIZE_ATTRIBUTE_NAMES = new Set(['Talla', 'Size', 'Talla - Largo'])
 const EXCHANGE_RATE = siteConfig.catalog.exchangeRate
 
 const formatUsd = (amount: number) =>
@@ -34,7 +33,7 @@ const toText = (value: unknown, fallback = ''): string =>
   typeof value === 'string' && value.trim().length > 0 ? value.trim() : fallback
 
 const isSizeAttribute = (attributeName: string) =>
-  SIZE_ATTRIBUTE_NAMES.has(normalizeComparableText(attributeName))
+  SIZE_ATTRIBUTE_NAMES.has(attributeName)
 
 const sortAttributeValues = (attributeName: string, values: string[]) => {
   if (!isSizeAttribute(attributeName)) {
@@ -119,30 +118,33 @@ const formatPriceSummary = (
   }
 }
 
-const formatVariantAttributes = (attributes: unknown): ProductVariantAttributes =>
-  Object.entries((attributes ?? {}) as Record<string, unknown>).reduce<ProductVariantAttributes>(
-    (normalized, [key, value]) => {
-      const attributeName = key.trim()
-      const attributeValue = toText(value)
+const formatVariantAttributes = (raw: unknown) => {
+  const values: [string, string][] = []
+  const abbreviations: [string, string][] = []
 
-      if (attributeName && attributeValue) {
-        normalized[attributeName] = attributeValue
+  if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+    for (const [name, entry] of Object.entries(raw)) {
+      const option = entry as { value?: unknown; abbr?: unknown } | null
+      const value = typeof entry === 'string' ? entry : option?.value
+      if (!name || typeof value !== 'string' || !value) continue
+      values.push([name, value])
+      if (typeof option?.abbr === 'string' && option.abbr) {
+        abbreviations.push([name, option.abbr])
       }
+    }
+  }
 
-      return normalized
-    },
-    {},
-  )
+  return {
+    attributes: Object.fromEntries(values),
+    attributeAbbreviations: Object.fromEntries(abbreviations),
+  }
+}
 
 const getAvailableAttributes = (variants: ProductVariant[]) => {
-  const attributes: Record<string, string[]> = {}
+  const attributes: Record<string, string[]> = Object.create(null)
 
   variants.forEach((variant) => {
     Object.entries(variant.attributes).forEach(([attributeName, attributeValue]) => {
-      if (!attributeValue) {
-        return
-      }
-
       if (!attributes[attributeName]) {
         attributes[attributeName] = []
       }
@@ -170,30 +172,24 @@ const formatVariant = (
   const itemName = toText(variantItem.item_name, toText(parentItem.item_name))
 
   return {
-    item_code: toText(variantItem.item_code),
+    item_code: typeof variantItem.item_code === 'string' ? variantItem.item_code : '',
     item_name: itemName,
     item_group: toText(variantItem.item_group, toText(parentItem.item_group)),
     image: formatImage(variantItem.image || parentImage, itemName),
     images: formatImages(variantItem.images),
     variant_of: toText(variantItem.variant_of, toText(parentItem.item_code)),
     actual_qty: (variantItem.actual_qty as number | undefined) ?? 0,
-    attributes: formatVariantAttributes(variantItem.attributes),
+    ...formatVariantAttributes(variantItem.attributes),
     price: formatProductPrice(variantItem.price),
   }
 }
 
-const getVariantColor = (variant: ProductVariant): string | null => {
-  const colorAttribute = Object.entries(variant.attributes).find(
-    ([attributeName]) => attributeName.trim().toLowerCase() === 'color',
-  )
-
-  return colorAttribute?.[1] || null
-}
+const getVariantColor = (variant: ProductVariant) => variant.attributes.Color || null
 
 const getProductSingleColor = (product: Product): string | null => {
   const colorAttribute = Object.entries(product.available_attributes).find(
     ([attributeName, values]) =>
-      normalizeComparableText(attributeName) === 'color' && values.length === 1,
+      attributeName === 'Color' && values.length === 1,
   )
 
   return colorAttribute?.[1][0] || (product.variants[0] ? getVariantColor(product.variants[0]) : null)
@@ -202,7 +198,7 @@ const getProductSingleColor = (product: Product): string | null => {
 const getCatalogMergeKey = (product: Product) => {
   const color = getProductSingleColor(product)
 
-  return color ? `${product.item_code}:color:${normalizeComparableText(color)}` : product.item_code
+  return color ? `${product.item_code}:color:${color}` : product.item_code
 }
 
 const buildProductFromVariants = (product: Product, variants: ProductVariant[]): Product => {
@@ -236,10 +232,9 @@ const splitProductByColor = (product: Product): Product[] => {
       return [product]
     }
 
-    const colorKey = normalizeComparableText(color)
-    const variants = variantsByColor.get(colorKey) || []
+    const variants = variantsByColor.get(color) || []
     variants.push(variant)
-    variantsByColor.set(colorKey, variants)
+    variantsByColor.set(color, variants)
   }
 
   if (variantsByColor.size <= 1) {
@@ -287,10 +282,10 @@ type CatalogFilterValue = string | string[] | null
 
 const normalizeFilterValues = (value: CatalogFilterValue) => {
   if (Array.isArray(value)) {
-    return value.map((entry) => entry.trim()).filter(Boolean)
+    return value.filter(Boolean)
   }
 
-  return value && value.trim() ? [value.trim()] : []
+  return value ? [value] : []
 }
 
 const getFilterCombinations = (

@@ -34,6 +34,7 @@ export const fortechConfig: SiteConfig = {
     },
   },
   catalog: {
+    attributeDisplay: { Color: 'value', Talla: 'abbr' },
     defaultSort: 'asc',
     filters: { initiallyOpen: ['size', 'category', 'color'] },
     productCardVisibleAttributes: [],

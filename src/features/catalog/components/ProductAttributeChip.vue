@@ -25,7 +25,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { SfChip, SfThumbnail } from '@storefront-ui/vue'
-import { normalizeAttributeName } from '@/features/catalog/utils/attributeFormatting'
 import { getColorSwatch } from '@/features/catalog/utils/colorSwatches'
 
 const props = withDefaults(
@@ -41,9 +40,8 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{ 'update:modelValue': [value: boolean] }>()
-const normalizedAttributeName = computed(() => normalizeAttributeName(props.attributeName))
-const isSize = computed(() => normalizedAttributeName.value === 'talla')
-const isColor = computed(() => normalizedAttributeName.value === 'color')
+const isSize = computed(() => props.attributeName === 'Talla')
+const isColor = computed(() => props.attributeName === 'Color')
 const optionClass = computed(() => [
   'peer-next-checked:bg-primary-100 peer-next-checked:text-neutral-950 peer-next-checked:shadow-sm',
   'relative overflow-hidden peer-next-disabled:bg-neutral-200 peer-next-disabled:text-neutral-600 peer-next-disabled:opacity-100 peer-next-disabled:ring-neutral-400',

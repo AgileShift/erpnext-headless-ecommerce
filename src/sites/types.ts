@@ -3,6 +3,7 @@ import type { LegalDocumentKey } from '@/router/legalRoutes'
 export type SiteId = 'clothing-center' | 'fortech'
 export type CatalogFilterSection = 'size' | 'category' | 'color'
 export type CatalogSort = 'asc' | 'desc'
+export type AttributeDisplayMode = 'value' | 'abbr'
 
 export type SiteConfig = {
   apiBaseUrl: string
@@ -30,6 +31,7 @@ export type SiteConfig = {
     documents: Partial<Record<LegalDocumentKey, string>>
   }
   catalog: {
+    attributeDisplay: Record<string, AttributeDisplayMode>
     defaultSort: CatalogSort
     productCardVisibleAttributes: string[]
     exchangeRate: number

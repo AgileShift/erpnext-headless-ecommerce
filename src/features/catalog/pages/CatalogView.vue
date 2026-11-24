@@ -114,6 +114,8 @@ import { useProductStore } from '@/features/catalog/stores/productStore'
 import { ROOT_CATEGORY_NAME, useCategoryStore } from '@/features/catalog/stores/categoryStore'
 import { useItemAttributeStore } from '@/features/catalog/stores/itemAttributeStore'
 import type { Category } from '@/features/catalog/types/Category'
+import type { ItemAttributeOption } from '@/features/catalog/types/ItemAttribute'
+import { formatAttributeDisplayValue } from '@/features/catalog/utils/attributeFormatting'
 import { compareSizeValues } from '@/features/catalog/utils/sizeOrdering'
 import siteConfig from '@/config'
 import type { CatalogSort } from '@/sites/types'
@@ -166,22 +168,30 @@ const categoryOptions = computed(() =>
 )
 const sizeOptions = computed(() =>
   [...itemAttributeStore.sizes].sort((firstSize, secondSize) =>
-    compareSizeValues(firstSize.label, secondSize.label),
+    compareSizeValues(firstSize.value, secondSize.value),
   ),
 )
 const colorOptions = computed(() => itemAttributeStore.colors)
+const getAttributeOptionLabel = (
+  attributeName: string,
+  value: string,
+  options: ItemAttributeOption[],
+) => {
+  const option = options.find((entry) => entry.value === value)
+  return formatAttributeDisplayValue(attributeName, value, option?.abbr)
+}
 
 const activeFilters = computed(() => [
   ...selectedSizes.value.map((value) => ({
     type: 'size',
     value,
-    label: `Talla: ${sizeOptions.value.find((option) => option.value === value)?.label || value}`,
+    label: `Talla: ${getAttributeOptionLabel('Talla', value, sizeOptions.value)}`,
   })),
   ...selectedCategories.value.map((value) => ({ type: 'category', value, label: value })),
   ...selectedColors.value.map((value) => ({
     type: 'color',
     value,
-    label: colorOptions.value.find((option) => option.value === value)?.label || value,
+    label: getAttributeOptionLabel('Color', value, colorOptions.value),
   })),
 ])
 
@@ -204,8 +214,8 @@ const removeFilter = (type: string, value: string) => {
 
 const applyFilters = async (closeFilters = false) => {
   const nextCategories = selectedCategories.value.map((value) => value.trim()).filter(Boolean)
-  const nextSizes = selectedSizes.value.map((value) => value.trim()).filter(Boolean)
-  const nextColors = selectedColors.value.map((value) => value.trim()).filter(Boolean)
+  const nextSizes = selectedSizes.value.filter(Boolean)
+  const nextColors = selectedColors.value.filter(Boolean)
   const query: Record<string, string | string[]> = {}
 
   if (nextCategories.length > 1) {
@@ -316,7 +326,7 @@ watch(
 onMounted(() => {
   setupIntersectionObserver()
   categoryStore.loadCategories()
-  itemAttributeStore.loadItemAttributes({ talla: true, color: true })
+  itemAttributeStore.loadItemAttributes()
 })
 onUnmounted(() => observer?.disconnect())
 </script>

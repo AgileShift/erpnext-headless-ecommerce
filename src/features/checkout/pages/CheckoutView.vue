@@ -2,6 +2,7 @@
 import { computed, nextTick, ref } from 'vue'
 import { SfButton, SfInput } from '@storefront-ui/vue'
 import { useSelectionStore } from '@/features/cart/stores/selectionStore'
+import { formatAttributeDisplayValue } from '@/features/catalog/utils/attributeFormatting'
 import { useAccountPreview } from '@/features/account/previewStore'
 import ProductImage from '@/shared/components/ProductImage.vue'
 const cart = useSelectionStore()
@@ -120,7 +121,7 @@ const deliveryOptions = [
               </div>
               <div class="min-w-0 break-words">
                 <p class="font-medium">{{ item.product_name || item.item_name }}</p>
-                <p v-if="Object.keys(item.attributes).length" class="text-neutral-600">{{ Object.values(item.attributes).join(' · ') }}</p>
+                <p v-if="Object.keys(item.attributes).length" class="text-neutral-600">{{ Object.entries(item.attributes).map(([name, value]) => formatAttributeDisplayValue(name, value, item.attributeAbbreviations?.[name])).join(' · ') }}</p>
                 <p class="text-neutral-600">Cantidad: {{ item.qty }}</p>
               </div>
             </li>

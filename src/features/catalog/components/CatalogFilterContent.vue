@@ -17,7 +17,7 @@
     <li>
       <SfAccordionItem v-model="openSections.size">
         <template #summary>
-          <FilterSectionSummary label="Tallas" :selected-values="selectedSizes" :open="openSections.size" />
+          <FilterSectionSummary label="Tallas" :selected-values="selectedSizeLabels" :open="openSections.size" />
         </template>
         <ul :class="['grid gap-2 px-2 pb-4', mobileActions ? 'grid-cols-5' : 'grid-cols-4']">
           <li v-for="size in sizes" :key="size.value" class="flex justify-center">
@@ -84,7 +84,7 @@
     <li>
       <SfAccordionItem v-model="openSections.color">
         <template #summary>
-          <FilterSectionSummary label="Colores" :selected-values="selectedColors" :open="openSections.color" />
+          <FilterSectionSummary label="Colores" :selected-values="selectedColorLabels" :open="openSections.color" />
         </template>
         <div class="px-2 pb-4">
           <div v-if="searchable" class="mb-3">
@@ -116,7 +116,7 @@
                     :style="{ backgroundColor: getColorSwatch(color.value) }"
                   />
                 </template>
-                <span class="break-words text-left">{{ color.label }}</span>
+                <span class="break-words text-left">{{ formatAttributeDisplayValue('Color', color.value, color.abbr) }}</span>
               </SfChip>
             </li>
           </ul>
@@ -153,7 +153,7 @@ import ProductAttributeChip from '@/features/catalog/components/ProductAttribute
 import type { ItemAttributeOption } from '@/features/catalog/types/ItemAttribute'
 import type { CatalogFilterSection } from '@/sites/types'
 import { getColorSwatch } from '@/features/catalog/utils/colorSwatches'
-import { isNumericAttributeValue } from '@/features/catalog/utils/attributeFormatting'
+import { formatAttributeDisplayValue } from '@/features/catalog/utils/attributeFormatting'
 import { normalizeComparableText } from '@/features/catalog/utils/sizeOrdering'
 
 const props = withDefaults(
@@ -191,11 +191,26 @@ const visibleCategories = computed(() => {
 const visibleColors = computed(() => {
   const search = props.searchable ? normalizeComparableText(colorSearch.value) : ''
   return search
-    ? props.colors.filter((color) => normalizeComparableText(color.label).includes(search))
+    ? props.colors.filter((color) =>
+        [color.value, formatAttributeDisplayValue('Color', color.value, color.abbr)]
+          .some((value) => normalizeComparableText(value).includes(search)),
+      )
     : props.colors
 })
+const selectedSizeLabels = computed(() =>
+  selectedSizes.value.map((value) => {
+    const option = props.sizes.find((size) => size.value === value)
+    return formatAttributeDisplayValue('Talla', value, option?.abbr)
+  }),
+)
+const selectedColorLabels = computed(() =>
+  selectedColors.value.map((value) => {
+    const option = props.colors.find((color) => color.value === value)
+    return formatAttributeDisplayValue('Color', value, option?.abbr)
+  }),
+)
 const getSizeLabel = (size: ItemAttributeOption) =>
-  isNumericAttributeValue(size.label) ? size.label : size.abbr || size.label
+  formatAttributeDisplayValue('Talla', size.value, size.abbr)
 const updateSelectedSize = (value: string, selected: boolean) => {
   selectedSizes.value = selected
     ? [...new Set([...selectedSizes.value, value])]

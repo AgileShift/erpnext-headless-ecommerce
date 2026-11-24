@@ -10,6 +10,7 @@ export interface SelectionItem {
   item_name: string
   image: string
   attributes: ProductVariantAttributes
+  attributeAbbreviations?: ProductVariantAttributes
   price: ProductPrice
   qty: number
   maxQty?: number
@@ -55,6 +56,9 @@ export const useSelectionStore = defineStore('selection', {
 
       if (existingItem) {
         existingItem.maxQty = availableQty
+        if (item.attributeAbbreviations) {
+          existingItem.attributeAbbreviations = item.attributeAbbreviations
+        }
         if (existingItem.qty + 1 > maxQty) {
           this.persist()
           return

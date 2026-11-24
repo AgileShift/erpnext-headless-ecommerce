@@ -32,7 +32,7 @@
             :key="value"
             :attribute-name="group.name"
             :value="value"
-            :label="normalizeAttributeName(group.name) === 'talla' ? formatAttributeValue(value) : value"
+            :label="formatVariantAttributeLabel(product.variants, group.name, value)"
             :model-value="selection[group.name] === value"
             :available="isAvailable(group.name, value)"
             @update:model-value="$event === true && (selection[group.name] = value)"
@@ -56,7 +56,7 @@ import type { Product } from '@/features/catalog/types/Product'
 import { useProductStore } from '@/features/catalog/stores/productStore'
 import { useSelectionStore } from '@/features/cart/stores/selectionStore'
 import { getAttributeGroups, variantMatchesSelection } from '@/features/catalog/utils/variantSelection'
-import { formatAttributeValue, normalizeAttributeName } from '@/features/catalog/utils/attributeFormatting'
+import { formatVariantAttributeLabel } from '@/features/catalog/utils/attributeFormatting'
 import ProductImage from '@/shared/components/ProductImage.vue'
 import ProductAttributeChip from './ProductAttributeChip.vue'
 
@@ -81,7 +81,7 @@ const previewImage = computed(() => {
 })
 const previewPrice = computed(() => variant.value?.price || product.value?.price_summary || props.card.price_summary)
 const previewProductUrl = computed(() => {
-  const colorGroup = groups.value.find((group) => normalizeAttributeName(group.name) === 'color')
+  const colorGroup = groups.value.find((group) => group.name === 'Color')
   const color = colorGroup && selection.value[colorGroup.name]
   return { path: props.productUrl.path, query: color ? { color } : {} }
 })
@@ -98,7 +98,7 @@ const add = () => {
   const item = variant.value
   cart.addItem({ item_code: item.item_code, product_item_code: product.value.item_code,
     product_name: product.value.item_name, item_name: item.item_name, image: item.image,
-    attributes: item.attributes, price: item.price }, item.actual_qty)
+    attributes: item.attributes, attributeAbbreviations: item.attributeAbbreviations, price: item.price }, item.actual_qty)
   open.value = false
   emit('added')
 }
@@ -116,12 +116,12 @@ watch(open, async (isOpen) => {
     if (current !== request) return
     if (!result.variants.length) throw new Error('No variants available')
     product.value = result
-    const colorGroup = groups.value.find((group) => normalizeAttributeName(group.name) === 'color')
-    const matchingColor = colorGroup?.values.find((value) => normalizeAttributeName(value) === normalizeAttributeName(props.color || ''))
+    const colorGroup = groups.value.find((group) => group.name === 'Color')
+    const matchingColor = colorGroup?.values.find((value) => value === props.color)
     if (colorGroup && matchingColor) selection.value[colorGroup.name] = matchingColor
     for (const group of groups.value) {
       const options = group.values.filter((value) => isAvailable(group.name, value))
-      if (!selection.value[group.name] && options.length === 1 && normalizeAttributeName(group.name) !== 'talla') selection.value[group.name] = options[0]
+      if (!selection.value[group.name] && options.length === 1 && group.name !== 'Talla') selection.value[group.name] = options[0]
     }
     if (!groups.value.length && canAdd.value) add()
   } catch {

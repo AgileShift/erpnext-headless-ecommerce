@@ -258,7 +258,7 @@ import SaleBadge from '@/shared/components/SaleBadge.vue'
 import ProductAttributeChip from '@/features/catalog/components/ProductAttributeChip.vue'
 import { getAttributeGroups, variantMatchesSelection } from '@/features/catalog/utils/variantSelection'
 import { useSelectionStore } from '@/features/cart/stores/selectionStore'
-import { formatAttributeValue, normalizeAttributeName } from '@/features/catalog/utils/attributeFormatting'
+import { formatVariantAttributeLabel } from '@/features/catalog/utils/attributeFormatting'
 import { getProductMetaDescription, setPageMeta } from '@/shared/utils/pageMeta'
 
 const route = useRoute()
@@ -334,8 +334,8 @@ const loading = computed(() => productStore.loading)
 const selectedAttributes = ref<Record<string, string>>({})
 
 const isColorAttribute = (attributeName: string) =>
-  normalizeAttributeName(attributeName) === 'color'
-const isSizeAttribute = (attributeName: string) => normalizeAttributeName(attributeName) === 'talla'
+  attributeName === 'Color'
+const isSizeAttribute = (attributeName: string) => attributeName === 'Talla'
 
 const getQueryValue = (value: unknown) => {
   if (Array.isArray(value)) {
@@ -370,7 +370,7 @@ const getAttributeOptions = (
 
     return {
       value,
-      label: isSizeAttribute(attributeName) ? formatAttributeValue(value) : value,
+      label: formatVariantAttributeLabel(product.value?.variants ?? [], attributeName, value),
       available: stock > 0,
       selected: selectedAttributes.value[attributeName] === value,
     }
@@ -562,6 +562,7 @@ const addSelectedVariant = () => {
     item_name: selectedVariant.value.item_name,
     image: selectedVariant.value.image,
     attributes: selectedVariant.value.attributes,
+    attributeAbbreviations: selectedVariant.value.attributeAbbreviations,
     price: selectedVariant.value.price,
   }, selectedVariant.value.actual_qty)
 }
@@ -571,16 +572,8 @@ const findAttributeValue = (attributeName: string, value: string | null) => {
     return null
   }
 
-  const group = baseAttributeGroups.value.find(
-    (attributeGroup) =>
-      normalizeAttributeName(attributeGroup.name) === normalizeAttributeName(attributeName),
-  )
-
-  return (
-    group?.values.find(
-      (optionValue) => normalizeAttributeName(optionValue) === normalizeAttributeName(value),
-    ) || null
-  )
+  const group = baseAttributeGroups.value.find((entry) => entry.name === attributeName)
+  return group?.values.includes(value) ? value : null
 }
 
 const selectOnlyAvailableOptions = (selection: Record<string, string>) => {
@@ -684,7 +677,7 @@ const selectAttribute = (attributeName: string, value: string) => {
 const selectedAttributesMessage = computed(() =>
   Object.entries(selectedAttributes.value)
     .filter(([, value]) => value)
-    .map(([name, value]) => `${name}: ${value}`)
+    .map(([name, value]) => `${name}: ${formatVariantAttributeLabel(activeVariants.value, name, value)}`)
     .join(' | '),
 )
 

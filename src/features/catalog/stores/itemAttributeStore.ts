@@ -6,177 +6,39 @@ import type {
   ItemAttributeOption,
 } from '@/features/catalog/types/ItemAttribute'
 
-const ATTRIBUTE_ALIASES: Record<string, ItemAttributeKey> = {
-  talla: 'Talla',
-  size: 'Talla',
-  color: 'Color',
+const fetchOptions = async (attribute: ItemAttributeKey) => {
+  const options = await callFrappeMethod<ItemAttributeOption[]>(
+    'grupo_real_tools.ecommerce.api.item_attribute.get_item_attributes',
+    { attribute },
+  )
+  if (!Array.isArray(options)) throw new Error('No se pudieron cargar las tallas y colores')
+  return options
 }
-
-type ItemAttributeQueryValue =
-  | string
-  | number
-  | boolean
-  | Array<string | number | boolean>
-
-type ItemAttributeQueryParams = Partial<Record<string, ItemAttributeQueryValue>>
-
-const DEFAULT_ATTRIBUTES: ItemAttributeKey[] = ['Talla', 'Color']
-
-const createEmptyAttributes = (): ItemAttributeGroups => ({
-  Talla: [],
-  Color: [],
-})
-
-type RawAttributeOption =
-  | string
-  | {
-      value?: unknown
-      attribute_value?: unknown
-      label?: unknown
-      name?: unknown
-      abbr?: unknown
-    }
-
-const normalizeAttributeKey = (value: unknown): ItemAttributeKey | null => {
-  if (typeof value !== 'string') {
-    return null
-  }
-
-  return ATTRIBUTE_ALIASES[value.trim().toLowerCase()] || null
-}
-
-const toAttributeOption = (value: RawAttributeOption): ItemAttributeOption | null => {
-  if (typeof value === 'string') {
-    return {
-      label: value,
-      value,
-      abbr: null,
-    }
-  }
-
-  const rawValue =
-    value.value || value.attribute_value || value.label || value.name
-
-  if (typeof rawValue !== 'string' || rawValue.trim().length === 0) {
-    return null
-  }
-
-  const label = typeof value.label === 'string' && value.label.trim().length > 0 ? value.label : rawValue
-  const abbr = typeof value.abbr === 'string' && value.abbr.trim().length > 0 ? value.abbr : null
-
-  return {
-    label,
-    value: rawValue,
-    abbr,
-  }
-}
-
-const uniqueOptions = (options: ItemAttributeOption[]) => {
-  const seen = new Set<string>()
-
-  return options.filter((option) => {
-    const key = option.value.toLowerCase()
-    if (seen.has(key)) {
-      return false
-    }
-    seen.add(key)
-    return true
-  })
-}
-
-const getRequestedAttributes = (params?: ItemAttributeQueryParams) => {
-  if (!params) {
-    return [...DEFAULT_ATTRIBUTES]
-  }
-
-  const requested = Object.entries(params)
-    .filter(([, value]) =>
-      Array.isArray(value)
-        ? value.some((entry) => String(entry).trim().length > 0)
-        : value === true || String(value).trim().length > 0,
-    )
-    .map(([key]) => normalizeAttributeKey(key))
-    .filter((key): key is ItemAttributeKey => key !== null)
-
-  return Array.from(new Set(requested))
-}
-
-const normalizeOptions = (message: unknown) =>
-  Array.isArray(message)
-    ? uniqueOptions(
-        message
-          .map((entry) => toAttributeOption(entry as RawAttributeOption))
-          .filter((option): option is ItemAttributeOption => option !== null),
-      )
-    : []
 
 export const useItemAttributeStore = defineStore('itemAttribute', {
   state: () => ({
-    attributes: createEmptyAttributes(),
+    attributes: { Talla: [], Color: [] } as ItemAttributeGroups,
     loading: false,
     loaded: false,
     error: null as string | null,
-    lastQueryKey: null as string | null,
   }),
   getters: {
     sizes: (state) => state.attributes.Talla,
     colors: (state) => state.attributes.Color,
   },
   actions: {
-    async loadItemAttributes(params?: ItemAttributeQueryParams) {
-      const requestedAttributes = getRequestedAttributes(params).sort()
-      const queryKey = requestedAttributes.join('|') || 'none'
-
-      if (this.loading || (this.loaded && this.lastQueryKey === queryKey)) {
-        return this.attributes
-      }
+    async loadItemAttributes() {
+      if (this.loading || this.loaded) return
 
       this.loading = true
       this.error = null
-      if (this.lastQueryKey !== queryKey) {
-        this.loaded = false
-      }
-
       try {
-        const attributes = createEmptyAttributes()
-
-        if (requestedAttributes.length === 0) {
-          this.attributes = attributes
-          this.loaded = true
-          this.lastQueryKey = queryKey
-          return attributes
-        }
-
-        const responses = await Promise.all(
-          requestedAttributes.map(async (attribute) => {
-            const options = await callFrappeMethod<unknown>(
-              'grupo_real_tools.ecommerce.api.item_attribute.get_item_attributes',
-              { attribute },
-            )
-            return normalizeOptions(options)
-          }),
-        )
-
-        requestedAttributes.forEach((attribute, index) => {
-          attributes[attribute] = responses[index] ?? []
-        })
-
-        const hasAny = requestedAttributes.some((attribute) => attributes[attribute].length > 0)
-        if (!hasAny) {
-          this.error = 'No se pudieron cargar las tallas y colores'
-          console.warn(this.error, attributes)
-          return null
-        }
-
-        this.attributes = attributes
+        const [sizes, colors] = await Promise.all([fetchOptions('Talla'), fetchOptions('Color')])
+        this.attributes = { Talla: sizes, Color: colors }
         this.loaded = true
-        this.lastQueryKey = queryKey
-        return attributes
       } catch (error) {
-        this.error =
-          error instanceof Error ? error.message : 'No se pudieron cargar las tallas y colores'
-        console.error(this.error)
-        return null
+        this.error = 'No se pudieron cargar las tallas y colores'
+        console.error(this.error, error)
       } finally {
         this.loading = false
       }

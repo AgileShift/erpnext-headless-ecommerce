@@ -44,6 +44,10 @@ site-specific visual values in the brand theme.
 
 ## Pages
 
+Each site's `catalog.attributeDisplay` chooses `value` or `abbr` by exact ERPNext attribute name. Catalog filters
+and variant selection use the original values. Labels use the API's abbreviation when configured, falling back
+to the original value for payloads and saved cart entries created before abbreviations were available.
+
 Catalog cards adapt the Storefront UI ProductCard vertical block and show available attributes as text. When a card
 has exactly one color, it displays the original color name alongside the other attributes. Recognized size names use
 their short labels without changing their underlying values. “Agregar al carrito” loads product detail and

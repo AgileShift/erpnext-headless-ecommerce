@@ -30,6 +30,26 @@ beforeEach(() => {
 })
 
 describe('catalog loading', () => {
+  it('reads expanded API attributes without changing their names or values', () => {
+    const product = useProductStore().formatProduct({
+      ...item,
+      variants: [{
+        item_code: 'shirt-m',
+        attributes: {
+          Talla: { value: 'Medium', abbr: 'M' },
+          ' Talla': { value: ' Medium', abbr: 'Other' },
+          Color: 'Negro',
+        },
+      }],
+    })
+    expect(product.variants[0]?.attributes).toEqual({
+      Talla: 'Medium',
+      ' Talla': ' Medium',
+      Color: 'Negro',
+    })
+    expect(product.variants[0]?.attributeAbbreviations).toEqual({ Talla: 'M', ' Talla': 'Other' })
+  })
+
   it('keeps approved image attachments separate for the product and each variant', () => {
     const store = useProductStore()
     const product = store.formatProduct({
@@ -225,12 +245,11 @@ describe('catalog loading', () => {
     const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(response([]))
     const attributes = useItemAttributeStore()
     attributes.attributes.Color = [
-      { value: 'Rojo', label: 'Rojo', abbr: null },
-      { value: 'Rojo vino', label: 'Rojo vino', abbr: null },
-      { value: 'Azul', label: 'Azul', abbr: null },
+      { value: 'Rojo', abbr: null },
+      { value: 'Rojo vino', abbr: null },
+      { value: 'Azul', abbr: null },
     ]
     attributes.loaded = true
-    attributes.lastQueryKey = 'Color|Talla'
     const router = createRouter({
       history: createMemoryHistory(),
       routes: [{ path: '/:pathMatch(.*)*', component: CatalogView }],

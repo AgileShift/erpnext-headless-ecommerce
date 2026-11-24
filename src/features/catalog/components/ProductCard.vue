@@ -50,7 +50,7 @@
       </div>
 
       <div v-if="cardColor || visibleAttributes.length" class="mt-auto space-y-0.5 pt-3 text-xs leading-5 text-neutral-700">
-        <div v-if="cardColor"><span class="font-medium text-neutral-500">Color:</span> {{ cardColor }}</div>
+        <div v-if="cardColor"><span class="font-medium text-neutral-500">Color:</span> {{ formatVariantAttributeLabel(product.variants, 'Color', cardColor) }}</div>
         <div
           v-for="attribute in visibleAttributes"
           :key="attribute.name"
@@ -94,27 +94,25 @@ import ProductImage from '@/shared/components/ProductImage.vue'
 import SaleBadge from '@/shared/components/SaleBadge.vue'
 import QuickAddModal from './QuickAddModal.vue'
 import siteConfig from '@/config'
-import { formatAttributeValue, normalizeAttributeName } from '@/features/catalog/utils/attributeFormatting'
+import { formatVariantAttributeLabel } from '@/features/catalog/utils/attributeFormatting'
 
 const props = defineProps<{
   product: Product
   eager?: boolean
 }>()
 
-const visibleAttributeNames = computed(() =>
-  (siteConfig.catalog?.productCardVisibleAttributes || ['Talla']).map(normalizeAttributeName),
-)
+const visibleAttributeNames = siteConfig.catalog.productCardVisibleAttributes
 
 const attributes = computed(() =>
   Object.entries(props.product.available_attributes)
     .filter(
       ([name, values]) =>
-        values.length > 0 && visibleAttributeNames.value.includes(normalizeAttributeName(name)) &&
-        !(normalizeAttributeName(name) === 'color' && values.length === 1),
+        values.length > 0 && visibleAttributeNames.includes(name) &&
+        !(name === 'Color' && values.length === 1),
     )
     .map(([name, values]) => ({
       name,
-      values: normalizeAttributeName(name) === 'talla' ? values.map(formatAttributeValue) : values,
+      values: values.map((value) => formatVariantAttributeLabel(props.product.variants, name, value)),
     })),
 )
 
@@ -124,7 +122,7 @@ const added = ref(false)
 
 const cardColor = computed(() => {
   const colorAttribute = Object.entries(props.product.available_attributes).find(
-    ([name, values]) => normalizeAttributeName(name) === 'color' && values.length === 1,
+    ([name, values]) => name === 'Color' && values.length === 1,
   )
 
   return colorAttribute?.[1][0] || null
@@ -138,7 +136,10 @@ const productUrl = computed(() => ({
 const availableOptionsMessage = computed(() =>
   Object.entries(props.product.available_attributes)
     .filter(([, values]) => values.length > 0)
-    .map(([name, values]) => `${name}: ${values.join(', ')}`)
+    .map(
+      ([name, values]) =>
+        `${name}: ${values.map((value) => formatVariantAttributeLabel(props.product.variants, name, value)).join(', ')}`,
+    )
     .join(' | '),
 )
 

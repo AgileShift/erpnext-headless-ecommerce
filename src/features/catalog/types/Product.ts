@@ -34,6 +34,7 @@ export interface ProductVariant {
   variant_of: string
   actual_qty: number
   attributes: ProductVariantAttributes
+  attributeAbbreviations?: ProductVariantAttributes
   price: ProductPrice
 }
 
