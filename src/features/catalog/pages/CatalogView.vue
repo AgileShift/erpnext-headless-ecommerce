@@ -105,6 +105,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useRoute, useRouter } from 'vue-router'
 import { SfButton, SfChip, SfIconCloseSm, SfLoaderCircular, SfSelect } from '@storefront-ui/vue'
 import ProductCard from '@/features/catalog/components/ProductCard.vue'
@@ -118,7 +119,6 @@ import type { ItemAttributeOption } from '@/features/catalog/types/ItemAttribute
 import { formatAttributeDisplayValue } from '@/features/catalog/utils/attributeFormatting'
 import { compareSizeValues } from '@/features/catalog/utils/sizeOrdering'
 import siteConfig from '@/config'
-import type { CatalogSort } from '@/sites/types'
 
 const props = defineProps<{
   sale?: boolean
@@ -147,7 +147,7 @@ const filtersOpen = ref(false)
 const selectedCategories = ref<string[]>([...(props.category || [])])
 const selectedSizes = ref<string[]>([...(props.size || [])])
 const selectedColors = ref<string[]>([...(props.color || [])])
-const selectedSort = ref<CatalogSort>(siteConfig.catalog.defaultSort)
+const { catalogSort: selectedSort } = storeToRefs(productStore)
 
 const getLeafCategoryNames = (node: Category): string[] => {
   if (!node.children.length) {

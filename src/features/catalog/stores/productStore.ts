@@ -298,6 +298,8 @@ export const useProductStore = defineStore('product', {
     currentPage: 1,
     limit: 33,
     loading: false,
+    loadingProduct: false,
+    catalogSort: siteConfig.catalog.defaultSort,
     hasMoreProducts: true,
     catalogRequestKey: '',
     catalogErrorPage: null as number | null,
@@ -426,7 +428,7 @@ export const useProductStore = defineStore('product', {
     },
 
     async loadProduct(itemCode: string) {
-      this.loading = true
+      this.loadingProduct = true
 
       try {
         this.currentProduct = await this.fetchProduct(itemCode)
@@ -434,7 +436,7 @@ export const useProductStore = defineStore('product', {
         console.error(`Product with item_code ${itemCode} could not be loaded!`, error)
         this.currentProduct = null
       } finally {
-        this.loading = false
+        this.loadingProduct = false
       }
     },
   },

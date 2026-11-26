@@ -63,6 +63,9 @@ See [the migration notes](architecture.md#legacy-catalog-migration).
   Item and available variant. This does not implement the public media boundary or gallery.
 - [ ] Verify the development gallery end to end with controlled Item attachments and desktop/mobile browsers. The
   public media boundary, approved mappings and production routing remain part of EC-031 and EC-032.
+- [ ] Later: benchmark representative product photos in WebP, AVIF and JPEG XL at card and detail sizes. Compare
+  file size, mobile rendering time, color and texture. Use the results to choose derived images for the media
+  pipeline and responsive sources and fallbacks in Vue.
 
 ## Storefront pages
 

@@ -30,9 +30,15 @@ const router = createRouter({
     return savedPosition || { top: 0 }
   },
   routes: [
-    { path: '/', name: 'Home', component: CatalogView, props: getFilterProps },
-    { path: '/sale', name: 'Sale', component: CatalogView, props: getFilterProps },
-    { path: '/category/:category', name: 'Category', component: CatalogView, props: getFilterProps },
+    { path: '/', name: 'Home', component: CatalogView, props: getFilterProps, meta: { isCatalog: true } },
+    { path: '/sale', name: 'Sale', component: CatalogView, props: getFilterProps, meta: { isCatalog: true } },
+    {
+      path: '/category/:category',
+      name: 'Category',
+      component: CatalogView,
+      props: getFilterProps,
+      meta: { isCatalog: true },
+    },
     { path: '/contact', alias: '/contacto', name: 'Contact', component: ContactView },
     ...getEnabledLegalDocumentRoutes().map((documentRoute) => ({
       path: documentRoute.path,

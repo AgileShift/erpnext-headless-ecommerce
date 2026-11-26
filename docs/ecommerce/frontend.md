@@ -81,6 +81,9 @@ Production builds use the configured HTTPS origin.
 The catalog distinguishes loading, empty results and failed requests. Shoppers can clear category, size and color
 filters after an empty result, or retry a failed request. If a later page fails, existing cards stay visible and the
 retry requests that page again. A load-more button also supports navigation without automatic scrolling.
+The product's “Volver a la lista” button traverses browser history when the previous entry is a catalog page.
+The URL restores its filters and Vue Router restores the scroll position. Pinia retains the sort and loaded
+pages for the active listing. A product opened directly links back to the catalog home.
 
 Clothing Center presents size, category and color filters through the shared `CatalogFilters.vue` component, with
 selected values summarized in Storefront UI `SfAccordionItem` sections. Sizes and colors use `SfChip`; categories use

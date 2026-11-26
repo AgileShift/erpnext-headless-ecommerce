@@ -224,7 +224,7 @@
   </div>
 
   <div class="mx-auto mt-8 flex w-full max-w-7xl justify-end px-4 md:mt-12 md:px-8">
-    <SfButton size="lg" class="text-center site-primary-label" tag="router-link" to="/">
+    <SfButton size="lg" class="text-center site-primary-label" type="button" @click="returnToCatalog">
       <template #prefix>
         <SfIconArrowBack size="sm" />
       </template>
@@ -235,7 +235,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useProductStore } from '@/features/catalog/stores/productStore'
 import {
   SfButton,
@@ -262,8 +262,19 @@ import { formatVariantAttributeLabel } from '@/features/catalog/utils/attributeF
 import { getProductMetaDescription, setPageMeta } from '@/shared/utils/pageMeta'
 
 const route = useRoute()
+const router = useRouter()
 const productStore = useProductStore()
 const selectionStore = useSelectionStore()
+
+const returnToCatalog = () => {
+  const previous = router.options.history.state.back
+  if (typeof previous === 'string' && router.resolve(previous).meta.isCatalog) {
+    router.back()
+  } else {
+    void router.push({ name: 'Home' })
+  }
+}
+
 const imageZoomModal = ref<InstanceType<typeof SfModal> | null>(null)
 const imageZoomLevel = ref(1)
 const isDraggingImage = ref(false)
@@ -330,7 +341,7 @@ watch(isImageZoomOpen, async (isOpen) => {
 })
 
 const product = computed(() => productStore.currentProduct)
-const loading = computed(() => productStore.loading)
+const loading = computed(() => productStore.loadingProduct)
 const selectedAttributes = ref<Record<string, string>>({})
 
 const isColorAttribute = (attributeName: string) =>

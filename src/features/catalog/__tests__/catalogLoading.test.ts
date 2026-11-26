@@ -124,30 +124,44 @@ describe('catalog loading', () => {
     expect(store.catalogErrorPage).toBeNull()
   })
 
-  it('uses the site default sort and reloads the first page when the sort changes', async () => {
-    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(response([]))
+  it('preserves the selected sort and loaded pages when the catalog remounts', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const url = new URL(String(input))
+      if (!url.pathname.endsWith('.item.get_items')) return response([])
+      const code = url.searchParams.get('start') === '0' ? 'shirt' : 'dress'
+      return response([{ ...item, item_code: code }])
+    })
     const router = createRouter({
       history: createMemoryHistory(),
       routes: [{ path: '/:pathMatch(.*)*', component: CatalogView }],
     })
     await router.push('/')
     await router.isReady()
-    const wrapper = mount(CatalogView, {
+    const mountCatalog = () => mount(CatalogView, {
       global: {
         plugins: [router],
         stubs: { ProductCard: true, ProductCardSkeleton: true, SfThumbnail: true },
       },
     })
+    const wrapper = mountCatalog()
     await flushPromises()
     expect(fetchMock.mock.calls[0]?.[0]).toContain('sort=asc')
     await wrapper.get('select[aria-label="Ordenar productos"]').setValue('desc')
     await flushPromises()
     expect(fetchMock.mock.calls.at(-1)?.[0]).toContain('sort=desc')
-    expect(wrapper.get('select[aria-label="Ordenar productos"]').element).toHaveProperty(
-      'value',
-      'desc',
-    )
+    const store = useProductStore()
+    await store.loadProducts(false, null, null, null, 2, 'desc')
+    const requests = fetchMock.mock.calls.length
     wrapper.unmount()
+
+    const returnedCatalog = mountCatalog()
+    await flushPromises()
+    expect(returnedCatalog.get('select[aria-label="Ordenar productos"]').element)
+      .toHaveProperty('value', 'desc')
+    expect(store.currentPage).toBe(2)
+    expect(store.products.map((product) => product.item_code)).toEqual(['shirt', 'dress'])
+    expect(fetchMock).toHaveBeenCalledTimes(requests)
+    returnedCatalog.unmount()
   })
 
   it('ignores an older response after filters change', async () => {
